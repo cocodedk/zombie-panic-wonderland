@@ -32,4 +32,5 @@ and that README.md has the play link, the local command and the test command.
 
 ## Out of scope
 
-Any change to the game, and any other file.
+Any change to the game. The builder adds or edits test files as the checks above need, and
+touches no other file.
