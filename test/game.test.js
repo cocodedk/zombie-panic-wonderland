@@ -265,49 +265,51 @@ describe('4. the Zombie King', () => {
     run(game, 0.01);
     assert.equal(game.banner, null);
     assert.deepEqual(kinds(game), { boss: 1 });
-    assert.equal(game.snapshot().boss_health, 60);
+    assert.equal(game.snapshot().boss_health, 200);
   });
 
-  test('walks to 3 units behind the road, then stomps and summons in turn every 4 seconds', () => {
+  test('stomps 2 seconds after it appears, still walking, then summons and stomps in turn every 3 seconds', () => {
     const game = toBoss();
     run(game, 2);
     const boss = game.enemies[0];
-    run(game, 7.5);
-    near(boss.z, -3);
-    run(game, 3.99);
+    run(game, 1.99);
     assert.equal(game.stomps.length, 0);
     run(game, 0.01);
     assert.equal(game.stomps.length, 1);
+    assert.ok(boss.z < -3, `still walking at z = ${boss.z}`);
     run(game, 0.99);
     assert.equal(game.player.hearts, 5);
     run(game, 0.01);
     assert.equal(game.player.hearts, 4); // the shockwave arrives 1 second later
-    run(game, 3);
+    run(game, 1.99);
+    assert.deepEqual(kinds(game), { boss: 1 });
+    run(game, 0.01);
     assert.deepEqual(kinds(game), { boss: 1, zombie: 2 });
     assert.equal(game.stomps.length, 0);
-    run(game, 4);
+    run(game, 3);
     assert.equal(game.stomps.length, 1);
     assert.equal(kinds(game).zombie, 2);
-    run(game, 4);
+    run(game, 3);
     assert.equal(kinds(game).zombie, 4);
+    near(boss.z, -3); // meanwhile it walked to 3 units behind the road, as before
   });
 
   test('a dodge when the shockwave arrives takes no damage', () => {
     const game = toBoss();
-    run(game, 2 + 7.5 + 4 + 0.8);
+    run(game, 2 + 2 + 0.8);
     assert.ok(game.dodge());
     run(game, 0.3);
     assert.equal(game.stomps.length, 0);
     assert.equal(game.player.hearts, 5);
   });
 
-  test('falls after 60 hits for 2000 points', () => {
+  test('falls after 200 hits for 2000 points', () => {
     const game = toBoss();
     run(game, 2);
     const boss = game.enemies[0];
     const before = game.score;
     game.setAim(boss.id);
-    for (let i = 0; i < 59; i++) game.shoot();
+    for (let i = 0; i < 199; i++) game.shoot();
     assert.equal(game.snapshot().boss_health, 1);
     assert.equal(game.screen, 'play');
     game.shoot();

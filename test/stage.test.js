@@ -7,7 +7,8 @@ import { register } from 'node:module';
 import { readFileSync } from 'node:fs';
 import { level2 } from '../src/levels/level-2.js';
 import { playing, run, kill, clearWave, click, levelWith, level1 } from './helpers.js';
-import { Game } from '../src/logic/game.js';
+import { Game, bossWindup, CROW_CIRCLE } from '../src/logic/game.js';
+import { CAMERA } from '../src/logic/camera.js';
 import { withWaves, short1, short2, journey } from './journey.js';
 
 register('./three-hooks.js', import.meta.url);
@@ -100,12 +101,122 @@ test('the Scarecrow King is drawn, and its flaming pumpkin and summoned crows', 
   clearWave(game);
   run(game, 3 + 2);
   assert.equal(named(draw(), 'scarecrowKing').length, 1);
-  run(game, 7.5 + 4);
+  run(game, 2);
   assert.equal(named(draw(), 'flamingPumpkin').length, 1);
   run(game, 4);
   const scene = draw();
   assert.equal(named(scene, 'flamingPumpkin').length, 0);
   assert.equal(named(scene, 'crow').length, 3);
+});
+
+test('winding up, the crown glows gold and the hat orange, at full brightness as the action comes, then rest', () => {
+  for (const [level, model, glowOf, color] of [
+    [level1, 'zombieKing', (b) => b.userData.crown[0], '#ffd76a'],
+    [level2, 'scarecrowKing', (b) => b.userData.hat, '#ff9a3c'],
+  ]) {
+    const game = playing(withWaves(level, [{ zombie: 1 }]));
+    game.player.hearts = 99;
+    const { draw } = stageFor(game);
+    clearWave(game);
+    run(game, 3 + 2);
+    const boss = () => named(draw(), model)[0];
+    const rest = hex(glowOf(boss()).color);
+    run(game, 1.39);
+    assert.equal(hex(glowOf(boss()).color), rest);
+    run(game, 0.6);
+    const lit = glowOf(boss());
+    const want = new THREE.Color(color);
+    for (const k of ['r', 'g', 'b']) assert.ok(Math.abs(lit.emissive[k] - want[k]) < 0.02, `${model} glows ${color}`);
+    run(game, 0.01);
+    assert.equal(hex(glowOf(boss()).color), rest, 'back to rest after the action');
+    assert.equal(hex(glowOf(boss()).emissive), '#000000');
+  }
+});
+
+test('winding up, the Zombie King\'s arms rise to shoulder height and the Scarecrow King\'s to 45° above level, then rest', async () => {
+  const { buildZombieKing } = await import('../src/view/models/zombie.js');
+  const { buildScarecrowKing } = await import('../src/view/models/scarecrow.js');
+  const up = {
+    // The arm's angle with the torso's lean: -90° points it straight ahead, level with the shoulders.
+    zombieKing: (b) => b.userData.arms.map((a) => a.rotation.x + b.userData.torso.rotation.x),
+    scarecrowKing: (b) => b.userData.arms.map((a) => a.rotation.z),
+  };
+  const raised = { zombieKing: [-Math.PI / 2, -Math.PI / 2], scarecrowKing: [-Math.PI / 4, Math.PI / 4] };
+  const rest = (build, model, t) => {
+    const b = build();
+    b.userData.tick(t, {});
+    return up[model](b);
+  };
+  const close = (a, b, msg) => a.forEach((v, i) => assert.ok(Math.abs(v - b[i]) < 1e-9, `${msg}: ${v} ≈ ${b[i]}`));
+
+  for (const [level, model, build] of [[level1, 'zombieKing', buildZombieKing], [level2, 'scarecrowKing', buildScarecrowKing]]) {
+    // The model itself: fully wound up, the arms are raised; unwound, they keep the resting pose.
+    const b = build();
+    b.userData.tick(1.23, { windup: 1 });
+    close(up[model](b), raised[model], `${model} raised`);
+    b.userData.tick(1.23, { windup: 0 });
+    close(up[model](b), rest(build, model, 1.23), `${model} at rest`);
+
+    // Through the stage, in a fight.
+    const game = playing(withWaves(level, [{ zombie: 1 }]));
+    game.player.hearts = 99;
+    const { draw } = stageFor(game);
+    clearWave(game);
+    run(game, 3 + 2);
+    const drawn = () => up[model](named(draw(), model)[0]);
+    run(game, 1.39);
+    close(drawn(), rest(build, model, game.clock), `${model} before the wind-up`);
+    run(game, 0.6);
+    const w = bossWindup(game.enemies[0], level.boss);
+    assert.ok(w > 0.98);
+    const r = rest(build, model, game.clock);
+    close(drawn(), r.map((v, i) => v + (raised[model][i] - v) * w), `${model} as the action comes`);
+    run(game, 0.01);
+    close(drawn(), rest(build, model, game.clock), `${model} after the action`);
+  }
+});
+
+test('the Scarecrow King\'s crows fly out from beside it, not from the backdrop', () => {
+  const game = playing(withWaves(level2, [{ zombie: 1 }]));
+  game.player.hearts = 99;
+  const { draw } = stageFor(game);
+  clearWave(game);
+  run(game, 3 + 2 + 5); // the first summon
+  const king = game.enemies.find((e) => e.kind === 'boss');
+  assert.equal(game.enemies.filter((e) => e.kind === 'crow').length, 3);
+  const z = king.z; // where it stood as it summoned them
+  for (let i = 0; i < 70; i++) {
+    for (const crow of named(draw(), 'crow')) {
+      assert.ok(Math.abs(crow.position.z - z) <= CROW_CIRCLE + 1e-9, `z = ${crow.position.z}, the king at ${z}`);
+      assert.ok(Math.abs(crow.position.x - king.x) <= 2 + CROW_CIRCLE + 1e-9, `x = ${crow.position.x}`);
+    }
+    run(game, 0.01);
+  }
+});
+
+test('the stomp shakes the camera by at most 0.15 units for 0.25 seconds; reduced motion does not', () => {
+  for (const reducedMotion of [false, true]) {
+    const game = new Game(withWaves(level1, [{ zombie: 1 }]), { random: () => 0.5, reducedMotion });
+    game.loaded();
+    click(game);
+    click(game);
+    const { draw } = stageFor(game);
+    const camera = () => THREE.renderers.at(-1).camera.position;
+    const at = CAMERA.position;
+    clearWave(game);
+    run(game, 3 + 2 + 3); // the first stomp's shockwave reaches the road
+    let moved = 0;
+    for (let i = 0; i < 5; i++) {
+      draw();
+      const { x, y, z } = camera();
+      assert.ok(Math.abs(x - at.x) <= 0.15 && Math.abs(y - at.y) <= 0.15 && z === at.z);
+      moved += Math.abs(x - at.x) + Math.abs(y - at.y);
+    }
+    assert.equal(moved > 0, !reducedMotion);
+    run(game, 0.25);
+    draw();
+    assert.deepEqual({ ...camera() }, { ...at });
+  }
 });
 
 test('moving to level 2 builds its backdrop anew; Back to title brings level 1\'s back', () => {

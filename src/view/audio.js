@@ -102,6 +102,14 @@ export function createAudio(win) {
       tone(780, t + 0.11, 0.11, { type: 'sawtooth', to: 500, level: 0.1 });
     },
     boss: drone,
+    windup: (t) => {
+      tone(55, t, 0.6, { type: 'sawtooth', to: 130, level: 0.22, attack: 0.3 });
+      tone(56, t, 0.6, { type: 'square', to: 128, level: 0.08, attack: 0.3 });
+    },
+    stomp: (t) => {
+      tone(90, t, 0.45, { to: 30, level: 0.7 });
+      hiss(t, 0.3, { f: 400, to: 50, level: 0.6, buffer: crunch });
+    },
     victory: (t) => notes([72, 76, 79], t, 0.18, 0.3),
     defeat: (t) => notes([67, 63, 60], t, 0.25, 0.4),
   };

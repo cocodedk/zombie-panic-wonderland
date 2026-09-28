@@ -134,13 +134,13 @@ function toKing() {
 }
 
 describe('level 2: the Scarecrow King', () => {
-  test('falls after 80 hits for 3000 points', () => {
+  test('falls after 240 hits for 3000 points', () => {
     const game = toKing();
     const king = game.enemies[0];
-    assert.equal(game.snapshot().boss_health, 80);
+    assert.equal(game.snapshot().boss_health, 240);
     const before = game.score;
     game.setAim(king.id);
-    for (let i = 0; i < 79; i++) game.shoot();
+    for (let i = 0; i < 239; i++) game.shoot();
     assert.equal(game.snapshot().boss_health, 1);
     assert.equal(game.screen, 'play');
     game.shoot();
@@ -149,37 +149,37 @@ describe('level 2: the Scarecrow King', () => {
     assert.equal(game.screen, 'victory');
   });
 
-  test('stands 3 units behind the road, then throws a flaming pumpkin and summons 3 crows in turn every 4 seconds', () => {
+  test('throws a flaming pumpkin 2 seconds after it appears, still walking, then summons 3 crows and throws in turn every 3 seconds', () => {
     const game = toKing();
     const king = game.enemies[0];
-    run(game, 7.5);
-    assert.ok(Math.abs(king.z + 3) < 1e-6);
-    run(game, 3.99);
+    run(game, 1.99);
     assert.equal(game.pumpkins.length, 0);
     run(game, 0.01);
     assert.equal(game.pumpkins.length, 1);
     assert.equal(game.pumpkins[0].flaming, true);
+    assert.ok(king.z < -3, `still walking at z = ${king.z}`);
     run(game, 1.19);
     assert.equal(game.player.hearts, 5);
     run(game, 0.01);
     assert.equal(game.pumpkins.length, 0);
     assert.equal(game.player.hearts, 3); // a flaming pumpkin costs 2 hearts
-    run(game, 2.79);
+    run(game, 1.79);
     assert.deepEqual(kinds(game), { boss: 1 });
     run(game, 0.01);
     assert.deepEqual(kinds(game), { boss: 1, crow: 3 });
     assert.equal(game.pumpkins.length, 0);
     for (const e of game.enemies.filter((e) => e.kind === 'crow')) kill(game, e);
-    run(game, 3.99);
+    run(game, 2.99);
     assert.equal(game.pumpkins.length, 0);
     run(game, 0.01);
     assert.equal(game.pumpkins.length, 1);
     assert.deepEqual(kinds(game), { boss: 1 });
+    assert.ok(Math.abs(king.z + 3) < 1e-6); // meanwhile it walked to 3 units behind the road
   });
 
   test('a flaming pumpkin can be shot down for 25 points', () => {
     const game = toKing();
-    run(game, 7.5 + 4);
+    run(game, 2);
     const before = game.score;
     game.setAim(game.pumpkins[0].id);
     game.shoot();

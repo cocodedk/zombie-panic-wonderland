@@ -43,15 +43,18 @@ export const level1 = {
   boss: {
     name: 'Zombie King',
     model: 'zombieKing',
-    hits: 60,
+    hits: 200,
     points: 2000,
     speed: 1.2,
     standZ: -3, // 3 units behind the road
-    actionEvery: 4,
+    firstAction: 2, // seconds after it appears, walking or standing
+    actionEvery: 3,
+    windup: 0.6, // it winds up this long before each action
     actions: ['stomp', 'summon'], // in turn
     stompDelay: 1, // the shockwave reaches the road this long after the stomp
     summon: 2,
     summons: 'zombie',
+    summonNear: 2, // summons appear within this many units of its x, at its z
   },
 
   // The level's loop: A minor. `root` is a MIDI note; `bass` a scale degree per bar, `melody` one

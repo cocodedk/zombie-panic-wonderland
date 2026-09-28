@@ -48,7 +48,7 @@ class FakeContext {
   resume() { this.state = 'running'; }
 }
 
-const CUES = ['shot', 'hit', 'burst', 'hurt', 'dodge', 'throw', 'caw', 'boss', 'victory', 'defeat'];
+const CUES = ['shot', 'hit', 'burst', 'hurt', 'dodge', 'throw', 'caw', 'boss', 'windup', 'stomp', 'victory', 'defeat'];
 
 function setUp() {
   const audio = createAudio({ AudioContext: FakeContext });

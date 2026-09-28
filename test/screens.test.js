@@ -112,7 +112,7 @@ test('7. play: the HUD, the cleared banner, the boss bar in place of the wave te
   run(game, 2);
   const boss = game.enemies[0];
   game.setAim(boss.id);
-  for (let i = 0; i < 15; i++) game.shoot();
+  for (let i = 0; i < 50; i++) game.shoot();
   assert.equal(screenView(game).hud.wave, null);
   assert.equal(screenView(game).hud.boss, 0.75);
 });

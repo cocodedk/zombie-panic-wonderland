@@ -10,6 +10,16 @@ export function glow(color) {
   return new THREE.MeshBasicMaterial({ color });
 }
 
+// Returns a function that brightens `materials` toward `color` by k, from 0 (as built) to 1.
+export function glowing(materials, color) {
+  const base = materials.map((m) => m.color.clone());
+  const to = new THREE.Color(color);
+  return (k) => materials.forEach((m, i) => {
+    m.color = base[i].clone().lerp(to, k);
+    m.emissive = new THREE.Color('#000000').lerp(to, k);
+  });
+}
+
 // A mesh with a position and rotation; `material` is a colour or a material.
 export function part(geometry, material, [x = 0, y = 0, z = 0] = [], [rx = 0, ry = 0, rz = 0] = []) {
   const mesh = new THREE.Mesh(geometry, material instanceof THREE.Material ? material : flat(material));

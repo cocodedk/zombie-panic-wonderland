@@ -2,7 +2,7 @@
 // The Zombie King is the same figure, bigger, with a bent crown.
 
 import * as THREE from 'three';
-import { flat, glow, part, group } from './parts.js';
+import { flat, glow, glowing, part, group } from './parts.js';
 
 export function buildZombie({
   skin = '#7d9a6a',
@@ -65,14 +65,19 @@ export function buildZombie({
   root.scale.setScalar(size);
   root.userData = {
     head,
-    // walk: 1 while it walks, 0 standing.
-    tick(t, { walk = 1 } = {}) {
+    arms,
+    torso,
+    // walk: 1 while it walks, 0 standing; windup: 0 to 1, the arms rising to shoulder height.
+    tick(t, { walk = 1, windup = 0 } = {}) {
       const s = t * 3.2 + seed;
       const step = Math.sin(s) * 0.35 * walk;
       legs[0].rotation.x = step;
       legs[1].rotation.x = -step;
-      arms[0].rotation.x = -1.45 + Math.sin(s * 0.7) * 0.2;
-      arms[1].rotation.x = -1.45 + Math.sin(s * 0.7 + 2) * 0.2;
+      const up = -(Math.PI / 2 + torso.rotation.x); // level with the shoulders, the lean undone
+      [0, 2].forEach((phase, i) => {
+        const rest = -1.45 + Math.sin(s * 0.7 + phase) * 0.2;
+        arms[i].rotation.x = rest + (up - rest) * windup;
+      });
       torso.rotation.z = Math.sin(s) * 0.12;
       head.rotation.z = 0.35 + Math.sin(s * 0.5) * 0.1;
     },
@@ -101,5 +106,15 @@ export function buildZombieKing({ crown = {}, size = 3, shirt = '#5a1f3a', ...zo
   c.position.y = 0.19;
   king.userData.head.add(c);
   king.name = 'zombieKing';
+  // Winding up, the crown glows gold.
+  const gold = [];
+  c.traverse((m) => { if (m.material instanceof THREE.MeshStandardMaterial) gold.push(m.material); });
+  const shine = glowing(gold, '#ffd76a');
+  const { tick } = king.userData;
+  king.userData.crown = gold;
+  king.userData.tick = (t, pose = {}) => {
+    tick(t, pose);
+    shine(pose.windup ?? 0);
+  };
   return king;
 }
