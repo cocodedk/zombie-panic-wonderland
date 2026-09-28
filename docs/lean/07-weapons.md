@@ -25,8 +25,10 @@ feel. Every model, effect and sound is our own, made in code.
 - A crate appears above the field at a random x between -6 and 6, at z = -6. It floats down over
   3 seconds to a height of 1.5 and hovers there, bobbing gently. If it is not collected 10 seconds
   after it appears, it floats up and away over 1 second and is gone.
-- The player collects a crate by shooting it: 3 hits from any weapon. Pellets and explosions count as
-  hits. Collecting gives the weapon with full ammo; if it is already owned, the ammo refills.
+- The player collects a crate by shooting it: 3 hits from any weapon. Each pellet counts as a hit,
+  and a launcher explosion counts as one. Collecting gives the weapon with full ammo and puts it in
+  hand at once. There is one crate of each weapon per level, so a weapon used up returns only in the
+  next level or a retry.
 - The crate is a flat-shaded wooden box with a simple emblem of its weapon on each side, made in code.
 - A collected crate sounds `pickup` (two bright rising notes) and shows `Scattergun!` or `Pumpkin
   launcher!` at the centre for 1.5 seconds.
@@ -99,6 +101,19 @@ assert `get_state`'s exact answer, and change nothing else in those tests.
 - **Switching while firing.** Each weapon keeps its own reload time. With the button held, the weapon
   in hand fires as soon as its own interval has passed since that weapon last fired, or at once if it
   has not fired yet. Switching back and forth therefore never fires faster than each weapon's rate.
+
+- **When a crate leaves.** 10 seconds after it appears: 3 seconds falling, then 7 hovering.
+- **The pellets.** One pellet follows the crosshair exactly; the other five sit evenly around it, 5°
+  away, so the cone is 10° wide in all.
+- **A crate in the line of fire.** A Popper shot or a pellet hits only the first thing on its line,
+  a crate included, so a crate shields what is behind it. An explosion hits everything within 2 units,
+  and it counts as one hit on a crate.
+- **Hitting a crate.** Each hit flashes the crate white for 0.08 seconds and throws 4 small wood chips
+  (#8b5a2b) that fall away in 0.3 seconds, with the `hit` cue. No counter shows.
+- **The gun in hand.** The hero's gun changes model with the weapon, all made in code and
+  flat-shaded: the Popper is today's stubby gun, the Scattergun has a longer, wider double barrel, and
+  the launcher is a thick tube with an orange (#e07b24) ring at its mouth. Streaks and flying pumpkins
+  start from the muzzle of the gun in hand.
 
 ## Out of scope
 
