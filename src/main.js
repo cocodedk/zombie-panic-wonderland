@@ -49,8 +49,8 @@ async function boot() {
   const frame = (now) => {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    const target = stage.aimAt(aim);
-    game.setAim(target.id, target.point);
+    const target = stage.aimAt(aim, game.weapon === 'scattergun');
+    game.setAim(target.id, target.point, target.pellets);
     game.update(dt);
     stage.sync(game, dt);
     audio.play(mix(game));

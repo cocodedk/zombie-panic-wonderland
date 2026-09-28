@@ -7,10 +7,12 @@ import * as THREE from 'three';
 import { pumpkinAt, crowAt, CROW_CIRCLE, bossWindup, SHAKE } from '../logic/game.js';
 import { STREAK } from '../logic/effects.js';
 import { CAMERA } from '../logic/camera.js';
+import { crateAt, crateLeaving, shellAt, pelletDirs } from '../logic/weapons.js';
 import { flat } from './models/parts.js';
 import { buildPlayer } from './models/player.js';
 import { buildZombie, buildZombieKing } from './models/zombie.js';
-import { buildPumpkin, buildPumpkinMonster, buildFlamingPumpkin } from './models/pumpkin.js';
+import { buildPumpkin, buildPumpkinMonster, buildFlamingPumpkin, buildLaunchedPumpkin } from './models/pumpkin.js';
+import { buildCrate } from './models/crate.js';
 import { buildCrow } from './models/crow.js';
 import { buildScarecrow, buildScarecrowKing } from './models/scarecrow.js';
 import { buildSky, buildGround, buildRoad, buildTree, buildMushroom, buildCrypt, buildClockTower, buildHedge, buildFence } from './models/scenery.js';
@@ -162,6 +164,7 @@ export function createStage(container, firstLevel) {
       player.userData.tick(pose.t, pose);
 
       player.userData.flash.visible = game.effects.flash > 0;
+      player.userData.flash.scale.setScalar(game.effects.flashSize);
 
       for (const obj of shown.values()) obj.userData.seen = false;
       pickable.length = 0;
@@ -195,6 +198,21 @@ export function createStage(container, firstLevel) {
         obj.position.set(at.x, at.y, at.z);
         obj.rotation.set(clock * 6, clock * 3, 0);
         pickable.push(obj);
+      }
+      // Crates bob and turn slowly; one leaving can no longer be aimed at.
+      for (const c of game.crates) {
+        const obj = place(c.id, () => buildCrate({ weapon: c.weapon }));
+        const at = crateAt(c);
+        obj.position.set(at.x, at.y, at.z);
+        obj.rotation.y = c.t * 0.6;
+        obj.userData.tick(clock, { flash: c.flash > 0 ? 1 : 0 });
+        if (!crateLeaving(c)) pickable.push(obj);
+      }
+      for (const s of game.shells) {
+        const obj = place(s.id, () => buildLaunchedPumpkin());
+        const at = shellAt(s);
+        obj.position.set(at.x, at.y, at.z);
+        obj.rotation.set(clock * 8, clock * 4, 0);
       }
       const boss = game.enemies.find((e) => e.kind === 'boss');
       for (const s of game.stomps) {
@@ -244,16 +262,28 @@ export function createStage(container, firstLevel) {
       renderer.render(scene, camera);
     },
 
-    // The first enemy or pumpkin under the crosshair (id, or null) and where the ray lands: on it,
-    // else on the ground or backdrop, else far along the ray.
-    aimAt(aim) {
+    // The first enemy, pumpkin or crate under the crosshair (id, or null) and where the ray lands:
+    // on it, else on the ground or backdrop, else far along the ray. With `pellets`, the same for
+    // each scattergun pellet's line in `pellets`.
+    aimAt(aim, pellets = false) {
+      const cast = () => {
+        const hit = raycaster.intersectObjects(pickable, true)[0];
+        let obj = hit?.object;
+        while (obj && obj.userData.entityId == null) obj = obj.parent;
+        const land = hit ?? raycaster.intersectObjects([backdrop], true)[0];
+        const p = land?.point ?? raycaster.ray.at(60, new THREE.Vector3());
+        return { id: obj ? obj.userData.entityId : null, point: { x: p.x, y: p.y, z: p.z } };
+      };
       raycaster.setFromCamera(aim, camera);
-      const hit = raycaster.intersectObjects(pickable, true)[0];
-      let obj = hit?.object;
-      while (obj && obj.userData.entityId == null) obj = obj.parent;
-      const land = hit ?? raycaster.intersectObjects([backdrop], true)[0];
-      const p = land?.point ?? raycaster.ray.at(60, new THREE.Vector3());
-      return { id: obj ? obj.userData.entityId : null, point: { x: p.x, y: p.y, z: p.z } };
+      const target = cast();
+      if (!pellets) return target;
+      const { origin: o, direction: d } = raycaster.ray;
+      const from = new THREE.Vector3(o.x, o.y, o.z);
+      target.pellets = pelletDirs({ x: d.x, y: d.y, z: d.z }).map((v) => {
+        raycaster.set(from, new THREE.Vector3(v.x, v.y, v.z));
+        return cast();
+      });
+      return target;
     },
 
     pick(aim) {

@@ -3,6 +3,7 @@
 // is also recorded as sound cues (`cues`) and effects (`effects`), for the audio module and the stage.
 
 import { Effects, BURSTS, muzzleAt } from './effects.js';
+import { WEAPONS, ORDER, CRATES, CRATE, NOTICE_LIFE, crateAt, crateLeaving } from './weapons.js';
 
 const EPS = 1e-9;
 const due = (t) => t <= EPS;
@@ -81,8 +82,16 @@ export class Game {
     this.bannerTimer = 0;
     this.bossHealth = null;
     this.firing = false;
-    this.fireTimer = 0;
     this.shots = 0;
+    this.weapon = 'popper'; // in hand
+    this.ammo = { scattergun: 0, launcher: 0 }; // a weapon is owned while it has ammo
+    this.reload = { popper: 0, scattergun: 0, launcher: 0 }; // seconds until each may fire again
+    this.pellets = null; // [{ id, point }] on each scattergun pellet's line, from the stage
+    this.cratesDue = []; // { weapon, t }: crates still to appear, in t seconds
+    this.crates = []; // { id, weapon, x, t, hits, flash }
+    this.shells = []; // the launcher's pumpkins in flight: { id, from, to, t }
+    this.notice = null; // the pickup notice
+    this.noticeTimer = 0;
     this.nextId = 1;
     this.pausedFrom = null;
     this.press = null;
@@ -111,7 +120,11 @@ export class Game {
   pose() {
     const p = this.player;
     const roll = this.dodging ? 1 - p.dodging / this.level.player.dodgeTime : 0;
-    return { t: this.clock, walk: this.live && this.move ? 1 : 0, roll, dir: p.dir };
+    return { t: this.clock, walk: this.live && this.move ? 1 : 0, roll, dir: p.dir, weapon: this.weapon };
+  }
+
+  owns(weapon) {
+    return weapon === 'popper' || this.ammo[weapon] > 0;
   }
 
   // --- the journey ---
@@ -193,9 +206,25 @@ export class Game {
   }
 
   // `point` is where the crosshair's ray lands: on the thing aimed at, or the ground or backdrop.
-  setAim(id, point = null) {
+  // `pellets` is the same for each scattergun pellet's line; without it they all follow the crosshair.
+  setAim(id, point = null, pellets = null) {
     this.aim = id ?? null;
     this.aimPoint = point;
+    this.pellets = pellets;
+  }
+
+  // Keys 1 to 3: an owned weapon, at once.
+  selectWeapon(weapon) {
+    if (!this.live || !this.owns(weapon)) return false;
+    this.weapon = weapon;
+    return true;
+  }
+
+  // The wheel: the next or previous owned weapon, wrapping around.
+  cycleWeapon(step) {
+    const owned = ORDER.filter((w) => this.owns(w));
+    const i = owned.indexOf(this.weapon);
+    return this.selectWeapon(owned[(i + Math.sign(step) + owned.length) % owned.length]);
   }
 
   dodge() {
@@ -207,12 +236,35 @@ export class Game {
     return true;
   }
 
-  // One shot at whatever is under the crosshair; it hits at once, the streak only shows it.
+  // One shot of the weapon in hand. The Popper and the pellets hit at once, the streaks only show
+  // them; the launcher's pumpkin explodes when it lands. A weapon run empty gives way to the Popper.
   shoot() {
+    const w = this.weapon;
     this.shots += 1;
-    this.cue('shot');
-    this.effects.shot(muzzleAt(this.player.x, this.level.roadZ, this.pose()), this.aimPoint ?? { x: this.player.x, y: 1, z: this.level.spawn.z });
-    const id = this.aim;
+    if (w !== 'popper' && --this.ammo[w] <= 0) {
+      this.ammo[w] = 0;
+      this.weapon = 'popper';
+      this.cue('click');
+    }
+    const from = muzzleAt(this.player.x, this.level.roadZ, { ...this.pose(), weapon: w });
+    const to = this.aimPoint ?? { x: this.player.x, y: 1, z: this.level.spawn.z };
+    if (w === 'popper') {
+      this.cue('shot');
+      this.effects.shot(from, to);
+      this.hit(this.aim);
+    } else if (w === 'scattergun') {
+      this.cue('scatter');
+      const pellets = this.pellets ?? Array(WEAPONS.scattergun.pellets).fill({ id: this.aim, point: to });
+      this.effects.blast(from, pellets.map((p) => p.point ?? to));
+      for (const p of pellets) this.hit(p.id);
+    } else {
+      this.cue('launch');
+      this.shells.push({ id: this.nextId++, from, to, t: 0 });
+    }
+  }
+
+  // A hit on the first thing on a shot's line: a pumpkin, a crate or an enemy.
+  hit(id) {
     if (id == null) return;
     const pumpkin = this.pumpkins.findIndex((p) => p.id === id);
     if (pumpkin >= 0) {
@@ -220,12 +272,81 @@ export class Game {
       this.shootDown(this.pumpkins.splice(pumpkin, 1)[0]);
       return;
     }
+    const crate = this.crates.find((c) => c.id === id && !crateLeaving(c));
+    if (crate) return this.hitCrate(crate);
     const enemy = this.enemies.find((e) => e.id === id);
     if (!enemy) return;
     this.cue('hit');
-    enemy.health -= 1;
-    if (enemy.kind === 'boss') this.bossHealth = enemy.health;
+    this.damage(enemy, 1);
+  }
+
+  damage(enemy, hits) {
+    enemy.health -= hits;
+    if (enemy.kind === 'boss') this.bossHealth = Math.max(0, enemy.health);
     if (enemy.health <= 0) this.fall(enemy);
+  }
+
+  // Every enemy, pumpkin and crate within the blast of `at`: 8 hits, shot down, one hit.
+  explode(at) {
+    const { blast, hits } = WEAPONS.launcher;
+    const near = (p) => Math.hypot(p.x - at.x, p.y - at.y, p.z - at.z) <= blast + EPS;
+    this.cue('boom');
+    this.effects.explode(at);
+    for (const p of [...this.pumpkins]) {
+      if (!near(pumpkinAt(p, this.level.roadZ))) continue;
+      this.pumpkins.splice(this.pumpkins.indexOf(p), 1);
+      this.shootDown(p);
+    }
+    for (const c of [...this.crates]) if (!crateLeaving(c) && near(crateAt(c))) this.hitCrate(c);
+    for (const e of [...this.enemies]) if (this.enemies.includes(e) && near(this.centre(e))) this.damage(e, hits);
+  }
+
+  // --- crates ---
+
+  dropCrate(weapon) {
+    const c = { id: this.nextId++, weapon, x: CRATE.minX + this.random() * (CRATE.maxX - CRATE.minX), t: 0, hits: 0, flash: 0 };
+    this.crates.push(c);
+    return c;
+  }
+
+  hitCrate(c) {
+    this.cue('hit');
+    c.hits += 1;
+    c.flash = CRATE.flash;
+    this.effects.burst('crate', crateAt(c));
+    if (c.hits < CRATE.hits) return;
+    this.crates.splice(this.crates.indexOf(c), 1);
+    this.ammo[c.weapon] = WEAPONS[c.weapon].ammo;
+    this.weapon = c.weapon;
+    this.cue('pickup');
+    this.notice = WEAPONS[c.weapon].notice;
+    this.noticeTimer = NOTICE_LIFE;
+  }
+
+  // Crates due and floating, the launcher's pumpkins in flight, and the pickup notice.
+  updateWeapons(dt) {
+    if (this.notice) {
+      this.noticeTimer -= dt;
+      if (due(this.noticeTimer)) this.notice = null;
+    }
+    for (const c of this.crates) {
+      c.t += dt;
+      c.flash = Math.max(0, c.flash - dt);
+    }
+    this.crates = this.crates.filter((c) => c.t < CRATE.stay + CRATE.leave - EPS);
+    for (const d of [...this.cratesDue]) {
+      d.t -= dt;
+      if (!due(d.t)) continue;
+      this.cratesDue.splice(this.cratesDue.indexOf(d), 1);
+      this.dropCrate(d.weapon);
+    }
+    for (const s of [...this.shells]) {
+      s.t += dt;
+      if (s.t < WEAPONS.launcher.flight - EPS) continue;
+      this.shells.splice(this.shells.indexOf(s), 1);
+      this.explode(s.to);
+      if (this.winTimer != null) return;
+    }
   }
 
   // --- time ---
@@ -253,6 +374,8 @@ export class Game {
       if (due(this.winTimer)) this.end('victory');
       return;
     }
+    this.updateWeapons(dt); // first, so a pumpkin launched this frame does not age in it
+    if (this.winTimer != null) return;
     this.fire(dt);
     if (this.winTimer != null) return; // the shot that fells the boss ends the frame
     // Pumpkins and shockwaves first, so one thrown this frame does not age in it.
@@ -301,15 +424,16 @@ export class Game {
     p.x = clamp(p.x, c.minX, c.maxX);
   }
 
+  // Each weapon keeps its own reload: held, the weapon in hand fires once its own interval has
+  // passed since it last fired.
   fire(dt) {
-    if (!this.firing) {
-      this.fireTimer = Math.max(0, this.fireTimer - dt);
-      return;
-    }
-    this.fireTimer -= dt;
-    while (due(this.fireTimer)) {
+    const w = this.weapon;
+    for (const k of ORDER) if (k !== w || !this.firing) this.reload[k] = Math.max(0, this.reload[k] - dt);
+    if (!this.firing) return;
+    this.reload[w] -= dt;
+    while (due(this.reload[w]) && this.weapon === w) {
       this.shoot();
-      this.fireTimer += 1 / this.level.player.fireRate;
+      this.reload[w] += 1 / (WEAPONS[w].rate ?? this.level.player.fireRate);
       if (this.winTimer != null) return;
     }
   }
@@ -358,6 +482,7 @@ export class Game {
     this.queue = Object.entries(this.level.waves[n - 1]).flatMap(([kind, count]) => Array(count).fill(kind));
     this.spawnTimer = 0;
     this.spawnDue();
+    for (const c of CRATES) if (c.wave === n) this.cratesDue.push({ weapon: c.weapon, t: c.delay });
   }
 
   spawnDue() {
@@ -495,6 +620,7 @@ export class Game {
       for (const p of this.pumpkins) this.shootDown(p, 0);
       this.enemies = [];
       this.pumpkins = [];
+      this.shells = [];
       this.firing = false;
       this.winTimer = BURSTS[this.level.boss.model].life;
     } else {
@@ -554,6 +680,8 @@ export class Game {
       hearts: this.player.hearts,
       enemies: this.enemies.length,
       boss_health: this.bossHealth,
+      weapon: this.weapon,
+      ammo: this.weapon === 'popper' ? null : this.ammo[this.weapon],
     };
   }
 }

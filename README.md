@@ -7,7 +7,7 @@ Play it: https://cocodedk.github.io/zombie-panic-wonderland/
 
 ## Controls
 
-A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · M sound
+A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons · M sound
 
 ## Tests
 

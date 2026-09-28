@@ -4,6 +4,13 @@ import { Game } from '../src/logic/game.js';
 import { screenView, TEXT } from '../src/logic/screens.js';
 import { newGame, playing, levelWith, run, kill, clearWave, click, level1 } from './helpers.js';
 
+// The weapon line with only the Popper, in hand.
+const POPPER_ONLY = [
+  { weapon: 'popper', text: '1 Popper ∞', state: 'hand' },
+  { weapon: 'scattergun', text: '2 Scattergun —', state: 'none' },
+  { weapon: 'launcher', text: '3 Launcher —', state: 'none' },
+];
+
 test('7. loading shows only "Loading…", then the title screen', () => {
   const game = new Game(level1);
   assert.equal(game.screen, 'loading');
@@ -34,7 +41,7 @@ test('7. the title: name, click to start, controls; no HUD, pointer visible; onl
   assert.equal(view.band.title, 'Zombie Panic in Wonderland');
   assert.deepEqual(view.band.lines, [
     'Click to start',
-    'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · M sound: on',
+    'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons · M sound: on',
   ]);
   assert.equal(view.hud, null);
   assert.equal(view.pointer, true);
@@ -54,7 +61,7 @@ test('7. the intro card: 3 seconds with the HUD, full control, then wave 1', () 
   game.pointerDown();
   const view = screenView(game);
   assert.deepEqual(view.band, { lines: ['Zombies have risen in Wonderland. Hold the ruined road!'] });
-  assert.deepEqual(view.hud, { hearts: 5, score: 'SCORE 000000', wave: 'Wave 1 / 5', boss: null, sound: '♪ on' });
+  assert.deepEqual(view.hud, { hearts: 5, score: 'SCORE 000000', wave: 'Wave 1 / 5', boss: null, sound: '♪ on', weapons: POPPER_ONLY, notice: null });
   assert.equal(view.pointer, false);
   game.setMove(1);
   run(game, 1);
@@ -98,7 +105,7 @@ test('7. holding the button on the intro card shoots, and does not skip it', () 
 
 test('7. play: the HUD, the cleared banner, the boss bar in place of the wave text', () => {
   const game = playing();
-  assert.deepEqual(screenView(game).hud, { hearts: 5, score: 'SCORE 000000', wave: 'Wave 1 / 5', boss: null, sound: '♪ on' });
+  assert.deepEqual(screenView(game).hud, { hearts: 5, score: 'SCORE 000000', wave: 'Wave 1 / 5', boss: null, sound: '♪ on', weapons: POPPER_ONLY, notice: null });
   clearWave(game);
   assert.deepEqual(screenView(game).band, { lines: ['Wave 1 cleared'] });
   assert.equal(screenView(game).hud.score, 'SCORE 000400');

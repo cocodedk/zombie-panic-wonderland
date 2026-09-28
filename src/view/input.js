@@ -2,6 +2,7 @@
 
 const LEFT = new Set(['KeyA', 'ArrowLeft']);
 const RIGHT = new Set(['KeyD', 'ArrowRight']);
+const WEAPON_KEYS = { Digit1: 'popper', Digit2: 'scattergun', Digit3: 'launcher' };
 
 // M turns the sound off and on, on every screen, so it is bound before the stage loads.
 export function bindMute(win, game, hud) {
@@ -23,6 +24,9 @@ export function bindInput(win, game, hud) {
     else if (e.code === 'Space') {
       e.preventDefault();
       if (!e.repeat) game.dodge();
+      return;
+    } else if (WEAPON_KEYS[e.code]) {
+      game.selectWeapon(WEAPON_KEYS[e.code]);
       return;
     } else if (e.code === 'Escape') {
       if (!e.repeat) game.pressEsc();
@@ -66,6 +70,9 @@ export function bindInput(win, game, hud) {
   });
   win.addEventListener('mouseup', (e) => {
     if (e.button === 0) game.pointerUp();
+  });
+  win.addEventListener('wheel', (e) => {
+    if (e.deltaY) game.cycleWeapon(e.deltaY);
   });
   win.addEventListener('contextmenu', (e) => e.preventDefault());
 

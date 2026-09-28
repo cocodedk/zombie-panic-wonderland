@@ -1,13 +1,15 @@
 // What each screen shows, as plain data: the HUD reads it, and Node tests it.
 // The words that differ between levels are in each level's `text`.
 
+import { WEAPONS, ORDER } from './weapons.js';
+
 export const TEXT = {
   loading: 'Loading…',
   network: 'The game could not load. Check your connection and reload the page.',
   webgl: 'Your browser cannot show 3D graphics (WebGL). Try another browser.',
   title: 'Zombie Panic in Wonderland',
   start: 'Click to start',
-  controls: 'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses',
+  controls: 'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons',
   paused: 'Paused — press Esc to go on',
   defeat: 'Game over',
   playAgain: 'Play again',
@@ -17,6 +19,16 @@ export const TEXT = {
 };
 
 const pad = (score) => String(score).padStart(6, '0');
+
+// The weapon line, one entry each: in hand, owned, or not owned (dimmed, with — for its ammo).
+function weapons(game) {
+  return ORDER.map((w) => {
+    const { key, name } = WEAPONS[w];
+    const state = w === game.weapon ? 'hand' : game.owns(w) ? 'owned' : 'none';
+    const ammo = w === 'popper' ? '∞' : state === 'none' ? '—' : game.ammo[w];
+    return { weapon: w, text: `${key} ${name} ${ammo}`, state };
+  });
+}
 const sound = (game) => (game.soundOn ? 'on' : 'off');
 
 // The victory screen's button beside Play again: Next level, or Back to title after the first level.
@@ -49,6 +61,8 @@ export function screenView(game) {
       wave: boss ? null : `${prefix}Wave ${game.wave} / ${game.level.waves.length}`,
       boss: boss ? game.bossHealth / game.level.boss.hits : null,
       sound: `♪ ${sound(game)}`,
+      weapons: weapons(game),
+      notice: game.notice,
     };
   }
   view.pointer = !['intro', 'play', 'paused'].includes(s);
