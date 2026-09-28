@@ -19,14 +19,15 @@ export function pumpkinAt(p, roadZ) {
 
 export const CROW_CIRCLE = 1.5; // the radius a crow circles at
 
-// Where a crow is: flying in from the backdrop and circling, then diving at the road.
+// Where a crow is: flying in from the backdrop, or out from the boss that summoned it, and
+// circling, then diving at the road.
 export function crowAt(e, level) {
   const c = level.enemies.crow;
   if (e.diveX == null) {
     const t = c.circle - e.timer;
     const a = t * (Math.PI * 2) / c.circle;
     const arrive = Math.min(1, t / 0.6);
-    const from = { x: e.x, y: c.height + 3, z: level.spawn.z - 8 };
+    const from = e.from ?? { x: e.x, y: c.height + 3, z: level.spawn.z - 8 };
     const at = { x: e.x + Math.cos(a) * CROW_CIRCLE, y: c.height, z: e.z + Math.sin(a) * CROW_CIRCLE };
     return { x: from.x + (at.x - from.x) * arrive, y: from.y + (at.y - from.y) * arrive, z: from.z + (at.z - from.z) * arrive };
   }
@@ -34,6 +35,14 @@ export function crowAt(e, level) {
   const x = e.x + CROW_CIRCLE;
   return { x: x + (e.diveX - x) * f, y: c.height + (0.5 - c.height) * f, z: e.z + (level.roadZ - e.z) * f };
 }
+
+// How far the boss has wound up for its next action: 0 at rest, 1 as the action comes.
+export function bossWindup(e, boss) {
+  return e.windup ? clamp(1 - e.action / boss.windup, 0, 1) : 0;
+}
+
+// The camera shakes when a stomp's shockwave reaches the road, fading over `time` seconds.
+export const SHAKE = { time: 0.25, size: 0.15 };
 
 export class Game {
   // `levels` is the order they are played in; `level` is the one on show.
@@ -67,6 +76,7 @@ export class Game {
     this.pumpkins = [];
     this.stomps = [];
     this.flyaways = []; // crows leaving after their dive; no longer enemies
+    this.shake = 0; // seconds of camera shake left
     this.banner = null;
     this.bannerTimer = 0;
     this.bossHealth = null;
@@ -224,6 +234,7 @@ export class Game {
     if (!this.live) return;
     this.clock += dt;
     this.effects.update(dt);
+    this.shake = Math.max(0, this.shake - dt);
     this.movePlayer(dt);
     if (this.screen === 'intro') {
       if (this.press === 'intro' && !this.firing) {
@@ -256,6 +267,7 @@ export class Game {
       s.t -= dt;
       if (!due(s.t)) continue;
       this.stomps.splice(this.stomps.indexOf(s), 1);
+      if (!this.reducedMotion) this.shake = SHAKE.time;
       this.hurt();
       if (this.screen !== 'play') return;
     }
@@ -378,7 +390,7 @@ export class Game {
   spawnBoss() {
     const b = this.level.boss;
     this.phase = 'boss';
-    this.enemies.push({ id: this.nextId++, kind: 'boss', x: 0, z: this.level.spawn.z, health: b.hits, action: b.actionEvery, next: 0 });
+    this.enemies.push({ id: this.nextId++, kind: 'boss', x: 0, z: this.level.spawn.z, health: b.hits, action: b.firstAction, windup: false, next: 0 });
     this.bossHealth = b.hits;
   }
 
@@ -435,20 +447,34 @@ export class Game {
     if (Math.abs(this.player.x - e.diveX) <= c.splash + EPS) this.hurt();
   }
 
+  // Walks to where it stands; its actions come on their own clock, walking or standing, each
+  // after a wind-up.
   boss(e, dt) {
     const b = this.level.boss;
-    if (e.z < b.standZ - EPS) {
-      e.z = Math.min(b.standZ, e.z + b.speed * dt);
-      return;
-    }
+    if (e.z < b.standZ - EPS) e.z = Math.min(b.standZ, e.z + b.speed * dt);
     e.action -= dt;
+    if (!e.windup && e.action <= b.windup + EPS) {
+      e.windup = true;
+      this.cue('windup');
+    }
     if (!due(e.action)) return;
     e.action += b.actionEvery;
+    e.windup = false;
     const action = b.actions[e.next];
     e.next = (e.next + 1) % b.actions.length;
-    if (action === 'stomp') this.stomps.push({ id: this.nextId++, t: b.stompDelay });
-    else if (action === 'throw') this.throwPumpkin(e, { ...b.flamingPumpkin, flaming: true });
-    else for (let i = 0; i < b.summon; i++) this.spawn(b.summons);
+    if (action === 'stomp') {
+      this.cue('stomp');
+      this.stomps.push({ id: this.nextId++, t: b.stompDelay });
+    } else if (action === 'throw') {
+      this.throwPumpkin(e, { ...b.flamingPumpkin, flaming: true });
+    } else {
+      for (let i = 0; i < b.summon; i++) {
+        const s = this.spawn(b.summons);
+        s.x = e.x + (this.random() * 2 - 1) * b.summonNear;
+        s.z = e.z;
+        if (s.kind === 'crow') s.from = { x: s.x, y: this.centre(e).y, z: e.z };
+      }
+    }
   }
 
   // When the boss falls, everything else on the field bursts with it, for no points, and the
@@ -509,6 +535,7 @@ export class Game {
   end(screen) {
     this.screen = screen;
     this.firing = false;
+    this.shake = 0;
     this.cue(screen);
   }
 

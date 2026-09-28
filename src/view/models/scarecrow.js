@@ -2,13 +2,14 @@
 // cuffs. The Scarecrow King is one off its pole, walking on stick legs, with a crown of twigs.
 
 import * as THREE from 'three';
-import { flat, glow, part, group, seeded } from './parts.js';
+import { flat, glow, glowing, part, group, seeded } from './parts.js';
 
 // Head, hat, arms and shirt, shared by both; the head's top is at y = 0.
 function figure({ sack, hat, shirt, straw, eyes, seed }) {
   const rand = seeded(seed);
   const shirtMat = flat(shirt);
   const strawMat = flat(straw);
+  const hatMat = flat(hat);
   const body = group(part(new THREE.BoxGeometry(0.55, 0.7, 0.3), shirtMat, [0, -0.75, 0]));
   body.add(part(new THREE.BoxGeometry(0.14, 0.14, 0.02), '#6b4a2a', [0.12, -0.7, 0.16], [0, 0, 0.3])); // a patch
   const sleeve = new THREE.CylinderGeometry(0.1, 0.12, 0.7, 5);
@@ -27,12 +28,12 @@ function figure({ sack, hat, shirt, straw, eyes, seed }) {
     part(new THREE.BoxGeometry(0.07, 0.07, 0.02), glow(eyes), [-0.08, -0.18, 0.22]),
     part(new THREE.BoxGeometry(0.07, 0.07, 0.02), glow(eyes), [0.08, -0.18, 0.22]),
     part(new THREE.BoxGeometry(0.2, 0.03, 0.02), '#3a2a18', [0, -0.32, 0.22], [0, 0, 0.1]), // a stitched mouth
-    part(new THREE.CylinderGeometry(0.42, 0.42, 0.03, 8), hat, [0, -0.02, 0]),
-    part(new THREE.ConeGeometry(0.22, 0.3, 6), hat, [0, 0.13, 0], [0.1, 0, 0.12]),
+    part(new THREE.CylinderGeometry(0.42, 0.42, 0.03, 8), hatMat, [0, -0.02, 0]),
+    part(new THREE.ConeGeometry(0.22, 0.3, 6), hatMat, [0, 0.13, 0], [0.1, 0, 0.12]),
   );
   head.rotation.z = (rand() - 0.5) * 0.4;
   body.add(head);
-  return { body, head, arms };
+  return { body, head, arms, hatMat };
 }
 
 export function buildScarecrow({
@@ -67,7 +68,8 @@ export function buildScarecrowKing({
 } = {}) {
   const root = group();
   root.name = 'scarecrowKing';
-  const { body, head, arms } = figure({ sack, hat, shirt, straw, eyes, seed: 3 });
+  const { body, head, arms, hatMat } = figure({ sack, hat, shirt, straw, eyes, seed: 3 });
+  const shine = glowing([hatMat], '#ff9a3c');
   body.position.y = 2.2;
   root.add(body);
 
@@ -94,15 +96,22 @@ export function buildScarecrowKing({
   root.scale.setScalar(size);
   root.userData = {
     head,
-    // walk: 1 while it walks; the arms swing high on every throw or summon.
-    tick(t, { walk = 1 } = {}) {
+    arms,
+    hat: hatMat,
+    // walk: 1 while it walks; windup: 0 to 1 before each throw or summon, the arms rising to 45°
+    // above level and the hat glowing orange.
+    tick(t, { walk = 1, windup = 0 } = {}) {
       const step = Math.sin(t * 2.6) * 0.4 * walk;
       legs[0].rotation.x = step;
       legs[1].rotation.x = -step;
       body.rotation.z = Math.sin(t * 1.3) * 0.08;
-      arms[0].rotation.z = -0.2 + Math.sin(t * 1.7) * 0.15;
-      arms[1].rotation.z = 0.2 - Math.sin(t * 1.7 + 1) * 0.15;
+      const rest = [-0.2 + Math.sin(t * 1.7) * 0.15, 0.2 - Math.sin(t * 1.7 + 1) * 0.15];
+      arms.forEach((arm, i) => {
+        const up = (i ? 1 : -1) * (Math.PI / 4);
+        arm.rotation.z = rest[i] + (up - rest[i]) * windup;
+      });
       head.rotation.x = Math.sin(t * 0.9) * 0.1;
+      shine(windup);
     },
   };
   return root;

@@ -36,15 +36,18 @@ export const level2 = {
   boss: {
     name: 'Scarecrow King',
     model: 'scarecrowKing',
-    hits: 80,
+    hits: 240,
     points: 3000,
     speed: 1.2,
     standZ: -3, // 3 units behind the road
-    actionEvery: 4,
+    firstAction: 2, // seconds after it appears, walking or standing
+    actionEvery: 3,
+    windup: 0.6, // it winds up this long before each action
     actions: ['throw', 'summon'], // in turn
     flamingPumpkin: { hearts: 2, points: 25 }, // flies like a pumpkin monster's
     summon: 3,
     summons: 'crow',
+    summonNear: 2, // summons appear within this many units of its x, at its z
   },
 
   // Level 1's shape of loop, slower, in D minor.

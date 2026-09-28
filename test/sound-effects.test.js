@@ -67,8 +67,8 @@ describe('1. each event emits its cue once, and none before the start click', ()
     run(game, 2.5);
     assert.deepEqual(names(game), ['throw']);
     const king = toBoss(level2);
-    run(king, 7.5 + 4 + 0.05);
-    assert.deepEqual(names(king), ['throw']);
+    run(king, 2 + 0.05);
+    assert.deepEqual(names(king), ['windup', 'throw']);
   });
 
   test('caw when a crow starts its dive', () => {

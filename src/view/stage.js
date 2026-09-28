@@ -1,10 +1,10 @@
 // The three.js stage: builds the level's scene, draws the game state each frame, and finds what
-// is under the crosshair. The camera is fixed behind and above the player; the backdrop never moves.
+// is under the crosshair. The camera is fixed behind and above the player, but for a stomp's shake; the backdrop never moves.
 // When the game moves to another level, the backdrop and its light are built anew. The game's
 // effects (streaks, chunks, puffs and fades) are drawn here too.
 
 import * as THREE from 'three';
-import { pumpkinAt, crowAt, CROW_CIRCLE } from '../logic/game.js';
+import { pumpkinAt, crowAt, CROW_CIRCLE, bossWindup, SHAKE } from '../logic/game.js';
 import { STREAK } from '../logic/effects.js';
 import { CAMERA } from '../logic/camera.js';
 import { flat } from './models/parts.js';
@@ -177,7 +177,8 @@ export function createStage(container, firstLevel) {
         obj.position.set(e.x, 0, e.z);
         const walking = e.kind === 'boss' ? e.z < level.boss.standZ : e.kind === 'zombie';
         const throwing = e.kind === 'pumpkinMonster' ? Math.max(0, 1 - e.throwTimer / 0.4) : 0;
-        obj.userData.tick(clock, { walk: walking ? 1 : 0.2, throwing });
+        const windup = e.kind === 'boss' ? bossWindup(e, level.boss) : 0;
+        obj.userData.tick(clock, { walk: walking ? 1 : 0.2, throwing, windup });
         // Face the player once on the road.
         obj.rotation.y = e.kind === 'zombie' && e.z >= level.roadZ ? Math.sign(p.x - e.x) * 0.9 : 0;
       }
@@ -200,7 +201,8 @@ export function createStage(container, firstLevel) {
         const obj = place(`s${s.id}`, () => new THREE.Mesh(shockGeo, shockMat));
         const f = 1 - s.t / level.boss.stompDelay;
         obj.rotation.x = Math.PI / 2;
-        obj.position.set(boss ? boss.x : 0, 0.1, (boss ? boss.z : level.boss.standZ) + (level.roadZ - level.boss.standZ) * f);
+        const z = boss ? boss.z : level.boss.standZ;
+        obj.position.set(boss ? boss.x : 0, 0.1, z + (level.roadZ - z) * f);
         obj.scale.set(2 + f * 12, 2 + f * 12, 1);
       }
       const fx = game.effects;
@@ -235,6 +237,10 @@ export function createStage(container, firstLevel) {
         shown.delete(id);
         dispose(obj, shared);
       }
+      // The stomp's shake: a random offset each frame, fading to nothing; held still while paused.
+      const shake = game.screen === 'play' ? (SHAKE.size * game.shake) / SHAKE.time : 0;
+      const jolt = () => (Math.random() * 2 - 1) * shake;
+      camera.position.set(at.x + jolt(), at.y + jolt(), at.z);
       renderer.render(scene, camera);
     },
 
