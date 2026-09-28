@@ -38,8 +38,8 @@ the parts below are new.
 - **A new cue, `gas`:** a short hiss and then a deep boom, about 400 ms. It follows mute and pause like
   every cue.
 - **Where canisters show:** in the scene during waves 2 to 5, playing or paused. When the game is lost
-  during a wave, the scene freezes with them in it. The title, the intro card, the gaps between waves,
-  the boss fight and victory have none.
+  during a wave, the scene freezes with them in it. Loading, error, the title, the intro card, the gaps
+  between waves, the boss fight and victory have none.
 - Nothing new shows in the HUD or at the centre of the screen.
 
 ## Resets
