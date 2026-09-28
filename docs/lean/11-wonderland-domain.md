@@ -12,7 +12,8 @@ names the domain.
 - `.github/workflows/pages.yml` copies `CNAME` into `_site` along with `index.html`, `style.css`,
   `llms.txt` and `src/`; nothing else about the workflow changes.
 - `README.md`'s play link becomes `Play it: https://wonderland.cocode.dk/`, and no file in the
-  repository names `cocodedk.github.io/zombie-panic-wonderland` any more. `llms.txt` names
+  repository names the old project Pages address (the `zombie-panic-wonderland` path under
+  cocodedk's github.io host) any more. `llms.txt` names
   https://wonderland.cocode.dk/ as the page's address.
 - The game itself does not change: it already uses relative paths, so it works at the domain's root.
 
@@ -20,7 +21,7 @@ names the domain.
 
 `node --test` passes, and its tests prove the `CNAME` file's single line, that pages.yml copies it
 with the other four, the README's play link, `llms.txt`'s address, and that no tracked file names
-`cocodedk.github.io/zombie-panic-wonderland`. Every earlier test still passes; the builder may change
+that old address. Every earlier test still passes; the builder may change
 any earlier test whose expectation this spec changes (the old play link and the old copy list), and
 nothing else in them.
 
