@@ -49,8 +49,8 @@ body.playing, body.playing * { cursor: none; }
 #weapons { position: fixed; left: 1.2rem; bottom: 0.7rem; font-size: 1rem; }
 #weapons .hand { font-weight: bold; color: #fff4d0; }
 #weapons .none { opacity: 0.4; }
-/* The pickup notice: in the banners' style, on its own line just below them. */
-#notice {
+/* The pickup notice: in the banners' style, on its own line just below them; the boss hint below it. */
+#notice, #hint {
   position: fixed;
   top: calc(50% + 2.2rem);
   left: 50%;
@@ -59,6 +59,7 @@ body.playing, body.playing * { cursor: none; }
   font-size: 1.25rem;
   background: rgba(10, 6, 18, 0.72);
 }
+#hint { top: calc(50% + 4.4rem); }
 
 #band {
   position: fixed;

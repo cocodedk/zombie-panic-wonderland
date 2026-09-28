@@ -214,14 +214,16 @@ export function createStage(container, firstLevel) {
         obj.position.set(at.x, at.y, at.z);
         obj.rotation.set(clock * 8, clock * 4, 0);
       }
+      // The shockwave spreads from where the boss stomped, only as wide as the road it reaches.
       const boss = game.enemies.find((e) => e.kind === 'boss');
       for (const s of game.stomps) {
         const obj = place(`s${s.id}`, () => new THREE.Mesh(shockGeo, shockMat));
         const f = 1 - s.t / level.boss.stompDelay;
         obj.rotation.x = Math.PI / 2;
         const z = boss ? boss.z : level.boss.standZ;
-        obj.position.set(boss ? boss.x : 0, 0.1, z + (level.roadZ - z) * f);
-        obj.scale.set(2 + f * 12, 2 + f * 12, 1);
+        obj.position.set(s.x, 0.1, z + (level.roadZ - z) * f);
+        const r = Math.min(2 + f * 12, level.boss.stompReach);
+        obj.scale.set(r, r, 1);
       }
       const fx = game.effects;
       const mesh = (name, geometry, material) => () => Object.assign(new THREE.Mesh(geometry, material), { name });

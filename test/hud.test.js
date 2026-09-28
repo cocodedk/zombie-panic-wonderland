@@ -8,7 +8,7 @@ import { short1, short2, journey, win } from './journey.js';
 const SELECTORS = [
   '#plain', '#hud', '#hearts', '#score', '#wave', '#bossbar', '#bossbar i', '#bossbar span', '#band', '#band h1',
   '#band .lines', '#band button', '#band button + button', '#sound', '#crosshair', '#stage',
-  '#notice', '#weapon-popper', '#weapon-scattergun', '#weapon-launcher',
+  '#notice', '#hint', '#weapon-popper', '#weapon-scattergun', '#weapon-launcher',
 ];
 
 class FakeElement extends EventTarget {

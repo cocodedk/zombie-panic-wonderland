@@ -61,7 +61,7 @@ test('7. the intro card: 3 seconds with the HUD, full control, then wave 1', () 
   game.pointerDown();
   const view = screenView(game);
   assert.deepEqual(view.band, { lines: ['Zombies have risen in Wonderland. Hold the ruined road!'] });
-  assert.deepEqual(view.hud, { hearts: 5, score: 'SCORE 000000', wave: 'Wave 1 / 5', boss: null, sound: '♪ on', weapons: POPPER_ONLY, notice: null });
+  assert.deepEqual(view.hud, { hearts: 5, score: 'SCORE 000000', wave: 'Wave 1 / 5', boss: null, sound: '♪ on', weapons: POPPER_ONLY, notice: null, hint: null });
   assert.equal(view.pointer, false);
   game.setMove(1);
   run(game, 1);
@@ -105,7 +105,7 @@ test('7. holding the button on the intro card shoots, and does not skip it', () 
 
 test('7. play: the HUD, the cleared banner, the boss bar in place of the wave text', () => {
   const game = playing();
-  assert.deepEqual(screenView(game).hud, { hearts: 5, score: 'SCORE 000000', wave: 'Wave 1 / 5', boss: null, sound: '♪ on', weapons: POPPER_ONLY, notice: null });
+  assert.deepEqual(screenView(game).hud, { hearts: 5, score: 'SCORE 000000', wave: 'Wave 1 / 5', boss: null, sound: '♪ on', weapons: POPPER_ONLY, notice: null, hint: null });
   clearWave(game);
   assert.deepEqual(screenView(game).band, { lines: ['Wave 1 cleared'] });
   assert.equal(screenView(game).hud.score, 'SCORE 000400');

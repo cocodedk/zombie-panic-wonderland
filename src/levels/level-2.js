@@ -47,7 +47,8 @@ export const level2 = {
     flamingPumpkin: { hearts: 2, points: 25 }, // flies like a pumpkin monster's
     summon: 3,
     summons: 'crow',
-    summonNear: 2, // summons appear within this many units of its x, at its z
+    summonNear: 2, // summons appear within this many units of its x, `summonBack` behind its z
+    summonBack: 2,
   },
 
   // Level 1's shape of loop, slower, in D minor.

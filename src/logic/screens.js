@@ -63,6 +63,7 @@ export function screenView(game) {
       sound: `♪ ${sound(game)}`,
       weapons: weapons(game),
       notice: game.notice,
+      hint: s === 'play' ? game.hint : null,
     };
   }
   view.pointer = !['intro', 'play', 'paused'].includes(s);

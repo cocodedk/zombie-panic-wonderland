@@ -52,9 +52,11 @@ export const level1 = {
     windup: 0.6, // it winds up this long before each action
     actions: ['stomp', 'summon'], // in turn
     stompDelay: 1, // the shockwave reaches the road this long after the stomp
+    stompReach: 3, // and hits only within this many units of its x as it stomped
     summon: 2,
     summons: 'zombie',
-    summonNear: 2, // summons appear within this many units of its x, at its z
+    summonNear: 2, // summons appear within this many units of its x, `summonBack` behind its z
+    summonBack: 2,
   },
 
   // The level's loop: A minor. `root` is a MIDI note; `bass` a scale degree per bar, `melody` one
