@@ -41,7 +41,7 @@ test('7. the title: name, click to start, controls; no HUD, pointer visible; onl
   assert.equal(view.band.title, 'Zombie Panic in Wonderland');
   assert.deepEqual(view.band.lines, [
     'Click to start',
-    'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons · M sound: on',
+    'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons · R reloads · M sound: on',
   ]);
   assert.equal(view.hud, null);
   assert.equal(view.pointer, true);

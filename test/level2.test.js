@@ -292,7 +292,7 @@ describe('level 2: get_state reports the level', () => {
     assert.equal((await getState.execute({})).level, 1);
     win(game);
     game.nextLevel();
-    assert.deepEqual(await getState.execute({}), { level: 2, screen: 'intro', wave: 1, score: 2100, hearts: 5, enemies: 0, boss_health: null, weapon: 'popper', ammo: null });
+    assert.deepEqual(await getState.execute({}), { level: 2, screen: 'intro', wave: 1, score: 2100, hearts: 5, enemies: 0, boss_health: null, weapon: 'popper', ammo: null, reloading: false });
   });
 });
 

@@ -49,9 +49,9 @@ describe('1. each weapon\'s fire rate, damage and ammo', () => {
     assert.equal(game.snapshot().ammo, null);
   });
 
-  test('the Scattergun: 2 blasts a second held, 16 shells, 1 a blast', () => {
+  test('the Scattergun: 2 blasts a second held, 4 shells, 1 a blast', () => {
     const game = give(playing(one()), 'scattergun');
-    assert.equal(game.ammo.scattergun, 16);
+    assert.equal(game.ammo.scattergun, 4);
     game.pointerDown();
     run(game, 0.45); // the first blast at once
     assert.equal(game.shots, 1);
@@ -61,7 +61,7 @@ describe('1. each weapon\'s fire rate, damage and ammo', () => {
     assert.equal(game.shots, 2);
     run(game, 0.1);
     assert.equal(game.shots, 3);
-    assert.equal(game.ammo.scattergun, 13);
+    assert.equal(game.ammo.scattergun, 1);
     assert.deepEqual(names(game).filter((n) => n === 'scatter'), ['scatter', 'scatter', 'scatter']);
   });
 
@@ -125,15 +125,15 @@ describe('1. each weapon\'s fire rate, damage and ammo', () => {
     near(fx.streaks.at(-1).from.z, game.level.roadZ + MUZZLES.popper.z);
   });
 
-  test('the Pumpkin launcher: 1.5 shots a second held, 8 rounds, 1 a shot', () => {
+  test('the Pumpkin launcher: 1.5 shots a second held, 2 rounds, 1 a shot', () => {
     const game = give(playing(one()), 'launcher');
-    assert.equal(game.ammo.launcher, 8);
+    assert.equal(game.ammo.launcher, 2);
     game.pointerDown();
     run(game, 0.6);
     assert.equal(game.shots, 1);
     run(game, 0.1); // the second 2/3 of a second after the first
     assert.equal(game.shots, 2);
-    assert.equal(game.ammo.launcher, 6);
+    assert.equal(game.ammo.launcher, 0);
     assert.deepEqual(names(game).filter((n) => n === 'launch'), ['launch', 'launch']);
   });
 
@@ -287,8 +287,8 @@ describe('2. crates', () => {
 
   test('3 hits collect it: the weapon with full ammo, in hand at once, with pickup and the notice for 2.5 seconds', () => {
     for (const [weapon, notice, ammo] of [
-      ['scattergun', 'Scattergun! 8 pellets a blast — best up close', 16],
-      ['launcher', 'Pumpkin launcher! Explodes — hits every enemy nearby', 8],
+      ['scattergun', 'Scattergun! 8 pellets a blast — best up close', 4],
+      ['launcher', 'Pumpkin launcher! Explodes — hits every enemy nearby', 2],
     ]) {
       const game = playing(one());
       const c = game.dropCrate(weapon);
@@ -354,10 +354,10 @@ describe('2. crates', () => {
 
   test('full ammo, or a refill of a weapon already owned', () => {
     const game = give(playing(one()), 'scattergun');
-    for (let i = 0; i < 8; i++) game.shoot();
-    assert.equal(game.ammo.scattergun, 8);
+    for (let i = 0; i < 2; i++) game.shoot();
+    assert.equal(game.ammo.scattergun, 2);
     give(game, 'scattergun');
-    assert.equal(game.ammo.scattergun, 16);
+    assert.equal(game.ammo.scattergun, 4);
   });
 
   test('crates never hurt, block or count as enemies: a wave clears while one floats', () => {
@@ -451,19 +451,15 @@ describe('3. switching', () => {
     assert.equal(game.shots, 4);
   });
 
-  test('running empty switches to the Popper at once, with its click; the weapon is no longer owned', () => {
+  test('running empty keeps the weapon in hand and owned, with no click (spec 12)', () => {
     for (const weapon of ['scattergun', 'launcher']) {
       const game = give(playing(one()), weapon);
-      for (let i = 1; i < WEAPONS[weapon].ammo; i++) game.shoot();
+      for (let i = 0; i < WEAPONS[weapon].ammo; i++) game.shoot();
       assert.ok(!names(game).includes('click'));
       assert.equal(game.weapon, weapon);
-      game.shoot();
-      assert.ok(names(game).includes('click'));
-      assert.equal(game.weapon, 'popper');
-      assert.equal(game.owns(weapon), false);
-      assert.equal(game.selectWeapon(weapon), false);
-      game.shoot();
-      assert.deepEqual(names(game), ['shot'], 'the next shot is the Popper\'s');
+      assert.equal(game.owns(weapon), true);
+      assert.equal(game.selectWeapon('popper'), true);
+      assert.equal(game.selectWeapon(weapon), true);
     }
   });
 });
@@ -476,7 +472,7 @@ describe('4. the HUD and the title', () => {
     assert.equal(line(game), '1 Popper ∞ · 2 Scattergun — · 3 Launcher —');
     give(game, 'scattergun');
     for (let i = 0; i < 3; i++) game.shoot();
-    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 13 · 3 Launcher —');
+    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 1/4 · 3 Launcher —');
     assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['owned', 'hand', 'none']);
     game.selectWeapon('popper');
     assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['hand', 'owned', 'none']);
@@ -512,7 +508,7 @@ describe('4. the HUD and the title', () => {
     game.setAim(c.id);
     for (let i = 0; i < 3; i++) game.shoot();
     hud.render();
-    assert.deepEqual(spans.map((s) => [s.textContent, s.className]), [['1 Popper ∞', 'owned'], ['2 Scattergun —', 'none'], ['3 Launcher 8', 'hand']]);
+    assert.deepEqual(spans.map((s) => [s.textContent, s.className]), [['1 Popper ∞', 'owned'], ['2 Scattergun —', 'none'], ['3 Launcher 2/2', 'hand']]);
     assert.equal(els['#notice'].hidden, false);
     assert.equal(els['#notice'].textContent, 'Pumpkin launcher! Explodes — hits every enemy nearby');
     assert.equal(els['#sound'].textContent, '♪ on', 'the sound stays bottom right');
@@ -531,8 +527,8 @@ describe('4. the HUD and the title', () => {
   });
 
   test('the title\'s controls line gains "· 1 2 3 or wheel: weapons", before "· M sound"', () => {
-    assert.match(screenView(newGame()).band.lines[1], / · Esc pauses · 1 2 3 or wheel: weapons · M sound: on$/);
-    assert.match(TEXT.controls, / · 1 2 3 or wheel: weapons$/);
+    assert.match(screenView(newGame()).band.lines[1], / · Esc pauses · 1 2 3 or wheel: weapons · R reloads · M sound: on$/);
+    assert.match(TEXT.controls, / · 1 2 3 or wheel: weapons · R reloads$/);
   });
 });
 
@@ -626,9 +622,9 @@ describe('6. get_state reports the weapon and its ammo', () => {
     assert.deepEqual(await state(), { weapon: 'popper', ammo: null });
     give(game, 'scattergun');
     game.shoot();
-    assert.deepEqual(await state(), { weapon: 'scattergun', ammo: 15 });
+    assert.deepEqual(await state(), { weapon: 'scattergun', ammo: 3 });
     give(game, 'launcher');
-    assert.deepEqual(await state(), { weapon: 'launcher', ammo: 8 });
-    assert.deepEqual(Object.keys(game.snapshot()), ['level', 'screen', 'wave', 'score', 'hearts', 'enemies', 'boss_health', 'weapon', 'ammo']);
+    assert.deepEqual(await state(), { weapon: 'launcher', ammo: 2 });
+    assert.deepEqual(Object.keys(game.snapshot()), ['level', 'screen', 'wave', 'score', 'hearts', 'enemies', 'boss_health', 'weapon', 'ammo', 'reloading']);
   });
 });

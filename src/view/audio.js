@@ -127,7 +127,12 @@ export function createAudio(win) {
       tone(99.5, t, 0.6, { type: 'triangle', to: 67, level: 0.2, attack: 0.15 });
     },
     pickup: (t) => notes([84, 91], t, 0.1, 0.16),
-    click: (t) => hiss(t, 0.015, { filter: 'highpass', f: 4000, level: 0.25 }),
+    reload: (t) => { // a metallic rack: back, then forward
+      hiss(t, 0.04, { filter: 'bandpass', f: 3000, q: 6, level: 0.3 });
+      tone(1900, t, 0.04, { type: 'square', to: 1400, level: 0.06 });
+      hiss(t + 0.1, 0.05, { filter: 'bandpass', f: 2200, q: 6, level: 0.35 });
+      tone(1300, t + 0.1, 0.05, { type: 'square', to: 900, level: 0.07 });
+    },
     victory: (t) => notes([72, 76, 79], t, 0.18, 0.3),
     defeat: (t) => notes([67, 63, 60], t, 0.25, 0.4),
   };

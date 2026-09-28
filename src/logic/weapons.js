@@ -4,11 +4,12 @@
 const EPS = 1e-9;
 
 // In key order, 1 to 3. `rate` is shots a second held (the Popper's is the level's fireRate);
-// `ammo` is what a crate gives, null for never running out; `hits` is what each pellet or blast is worth.
+// `ammo` is the magazine a crate fills, null for never running out; `refill` is the seconds a
+// magazine takes to reload; `hits` is what each pellet or blast is worth.
 export const WEAPONS = {
   popper: { key: 1, name: 'Popper', ammo: null },
-  scattergun: { key: 2, name: 'Scattergun', notice: 'Scattergun! 8 pellets a blast — best up close', rate: 2, ammo: 16, pellets: 8, cone: 4, hits: 2 },
-  launcher: { key: 3, name: 'Launcher', notice: 'Pumpkin launcher! Explodes — hits every enemy nearby', rate: 1.5, ammo: 8, flight: 0.35, arc: 1.5, blast: 2.5, hits: 12 },
+  scattergun: { key: 2, name: 'Scattergun', notice: 'Scattergun! 8 pellets a blast — best up close', rate: 2, ammo: 4, refill: 1.5, pellets: 8, cone: 4, hits: 2 },
+  launcher: { key: 3, name: 'Launcher', notice: 'Pumpkin launcher! Explodes — hits every enemy nearby', rate: 1.5, ammo: 2, refill: 2, flight: 0.35, arc: 1.5, blast: 2.5, hits: 12 },
 };
 export const ORDER = Object.keys(WEAPONS);
 

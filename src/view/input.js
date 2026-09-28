@@ -28,6 +28,9 @@ export function bindInput(win, game, hud) {
     } else if (WEAPON_KEYS[e.code]) {
       game.selectWeapon(WEAPON_KEYS[e.code]);
       return;
+    } else if (e.code === 'KeyR') {
+      game.reloadMagazine();
+      return;
     } else if (e.code === 'Escape') {
       if (!e.repeat) game.pressEsc();
       follow();
