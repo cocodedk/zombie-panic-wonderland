@@ -76,6 +76,18 @@ into Web Audio sounds. Other levels and enemies reuse all three. `get_state` doe
 6. Pause freezes effects; restart, **Next level** and **Back to title** clear them.
 7. Every earlier test still passes.
 
+## Answers to the grill
+
+- **M on every screen.** M works on every screen, loading and error included. Wherever the HUD
+  shows, its `♪ on` or `♪ off` shows the state. On the title screen, the controls line ends with
+  `· M sound: on` or `· M sound: off` and follows each press. On the loading and error screens
+  nothing plays and nothing shows, but the choice carries into the game.
+- **The boss's fall.** When a boss falls, every other enemy on the field bursts with it (no points
+  for them), nothing can cost a heart, and the player can still move. The victory card appears
+  1.5 seconds later, when the boss's burst has finished, and only then does the scene freeze. The
+  builder may change earlier tests that expect the victory screen at the moment the boss falls, so
+  that they expect it 1.5 seconds later; nothing else in those tests changes.
+
 ## Out of scope
 
 A volume slider, saving the mute choice, audio or image files of any kind, and any change to the
