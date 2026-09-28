@@ -264,16 +264,16 @@ export class Game {
     } else if (w === 'scattergun') {
       this.cue('scatter');
       const pellets = this.pellets ?? Array(WEAPONS.scattergun.pellets).fill({ id: this.aim, point: to });
-      this.effects.blast(from, pellets.map((p) => p.point ?? to));
-      for (const p of pellets) this.hit(p.id);
+      this.effects.blast(from, pellets.map((p) => ({ to: p.point ?? to, hit: p.id != null })));
+      for (const p of pellets) this.hit(p.id, WEAPONS.scattergun.hits);
     } else {
       this.cue('launch');
       this.shells.push({ id: this.nextId++, from, to, t: 0 });
     }
   }
 
-  // A hit on the first thing on a shot's line: a pumpkin, a crate or an enemy.
-  hit(id) {
+  // A hit on the first thing on a shot's line: a pumpkin, a crate or an enemy, which takes `hits`.
+  hit(id, hits = 1) {
     if (id == null) return;
     const pumpkin = this.pumpkins.findIndex((p) => p.id === id);
     if (pumpkin >= 0) {
@@ -286,7 +286,7 @@ export class Game {
     const enemy = this.enemies.find((e) => e.id === id);
     if (!enemy) return;
     this.cue('hit');
-    this.damage(enemy, 1);
+    this.damage(enemy, hits);
   }
 
   damage(enemy, hits) {
@@ -295,7 +295,7 @@ export class Game {
     if (enemy.health <= 0) this.fall(enemy);
   }
 
-  // Every enemy, pumpkin and crate within the blast of `at`: 8 hits, shot down, one hit.
+  // Every enemy, pumpkin and crate within the blast of `at`: the launcher's hits, shot down, one hit.
   explode(at) {
     const { blast, hits } = WEAPONS.launcher;
     const near = (p) => Math.hypot(p.x - at.x, p.y - at.y, p.z - at.z) <= blast + EPS;

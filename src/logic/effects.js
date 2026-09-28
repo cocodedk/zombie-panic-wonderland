@@ -7,6 +7,9 @@ const EPS = 1e-9;
 export const GRAVITY = 9.8;
 export const MAX_CHUNKS = 300;
 export const STREAK = { color: '#fff3b0', life: 0.06, flash: 0.04 };
+// The scattergun's pellets: streaks twice as thick that last longer, and a spark where one hits.
+export const PELLET = { width: 2, life: 0.1 };
+export const SPARK = { color: '#fff3b0', life: 0.15, size: 0.12 };
 export const PUFF_LIFE = 0.3;
 export const FADE_LIFE = 0.3;
 
@@ -61,19 +64,24 @@ export class Effects {
     this.chunks = [];
     this.puffs = [];
     this.fades = [];
+    this.sparks = [];
     this.flash = 0; // seconds of muzzle flash left
     this.flashSize = 1;
   }
 
-  shot(from, to) {
-    this.streaks.push({ id: this.nextId++, from, to, age: 0, life: STREAK.life });
+  shot(from, to, { width = 1, life = STREAK.life } = {}) {
+    this.streaks.push({ id: this.nextId++, from, to, age: 0, life, width });
     this.flash = STREAK.flash;
     this.flashSize = 1;
   }
 
-  // The scattergun: a streak to each pellet's end, and a larger flash.
-  blast(from, points) {
-    for (const to of points) this.shot(from, to);
+  // The scattergun: a thick streak to each pellet's end `to`, a spark where one `hit` something,
+  // and a larger flash.
+  blast(from, pellets) {
+    for (const { to, hit } of pellets) {
+      this.shot(from, to, PELLET);
+      if (hit) this.sparks.push({ id: this.nextId++, pos: { ...to }, age: 0, life: SPARK.life });
+    }
     this.flashSize = 2;
   }
 
@@ -126,5 +134,6 @@ export class Effects {
     this.chunks = this.chunks.filter(alive);
     this.puffs = this.puffs.filter(alive);
     this.fades = this.fades.filter(alive);
+    this.sparks = this.sparks.filter(alive);
   }
 }

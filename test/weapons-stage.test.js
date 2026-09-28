@@ -141,7 +141,7 @@ test('the gun in hand changes with the weapon, its flash at the muzzle where the
   assert.equal(player().userData.flash.scale.x, 1);
 });
 
-test('with the Scattergun, the aim casts 6 pellet rays in the cone, each finding the first thing on its line', () => {
+test('with the Scattergun, the aim casts 8 pellet rays in the cone, each finding the first thing on its line', () => {
   const game = empty();
   const { stage, raycaster, draw } = stageFor(game);
   const c = game.dropCrate('scattergun');
@@ -149,11 +149,11 @@ test('with the Scattergun, the aim casts 6 pellet rays in the cone, each finding
   const before = raycaster.sets.length;
   const target = stage.aimAt(CENTRE, true);
   const rays = raycaster.sets.slice(before);
-  assert.equal(rays.length, 6);
+  assert.equal(rays.length, 8);
   pelletDirs({ x: 0, y: 0, z: -1 }).forEach((d, i) => {
     for (const k of ['x', 'y', 'z']) near(rays[i].direction[k], d[k]);
   });
-  assert.deepEqual(target.pellets, Array(6).fill({ id: c.id, point: { x: 0, y: 0, z: -60 } }));
+  assert.deepEqual(target.pellets, Array(8).fill({ id: c.id, point: { x: 0, y: 0, z: -60 } }));
   assert.equal(stage.aimAt(CENTRE).pellets, undefined, 'only when asked');
 });
 

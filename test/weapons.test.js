@@ -5,7 +5,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { Game, pumpkinAt } from '../src/logic/game.js';
 import { WEAPONS, CRATE, pelletDirs, crateAt, shellAt } from '../src/logic/weapons.js';
-import { MUZZLES, STREAK } from '../src/logic/effects.js';
+import { MUZZLES, STREAK, PELLET } from '../src/logic/effects.js';
 import { screenView, TEXT } from '../src/logic/screens.js';
 import { registerWebMcp } from '../src/logic/webmcp.js';
 import { bindInput } from '../src/view/input.js';
@@ -49,73 +49,73 @@ describe('1. each weapon\'s fire rate, damage and ammo', () => {
     assert.equal(game.snapshot().ammo, null);
   });
 
-  test('the Scattergun: 1.5 blasts a second held, 12 shells, 1 a blast', () => {
+  test('the Scattergun: 2 blasts a second held, 16 shells, 1 a blast', () => {
     const game = give(playing(one()), 'scattergun');
-    assert.equal(game.ammo.scattergun, 12);
+    assert.equal(game.ammo.scattergun, 16);
     game.pointerDown();
-    run(game, 0.6); // the first blast at once
+    run(game, 0.45); // the first blast at once
     assert.equal(game.shots, 1);
-    run(game, 0.1); // the second 2/3 of a second after the first
+    run(game, 0.1); // the second half a second after the first
     assert.equal(game.shots, 2);
-    run(game, 0.6);
+    run(game, 0.35);
     assert.equal(game.shots, 2);
     run(game, 0.1);
     assert.equal(game.shots, 3);
-    assert.equal(game.ammo.scattergun, 9);
+    assert.equal(game.ammo.scattergun, 13);
     assert.deepEqual(names(game).filter((n) => n === 'scatter'), ['scatter', 'scatter', 'scatter']);
   });
 
-  test('each of the 6 pellets hits the first enemy or pumpkin on its line for 1 hit', () => {
+  test('each of the 8 pellets hits the first enemy or pumpkin on its line for 2 hits', () => {
     const game = playing(levelWith([{ pumpkinMonster: 3 }]));
     run(game, 2.6); // all three stand; the first has thrown a pumpkin
     give(game, 'scattergun');
     const [a, b, c] = game.enemies;
     const [pumpkin] = game.pumpkins;
-    game.setAim(a.id, null, pellets(a.id, a.id, b.id, pumpkin.id, null, null));
+    game.setAim(a.id, null, pellets(a.id, a.id, b.id, pumpkin.id, null, null, null, null));
     game.shoot();
-    assert.deepEqual([a.health, b.health, c.health], [3, 4, 5]);
+    assert.deepEqual([a.health, b.health, c.health], [1, 3, 5]);
     assert.equal(game.pumpkins.length, 0);
     assert.equal(game.score, 25);
     assert.deepEqual(names(game), ['scatter', 'hit', 'hit', 'hit', 'hit']);
-    game.setAim(b.id, null, pellets(...Array(6).fill(b.id)));
+    game.setAim(b.id, null, pellets(...Array(8).fill(b.id)));
     game.shoot();
-    assert.ok(!game.enemies.includes(b), 'six pellets fell a pumpkin monster, for its points');
+    assert.ok(!game.enemies.includes(b), 'eight pellets fell a pumpkin monster, for its points');
     assert.equal(game.score, 25 + 250);
   });
 
   test('without pellet lines from the stage, every pellet follows the crosshair', () => {
     const game = give(playing(levelWith([{ pumpkinMonster: 1 }])), 'scattergun');
     const m = game.enemies[0];
-    m.health = 10;
+    m.health = 20;
     game.setAim(m.id);
     game.shoot();
     assert.equal(m.health, 4);
   });
 
-  test('the cone: one pellet on the crosshair, five evenly around it 5° away, 10° in all', () => {
+  test('the cone: one pellet on the crosshair, seven evenly around it 2° away, 4° in all', () => {
     for (const d of [{ x: 0, y: 0, z: -1 }, { x: 0.3, y: -0.2, z: -0.93 }]) {
       const l = Math.hypot(d.x, d.y, d.z);
       const aim = { x: d.x / l, y: d.y / l, z: d.z / l };
       const dirs = pelletDirs(aim);
-      assert.equal(dirs.length, 6);
+      assert.equal(dirs.length, 8);
       const deg = (u, v) => (Math.acos(Math.min(1, u.x * v.x + u.y * v.y + u.z * v.z)) * 180) / Math.PI;
       dirs.forEach((v) => near(Math.hypot(v.x, v.y, v.z), 1, 'unit'));
       near(deg(dirs[0], aim), 0, 'on the crosshair');
       const ring = dirs.slice(1);
-      ring.forEach((v) => near(deg(v, aim), 5, 'around it'));
-      ring.forEach((v, i) => near(deg(v, ring[(i + 1) % 5]), deg(ring[0], ring[1]), 'evenly'));
+      ring.forEach((v) => near(deg(v, aim), 2, 'around it'));
+      ring.forEach((v, i) => near(deg(v, ring[(i + 1) % 7]), deg(ring[0], ring[1]), 'evenly'));
     }
   });
 
-  test('a blast draws its 6 pellets as streaks from the Scattergun\'s muzzle, with a larger flash', () => {
+  test('a blast draws its 8 pellets as streaks from the Scattergun\'s muzzle, with a larger flash', () => {
     const game = give(playing(one()), 'scattergun');
-    const lines = pellets(null, null, null, null, null, null).map((p, i) => ({ ...p, point: { x: i, y: 1, z: -12 } }));
+    const lines = pellets(...Array(8).fill(null)).map((p, i) => ({ ...p, point: { x: i, y: 1, z: -12 } }));
     game.setAim(null, { x: 0, y: 1, z: -12 }, lines);
     game.shoot();
     const fx = game.effects;
     const blast = fx.streaks.slice(CRATE.hits); // after the Popper's shots at the crate
     assert.deepEqual(blast.map((s) => s.to), lines.map((p) => p.point));
-    assert.ok(blast.every((s) => s.life === STREAK.life));
+    assert.ok(blast.every((s) => s.life === PELLET.life));
     near(blast[0].from.z, game.level.roadZ + MUZZLES.scattergun.z);
     assert.equal(fx.flash, STREAK.flash);
     assert.equal(fx.flashSize, 2);
@@ -125,19 +125,19 @@ describe('1. each weapon\'s fire rate, damage and ammo', () => {
     near(fx.streaks.at(-1).from.z, game.level.roadZ + MUZZLES.popper.z);
   });
 
-  test('the Pumpkin launcher: 1 shot a second held, 5 rounds, 1 a shot', () => {
+  test('the Pumpkin launcher: 1.5 shots a second held, 8 rounds, 1 a shot', () => {
     const game = give(playing(one()), 'launcher');
-    assert.equal(game.ammo.launcher, 5);
+    assert.equal(game.ammo.launcher, 8);
     game.pointerDown();
-    run(game, 0.9);
+    run(game, 0.6);
     assert.equal(game.shots, 1);
-    run(game, 0.2);
+    run(game, 0.1); // the second 2/3 of a second after the first
     assert.equal(game.shots, 2);
-    assert.equal(game.ammo.launcher, 3);
+    assert.equal(game.ammo.launcher, 6);
     assert.deepEqual(names(game).filter((n) => n === 'launch'), ['launch', 'launch']);
   });
 
-  test('its pumpkin flies in an arc from the muzzle to the aim point in 0.5 seconds', () => {
+  test('its pumpkin flies in an arc from the muzzle to the aim point in 0.35 seconds', () => {
     const game = give(playing(one()), 'launcher');
     const to = { x: 3, y: 0, z: -8 };
     game.setAim(null, to);
@@ -145,10 +145,10 @@ describe('1. each weapon\'s fire rate, damage and ammo', () => {
     const [s] = game.shells;
     near(s.from.z, game.level.roadZ + MUZZLES.launcher.z);
     assert.deepEqual(shellAt(s), s.from);
-    run(game, 0.25);
+    run(game, 0.17);
     const mid = shellAt(s);
     assert.ok(mid.y > (s.from.y + to.y) / 2 + 1, 'it arcs');
-    run(game, 0.24);
+    run(game, 0.17);
     assert.equal(game.shells.length, 1);
     assert.ok(!names(game).includes('boom'));
     run(game, 0.01);
@@ -156,34 +156,34 @@ describe('1. each weapon\'s fire rate, damage and ammo', () => {
     assert.deepEqual(names(game), ['boom']);
   });
 
-  test('it explodes there: every enemy within 2 units takes 8 hits, bosses included', () => {
+  test('it explodes there: every enemy within 2.5 units takes 12 hits, bosses included', () => {
     const game = playing(one());
     clearWave(game);
     run(game, 3 + 2); // the Zombie King has appeared
     const king = game.enemies[0];
-    const [close, small, far] = [1.5, -1, 2.5].map((dx) => Object.assign(game.spawn('zombie'), { x: king.x + dx, z: king.z }));
+    const [close, small, far] = [2, -1, 3].map((dx) => Object.assign(game.spawn('zombie'), { x: king.x + dx, z: king.z }));
     close.health = far.health = 20;
     give(game, 'launcher');
     const score = game.score;
-    game.setAim(king.id, { x: king.x, y: 2, z: king.z }); // all walk 0.6 closer while it flies
+    game.setAim(king.id, { x: king.x, y: 2, z: king.z }); // all walk 0.42 closer while it flies
     game.shoot();
-    run(game, 0.5);
-    assert.equal(king.health, 200 - 8);
-    assert.equal(game.bossHealth, 192);
-    assert.equal(close.health, 12);
+    run(game, 0.35);
+    assert.equal(king.health, 200 - 12);
+    assert.equal(game.bossHealth, 188);
+    assert.equal(close.health, 8);
     assert.ok(!game.enemies.includes(small), 'a zombie falls, for its points');
     assert.equal(game.score, score + 100);
     assert.equal(far.health, 20, 'out of the blast');
   });
 
-  test('the explosion shoots down every pumpkin in the air within 2 units, for its points', () => {
+  test('the explosion shoots down every pumpkin in the air within 2.5 units, for its points', () => {
     const game = playing(levelWith([{ pumpkinMonster: 1 }]));
     run(game, 2.6);
     const [p] = game.pumpkins;
     game.throwPumpkin({ id: 99, x: 7, z: -12 }, { hearts: 1, points: 25 }); // far away
     game.cues.length = 0;
     const at = pumpkinAt(p, game.level.roadZ);
-    game.explode({ ...at, x: at.x + 1.9 });
+    game.explode({ ...at, x: at.x + 2.4 });
     assert.equal(game.pumpkins.length, 1, 'the far one flies on');
     assert.equal(game.score, 25);
     assert.deepEqual(names(game), ['boom']);
@@ -285,8 +285,11 @@ describe('2. crates', () => {
     assert.equal(game.crates.length, 0, 'gone at 11 seconds');
   });
 
-  test('3 hits collect it: the weapon with full ammo, in hand at once, with pickup and the notice for 1.5 seconds', () => {
-    for (const [weapon, notice, ammo] of [['scattergun', 'Scattergun!', 12], ['launcher', 'Pumpkin launcher!', 5]]) {
+  test('3 hits collect it: the weapon with full ammo, in hand at once, with pickup and the notice for 2.5 seconds', () => {
+    for (const [weapon, notice, ammo] of [
+      ['scattergun', 'Scattergun! 8 pellets a blast — best up close', 16],
+      ['launcher', 'Pumpkin launcher! Explodes — hits every enemy nearby', 8],
+    ]) {
       const game = playing(one());
       const c = game.dropCrate(weapon);
       game.setAim(c.id);
@@ -302,7 +305,7 @@ describe('2. crates', () => {
       assert.equal(game.ammo[weapon], ammo);
       assert.equal(game.notice, notice);
       assert.equal(screenView(game).hud.notice, notice);
-      run(game, 1.49);
+      run(game, 2.49);
       assert.equal(game.notice, notice);
       run(game, 0.01);
       assert.equal(game.notice, null);
@@ -312,7 +315,7 @@ describe('2. crates', () => {
   test('each pellet counts as a hit, and an explosion as one', () => {
     const game = give(playing(one()), 'scattergun');
     const c = game.dropCrate('launcher');
-    game.setAim(c.id, null, pellets(c.id, c.id, c.id, null, null, null));
+    game.setAim(c.id, null, pellets(c.id, c.id, c.id, null, null, null, null, null));
     game.shoot();
     assert.equal(game.weapon, 'launcher', 'three pellets collect it');
     const d = game.dropCrate('scattergun');
@@ -352,9 +355,9 @@ describe('2. crates', () => {
   test('full ammo, or a refill of a weapon already owned', () => {
     const game = give(playing(one()), 'scattergun');
     for (let i = 0; i < 8; i++) game.shoot();
-    assert.equal(game.ammo.scattergun, 4);
+    assert.equal(game.ammo.scattergun, 8);
     give(game, 'scattergun');
-    assert.equal(game.ammo.scattergun, 12);
+    assert.equal(game.ammo.scattergun, 16);
   });
 
   test('crates never hurt, block or count as enemies: a wave clears while one floats', () => {
@@ -442,8 +445,8 @@ describe('3. switching', () => {
     run(game, 0.1);
     assert.equal(game.shots, 3);
     game.selectWeapon('scattergun');
-    run(game, 0.5);
-    assert.equal(game.shots, 3, 'the Scattergun waits for its own 2/3 second');
+    run(game, 0.35);
+    assert.equal(game.shots, 3, 'the Scattergun waits for its own 1/2 second');
     run(game, 0.1);
     assert.equal(game.shots, 4);
   });
@@ -473,7 +476,7 @@ describe('4. the HUD and the title', () => {
     assert.equal(line(game), '1 Popper ∞ · 2 Scattergun — · 3 Launcher —');
     give(game, 'scattergun');
     for (let i = 0; i < 3; i++) game.shoot();
-    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 9 · 3 Launcher —');
+    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 13 · 3 Launcher —');
     assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['owned', 'hand', 'none']);
     game.selectWeapon('popper');
     assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['hand', 'owned', 'none']);
@@ -509,9 +512,9 @@ describe('4. the HUD and the title', () => {
     game.setAim(c.id);
     for (let i = 0; i < 3; i++) game.shoot();
     hud.render();
-    assert.deepEqual(spans.map((s) => [s.textContent, s.className]), [['1 Popper ∞', 'owned'], ['2 Scattergun —', 'none'], ['3 Launcher 5', 'hand']]);
+    assert.deepEqual(spans.map((s) => [s.textContent, s.className]), [['1 Popper ∞', 'owned'], ['2 Scattergun —', 'none'], ['3 Launcher 8', 'hand']]);
     assert.equal(els['#notice'].hidden, false);
-    assert.equal(els['#notice'].textContent, 'Pumpkin launcher!');
+    assert.equal(els['#notice'].textContent, 'Pumpkin launcher! Explodes — hits every enemy nearby');
     assert.equal(els['#sound'].textContent, '♪ on', 'the sound stays bottom right');
   });
 
@@ -524,7 +527,7 @@ describe('4. the HUD and the title', () => {
     game.update(0.01);
     const view = screenView(game);
     assert.deepEqual(view.band, { lines: ['Wave 1 cleared'] });
-    assert.equal(view.hud.notice, 'Scattergun!');
+    assert.equal(view.hud.notice, 'Scattergun! 8 pellets a blast — best up close');
   });
 
   test('the title\'s controls line gains "· 1 2 3 or wheel: weapons", before "· M sound"', () => {
@@ -623,9 +626,9 @@ describe('6. get_state reports the weapon and its ammo', () => {
     assert.deepEqual(await state(), { weapon: 'popper', ammo: null });
     give(game, 'scattergun');
     game.shoot();
-    assert.deepEqual(await state(), { weapon: 'scattergun', ammo: 11 });
+    assert.deepEqual(await state(), { weapon: 'scattergun', ammo: 15 });
     give(game, 'launcher');
-    assert.deepEqual(await state(), { weapon: 'launcher', ammo: 5 });
+    assert.deepEqual(await state(), { weapon: 'launcher', ammo: 8 });
     assert.deepEqual(Object.keys(game.snapshot()), ['level', 'screen', 'wave', 'score', 'hearts', 'enemies', 'boss_health', 'weapon', 'ammo']);
   });
 });
