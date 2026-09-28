@@ -5,11 +5,11 @@
 ## Play
 
 - Address: https://wonderland.cocode.dk/. Click the title screen to start.
-- Controls: A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons · R reloads · M sound.
+- Controls: A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 4 or wheel: weapons · R reloads · M sound.
 - You have 5 hearts. A zombie strikes when it reaches the road; a pumpkin monster throws pumpkins, which you can shoot down in the air.
 - Level 1, the ruined road: five waves of zombies and pumpkin monsters, then the Zombie King, who stomps (a shockwave; step aside or dodge) and summons zombies. Level 2, the crumbling road: five waves with crows as well, then the Scarecrow King, who throws flaming pumpkins and summons crows. Winning level 1 offers Next level.
-- Weapons: the Popper (key 1) fires 8 shots a second and never runs out. The Scattergun (key 2) fires 8 pellets a blast, 2 blasts a second, with a magazine of 4 shells. The Pumpkin launcher (key 3) fires 1.5 shots a second, each exploding for 12 hits on every enemy within 2.5 units, with a magazine of 2 rounds. An empty magazine reloads by itself, 1.5 seconds for the Scattergun and 2 for the launcher; R reloads early.
-- Crates: a Scattergun crate floats down 2 seconds after wave 2 starts, a launcher crate 2 seconds after wave 4 starts. Shoot one 3 times to take its weapon, in hand, with a full magazine.
+- Weapons: the Popper (key 1) fires 8 shots a second and never runs out. The Scattergun (key 2) fires 8 pellets a blast, 2 blasts a second, with a magazine of 4 shells. The Pumpkin launcher (key 3) fires 1.5 shots a second, each exploding for 12 hits on every enemy within 2.5 units, with a magazine of 2 rounds. The Gatling (key 4): hold fire and the barrels spin up for 0.5 seconds, then it fires 20 rounds a second, each worth 2 hits, with a magazine of 100 rounds. An empty magazine reloads by itself, 1.5 seconds for the Scattergun, 2 for the launcher and 3 for the Gatling; R reloads early.
+- Crates: a Scattergun crate floats down 2 seconds after wave 2 starts, a launcher crate 2 seconds after wave 4 starts, a Gatling crate 2 seconds after wave 5 starts. Shoot one 3 times to take its weapon, in hand, with a full magazine.
 - Gas canisters: 2 stand on the field in each of waves 2 to 5. The second hit, or a launcher's blast, blows one up: 12 hits to every enemy within 3 units. It never hurts you.
 
 ## WebMCP tools
@@ -25,7 +25,7 @@ The game page (`/index.html`) registers WebMCP tools with `document.modelContext
   - `hearts` is the hearts left, 5 at the start.
   - `enemies` is how many are on the field.
   - `boss_health` is the level boss's remaining hits, `null` until the boss appears.
-  - `weapon` is `popper`, `scattergun` or `launcher`, the one in hand.
+  - `weapon` is `popper`, `scattergun`, `launcher` or `gatling`, the one in hand.
   - `ammo` is the rounds left in its magazine, `null` for the popper.
   - `reloading` is `true` while it reloads its magazine, otherwise `false`.
 

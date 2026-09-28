@@ -2,7 +2,7 @@
 // No three.js here, so Node can test it. The stage reads this state and draws it; what happened
 // is also recorded as sound cues (`cues`) and effects (`effects`), for the audio module and the stage.
 
-import { Effects, BURSTS, muzzleAt } from './effects.js';
+import { Effects, BURSTS, TRACER, muzzleAt } from './effects.js';
 import { WEAPONS, ORDER, CRATES, CRATE, NOTICE_LIFE, crateAt, crateLeaving } from './weapons.js';
 import { CANISTER, placeCanisters, canisterAt } from './canisters.js';
 
@@ -91,10 +91,13 @@ export class Game {
     this.firing = false;
     this.shots = 0;
     this.weapon = 'popper'; // in hand
-    this.owned = { scattergun: false, launcher: false }; // from its crate until a reset
-    this.ammo = { scattergun: 0, launcher: 0 }; // rounds left in each magazine
-    this.reload = { popper: 0, scattergun: 0, launcher: 0 }; // seconds until each may fire again
-    this.refill = { scattergun: 0, launcher: 0 }; // seconds until each magazine is reloaded, 0 when not reloading
+    this.owned = { scattergun: false, launcher: false, gatling: false }; // from its crate until a reset
+    this.ammo = { scattergun: 0, launcher: 0, gatling: 0 }; // rounds left in each magazine
+    this.reload = { popper: 0, scattergun: 0, launcher: 0, gatling: 0 }; // seconds until each may fire again
+    this.refill = { scattergun: 0, launcher: 0, gatling: 0 }; // seconds until each magazine is reloaded, 0 when not reloading
+    // The Gatling's barrels: 'idle', 'up' (spinning up, `t` seconds in), 'firing' or 'down' (slowing, losing
+    // `slow` turns a second of speed each second); `speed` in turns a second and `angle` in turns.
+    this.barrels = { mode: 'idle', t: 0, speed: 0, slow: 0, angle: 0 };
     this.pellets = null; // [{ id, point }] on each scattergun pellet's line, from the stage
     this.cratesDue = []; // { weapon, t }: crates still to appear, in t seconds
     this.crates = []; // { id, weapon, x, t, hits, flash }
@@ -133,7 +136,7 @@ export class Game {
   pose() {
     const p = this.player;
     const roll = this.dodging ? 1 - p.dodging / this.level.player.dodgeTime : 0;
-    return { t: this.clock, walk: this.live && this.move ? 1 : 0, roll, dir: p.dir, weapon: this.weapon };
+    return { t: this.clock, walk: this.live && this.move ? 1 : 0, roll, dir: p.dir, weapon: this.weapon, spin: this.barrels.angle };
   }
 
   owns(weapon) {
@@ -231,17 +234,18 @@ export class Game {
     this.pellets = pellets;
   }
 
-  // Keys 1 to 3: an owned weapon, at once.
+  // Keys 1 to 4: an owned weapon, at once.
   selectWeapon(weapon) {
     if (!this.live || !this.owns(weapon)) return false;
     this.take(weapon);
     return true;
   }
 
-  // Into the hand: the reload of the weapon put away stops, and an empty one starts its own.
+  // Into the hand: the reload and the spinning of the weapon put away stop, and an empty one starts its own.
   take(weapon) {
     if (weapon === this.weapon) return;
     if (this.weapon !== 'popper') this.refill[this.weapon] = 0;
+    this.stopBarrels();
     this.weapon = weapon;
     if (weapon !== 'popper' && this.ammo[weapon] === 0) this.refill[weapon] = WEAPONS[weapon].refill;
   }
@@ -289,6 +293,11 @@ export class Game {
       const pellets = this.pellets ?? Array(WEAPONS.scattergun.pellets).fill({ id: this.aim, point: to });
       this.effects.blast(from, pellets.map((p) => ({ to: p.point ?? to, hit: p.id != null })));
       for (const p of pellets) this.hit(p.id, WEAPONS.scattergun.hits);
+    } else if (w === 'gatling') {
+      const { hits, pitch } = WEAPONS.gatling;
+      this.cue('gatling', { pitch: 1 + (this.random() * 2 - 1) * pitch });
+      this.effects.shot(from, to, { ...TRACER, flashSize: TRACER.flashSizes[this.shots % 2] });
+      this.hit(this.aim, hits);
     } else {
       this.cue('launch');
       this.shells.push({ id: this.nextId++, from, to, t: 0 });
@@ -494,15 +503,61 @@ export class Game {
         this.cue('reload');
       }
     }
-    const idle = !this.firing || this.reloading;
+    let idle = !this.firing || this.reloading;
+    let left = dt; // the seconds of this frame the weapon fires in
+    if (w === 'gatling') {
+      left = this.spinBarrels(dt, !idle);
+      idle = left == null;
+    }
     for (const k of ORDER) if (k !== w || idle) this.reload[k] = Math.max(0, this.reload[k] - dt);
     if (idle) return;
-    this.reload[w] -= dt;
+    this.reload[w] -= left;
     while (due(this.reload[w]) && this.weapon === w && !this.reloading) {
       this.shoot();
       this.reload[w] += 1 / (WEAPONS[w].rate ?? this.level.player.fireRate);
       if (this.winTimer != null) return;
     }
+  }
+
+  // The Gatling's barrels for `dt` seconds. Driven (fire held, not reloading) they spin up, then fire;
+  // let go, they slow to a stop. Returns the seconds of the frame they were up to speed for, or null.
+  spinBarrels(dt, driven) {
+    const { spinUp, spinDown, turns } = WEAPONS.gatling;
+    const b = this.barrels;
+    let left = null;
+    if (driven) {
+      if (b.mode === 'idle' || b.mode === 'down') {
+        b.mode = 'up';
+        b.t = 0;
+        this.cue('spinup');
+      }
+      if (b.mode === 'up') {
+        const step = Math.min(dt, spinUp - b.t);
+        b.t += step;
+        b.speed = Math.min(turns, b.speed + (step * turns) / spinUp);
+        if (due(spinUp - b.t)) {
+          b.mode = 'firing';
+          left = dt - step;
+        }
+      } else left = dt;
+    } else if (b.mode === 'up' || b.mode === 'firing') {
+      b.mode = 'down';
+      b.slow = b.speed / spinDown; // from wherever they were, they stop in spinDown seconds
+      this.cue('spindown');
+    }
+    if (b.mode === 'down') {
+      b.speed -= b.slow * dt;
+      if (due(b.speed)) Object.assign(b, { mode: 'idle', speed: 0 });
+    }
+    b.angle = (b.angle + b.speed * dt) % 1;
+    return left;
+  }
+
+  // The barrels stop at once, and any whine with them, with no sound of their own.
+  stopBarrels() {
+    const b = this.barrels;
+    if (b.mode !== 'idle') this.cue('spinup', { stop: true });
+    Object.assign(b, { mode: 'idle', t: 0, speed: 0 });
   }
 
   advance(dt) {
@@ -705,6 +760,7 @@ export class Game {
       this.pumpkins = [];
       this.shells = [];
       this.firing = false;
+      this.stopBarrels();
       this.winTimer = BURSTS[this.level.boss.model].life;
     } else {
       this.cue('burst');
@@ -744,6 +800,7 @@ export class Game {
   end(screen) {
     this.screen = screen;
     this.firing = false;
+    this.stopBarrels();
     this.shake = 0;
     this.hint = null;
     this.cue(screen);

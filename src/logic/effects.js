@@ -9,6 +9,9 @@ export const MAX_CHUNKS = 300;
 export const STREAK = { color: '#fff3b0', life: 0.06, flash: 0.04 };
 // The scattergun's pellets: streaks twice as thick that last longer, and a spark where one hits.
 export const PELLET = { width: 2, life: 0.1 };
+// The Gatling's rounds: thin orange tracers; the muzzle flash lasts half a round's time, so it goes
+// dark between rounds, and alternates between two sizes.
+export const TRACER = { color: '#ffb347', width: 0.6, life: 0.05, flash: 0.025, flashSizes: [1.4, 1] };
 export const SPARK = { color: '#fff3b0', life: 0.15, size: 0.12 };
 export const PUFF_LIFE = 0.3;
 export const FADE_LIFE = 0.3;
@@ -16,7 +19,7 @@ export const FADE_LIFE = 0.3;
 // The gun's muzzle in the player model's body, from its waist pivot (0.6 up); the longer guns
 // reach further forward.
 export const MUZZLE = { x: 0.1, y: 0.3, z: -0.76 };
-export const MUZZLES = { popper: MUZZLE, scattergun: { ...MUZZLE, z: -0.92 }, launcher: { ...MUZZLE, z: -0.88 } };
+export const MUZZLES = { popper: MUZZLE, scattergun: { ...MUZZLE, z: -0.92 }, launcher: { ...MUZZLE, z: -0.88 }, gatling: { ...MUZZLE, z: -1.08 } };
 export const WAIST = 0.6;
 export const EXPLOSION_FLASH = 0.3; // with reduced motion, the explosion's puff alone, this long
 
@@ -70,10 +73,10 @@ export class Effects {
     this.flashSize = 1;
   }
 
-  shot(from, to, { width = 1, life = STREAK.life } = {}) {
-    this.streaks.push({ id: this.nextId++, from, to, age: 0, life, width });
-    this.flash = STREAK.flash;
-    this.flashSize = 1;
+  shot(from, to, { width = 1, life = STREAK.life, color = STREAK.color, flash = STREAK.flash, flashSize = 1 } = {}) {
+    this.streaks.push({ id: this.nextId++, from, to, age: 0, life, width, color });
+    this.flash = flash;
+    this.flashSize = flashSize;
   }
 
   // The scattergun: a thick streak to each pellet's end `to`, a spark where one `hit` something,

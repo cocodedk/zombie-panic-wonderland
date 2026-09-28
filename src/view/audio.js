@@ -14,6 +14,7 @@ export function createAudio(win) {
   let master, musicBus, fxBus, noise, crunch;
   let held = false; // suspended by the pause
   let loop = null; // { tune, out, step, at }
+  let voice = null; // the gain of the Gatling's whine now sounding
 
   const gainNode = (value, to) => {
     const g = ctx.createGain();
@@ -78,6 +79,27 @@ export function createAudio(win) {
     }
   }
 
+  // The Gatling's barrels whining from `f` to `to` over `len` seconds; a new one, or `cutWhine`, ends the last at once.
+  function whine(at, len, f, to, attack) {
+    cutWhine();
+    const g = envelope(at, len, 0.22, fxBus, attack);
+    for (const [type, k] of [['sawtooth', 1], ['square', 1.5]]) {
+      const o = ctx.createOscillator();
+      o.type = type;
+      o.frequency.setValueAtTime(f * k, at);
+      o.frequency.exponentialRampToValueAtTime(to * k, at + len);
+      o.connect(g);
+      o.start(at);
+      o.stop(at + len + 0.02);
+    }
+    voice = g;
+  }
+
+  function cutWhine() {
+    voice?.disconnect();
+    voice = null;
+  }
+
   const notes = (list, at, gap, len) => list.forEach((m, i) => tone(hz(m), at + i * gap, len, { type: 'triangle', level: 0.3 }));
 
   const SOUNDS = {
@@ -118,6 +140,12 @@ export function createAudio(win) {
       tone(160, t, 0.14, { type: 'triangle', to: 80, level: 0.4 });
       hiss(t, 0.05, { filter: 'bandpass', f: 500, q: 4, level: 0.2 });
     },
+    spinup: (t, { stop }) => (stop ? cutWhine() : whine(t, 0.5, 80, 700, 0.45)), // a rising whine; `stop` cuts it
+    gatling: (t, { pitch = 1 }) => { // a crack of 25 ms, its pitch a little different each time
+      hiss(t, 0.025, { filter: 'highpass', f: 1800 * pitch, level: 0.35, buffer: crunch });
+      tone(200 * pitch, t, 0.025, { type: 'square', to: 70 * pitch, level: 0.2 });
+    },
+    spindown: (t) => whine(t, 0.4, 700, 60, 0.02), // a falling whine
     boom: (t) => {
       tone(60, t, 0.7, { to: 24, level: 0.6 });
       hiss(t, 0.5, { f: 700, to: 45, level: 0.6, buffer: crunch });

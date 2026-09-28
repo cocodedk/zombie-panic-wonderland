@@ -9,7 +9,7 @@ export const TEXT = {
   webgl: 'Your browser cannot show 3D graphics (WebGL). Try another browser.',
   title: 'Zombie Panic in Wonderland',
   start: 'Click to start',
-  controls: 'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons · R reloads',
+  controls: 'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 4 or wheel: weapons · R reloads',
   paused: 'Paused — press Esc to go on',
   defeat: 'Game over',
   playAgain: 'Play again',

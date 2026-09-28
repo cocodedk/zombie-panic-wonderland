@@ -7,7 +7,7 @@ Play it: https://wonderland.cocode.dk/
 
 ## Controls
 
-A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons · M sound
+A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 4 or wheel: weapons · M sound
 
 ## Tests
 

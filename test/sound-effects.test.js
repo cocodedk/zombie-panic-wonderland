@@ -118,7 +118,7 @@ describe('2. mute, pause and each level\'s loop', () => {
     assert.equal(game.soundOn, false);
     assert.equal(renders, 1);
     game.loaded();
-    assert.match(screenView(game).band.lines[1], / · Esc pauses · 1 2 3 or wheel: weapons · R reloads · M sound: off$/);
+    assert.match(screenView(game).band.lines[1], / · Esc pauses · 1 2 3 4 or wheel: weapons · R reloads · M sound: off$/);
     m();
     assert.match(screenView(game).band.lines[1], / · M sound: on$/);
     game.pointerDown();
