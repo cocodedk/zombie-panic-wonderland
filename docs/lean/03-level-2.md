@@ -57,7 +57,8 @@ resets it to 0.
 ### 5. The design reference
 
 Level 1's sketch, HUD and overlays, unchanged, except that during level 2 the HUD's right side
-reads `Level 2 · Wave N / 5`. Only the backdrop and its palette change. The WebMCP tool `get_state`
+reads `Level 2 · Wave N / 5`; during the boss fight it is replaced by the boss health bar,
+labelled `Scarecrow King` as level 1's is labelled `Zombie King`. Only the backdrop and its palette change. The WebMCP tool `get_state`
 gains `level` (1 or 2), and nothing else about it changes.
 
 ## Done when
