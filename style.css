@@ -65,6 +65,7 @@ body.playing, body.playing * { cursor: none; }
 }
 #band h1 { margin: 0 0 0.6rem; font-size: 2.6rem; color: #f0b25a; text-shadow: 0 3px 6px #000; }
 #band .lines { text-align: center; font-size: 1.25rem; line-height: 1.8; padding: 0 1rem; }
+#band .buttons { display: flex; gap: 1rem; }
 #band button {
   margin-top: 1rem;
   padding: 0.6rem 1.6rem;

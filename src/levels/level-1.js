@@ -3,6 +3,12 @@
 
 export const level1 = {
   name: 'The ruined road',
+  number: 1,
+  text: {
+    intro: 'Zombies have risen in Wonderland. Hold the ruined road!',
+    boss: 'The Zombie King is here!',
+    victory: 'Wonderland is safe — for now.',
+  },
 
   player: {
     hearts: 5,
@@ -35,6 +41,8 @@ export const level1 = {
   ],
 
   boss: {
+    name: 'Zombie King',
+    model: 'zombieKing',
     hits: 60,
     points: 2000,
     speed: 1.2,
@@ -42,7 +50,8 @@ export const level1 = {
     actionEvery: 4,
     actions: ['stomp', 'summon'], // in turn
     stompDelay: 1, // the shockwave reaches the road this long after the stomp
-    summon: 2, // zombies
+    summon: 2,
+    summons: 'zombie',
   },
 
   // The scene, for the stage. Each entry names a model and its parameters.

@@ -20,6 +20,20 @@ export function buildPumpkin({ color = '#e0762b', stem = '#4d6b2f', face = '#ffd
   return pumpkin;
 }
 
+// The Scarecrow King's pumpkin: carved, with a crown of low-poly flames.
+export function buildFlamingPumpkin({ flame = '#ff8a1f', core = '#ffe066', size = 1, ...pumpkin } = {}) {
+  const lit = buildPumpkin({ carved: true, ...pumpkin });
+  lit.name = 'flamingPumpkin';
+  const tongue = new THREE.ConeGeometry(0.14, 0.5, 4);
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    lit.add(part(tongue, glow(i % 2 ? core : flame), [Math.cos(a) * 0.22, 0.55 + (i % 2) * 0.1, Math.sin(a) * 0.22], [Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3]));
+  }
+  lit.add(part(new THREE.ConeGeometry(0.2, 0.75, 5), glow(core), [0, 0.7, 0]));
+  lit.scale.setScalar(size);
+  return lit;
+}
+
 // A vine along a curve, as a thin low-poly tube.
 function vine(points, radius, material) {
   const curve = new THREE.CatmullRomCurve3(points.map(([x, y, z]) => new THREE.Vector3(x, y, z)));

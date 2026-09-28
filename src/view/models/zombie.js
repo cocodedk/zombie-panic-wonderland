@@ -100,5 +100,6 @@ export function buildZombieKing({ crown = {}, size = 3, shirt = '#5a1f3a', ...zo
   const c = buildCrown(crown);
   c.position.y = 0.19;
   king.userData.head.add(c);
+  king.name = 'zombieKing';
   return king;
 }
