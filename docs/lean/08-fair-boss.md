@@ -43,6 +43,16 @@ original let a player simply stay out of the way.
 5. Every earlier test still passes. The builder may change any earlier test whose expectation this
    spec changes, and nothing else in them.
 
+## Answers to the grill
+
+- **The look.** The hint uses the pickup notice's existing style. The shortened shockwave is today's
+  shockwave ring, drawn only across the part of the road it reaches: 6 units, centred on the boss's x
+  when it stomps.
+- **The hint's life.** It shows only during boss play. Its 2-second timer pauses while the game is
+  paused and resumes with it. The boss falling, victory, defeat, **Try again**, **Play again**,
+  **Next level** and **Back to title** all clear it at once. It never shows on the loading, error or
+  title screens.
+
 ## Out of scope
 
 Any other change. The builder adds or edits test files as the checks above need.
