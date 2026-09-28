@@ -70,6 +70,16 @@ Popper), and `get_state` gains `reloading`: `true` while the weapon in hand relo
    line, `get_state`'s exact answer), and nothing else in them. The builder adds or edits test files as
    the checks above need.
 
+## Answers to the grill
+
+- **Every screen.** Loading, error and title: no weapon line and no crosshair, as today, and R does
+  nothing. Intro card: only the Popper is owned, so nothing new shows and R does nothing. Play,
+  between waves and the boss fight: as above. Paused: everything freezes, a reload included; the
+  weapon line keeps `reloading` and the crosshair, where it shows today, stays at half opacity; R does
+  nothing. Victory and defeat: the scene and the HUD freeze as they are, so a weapon that was
+  reloading keeps `reloading` and its reload never ends; the crosshair is hidden as today, and R does
+  nothing. **Try again**, **Play again**, **Next level** and **Back to title** reset as spec 07 says.
+
 ## Out of scope
 
 Gas canisters (a later spec), new weapons, upgrades, and any change to enemies, bosses or levels.
