@@ -50,9 +50,9 @@ show its spread.
 
 ## Answers to the grill
 
-- **Crosshair size.** Fixed-size symbols, the same at every distance: the Scattergun's ring is 22 px
-  across with its centre dot and 7 dots on the ring; the launcher's circle is 26 px across, dashed,
-  with a centre dot.
+- **Crosshair size.** Fixed-size symbols, the same at every distance, larger than the Popper's 32 px
+  ring: the Scattergun's ring is 44 px across with its centre dot and 7 dots on the ring; the
+  launcher's circle is 52 px across, dashed, with a centre dot.
 - **The reference.** Today's crosshair: its colour, stroke width and centre dot stay; only the ring's
   size, the dots and the dashing change. There is no new mock.
 - **The launcher's notice** says `hits every enemy nearby`, because the blast never hurts the player.
