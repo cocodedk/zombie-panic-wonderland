@@ -90,6 +90,8 @@ the pickup notice. Only the parts below are new.
   with `spindown`. When the reload ends with the button still held, the barrels spin up for 0.5
   seconds again, with `spinup`, before firing. Putting the Gatling away stops its barrels at once,
   with no sound; taking it back with the button held spins up for 0.5 seconds again.
+- **Releasing fire during the spin-up** fires no round: the `spinup` whine stops at once, and the
+  barrels slow to a stop over 0.4 seconds with `spindown`.
 - **Victory and defeat** freeze everything at once, the barrels included: no spin-down animation and
   no `spindown` sound.
 
