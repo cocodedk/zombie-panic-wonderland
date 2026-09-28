@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { pumpkinAt, crowAt, CROW_CIRCLE } from '../logic/game.js';
 import { STREAK } from '../logic/effects.js';
+import { CAMERA } from '../logic/camera.js';
 import { flat } from './models/parts.js';
 import { buildPlayer } from './models/player.js';
 import { buildZombie, buildZombieKing } from './models/zombie.js';
@@ -84,8 +85,9 @@ export function createStage(container, firstLevel) {
   let backdrop = buildBackdrop(scene, level);
 
   const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 400);
-  camera.position.set(0, 5, 9);
-  camera.lookAt(0, 1.2, -6);
+  const { position: at, target } = CAMERA;
+  camera.position.set(at.x, at.y, at.z);
+  camera.lookAt(target.x, target.y, target.z);
 
   const resize = () => {
     renderer.setSize(window.innerWidth, window.innerHeight, false);

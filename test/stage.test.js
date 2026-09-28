@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { register } from 'node:module';
+import { readFileSync } from 'node:fs';
 import { level2 } from '../src/levels/level-2.js';
 import { playing, run, kill, clearWave, click, levelWith, level1 } from './helpers.js';
 import { Game } from '../src/logic/game.js';
@@ -144,6 +145,28 @@ test('moving to level 2 builds its backdrop anew; Back to title brings level 1\'
   assert.equal(backdropOf(scene).length, 1);
   assert.deepEqual(models(scene), level1.scenery.map((s) => s.model));
   assert.equal(hex(scene.fog.color), '#5a3148');
+});
+
+test('the camera stands at (0, 3.6, 9) looking at (0, 1.4, -6), both read from src/logic/camera.js', async () => {
+  const { CAMERA } = await import('../src/logic/camera.js');
+  assert.deepEqual(CAMERA, { position: { x: 0, y: 3.6, z: 9 }, target: { x: 0, y: 1.4, z: -6 } });
+  const source = readFileSync(new URL('../src/logic/camera.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /import/, 'no three.js');
+
+  const cameraOf = () => {
+    stageFor(playing(level2)).draw();
+    const { position: { x, y, z }, target } = THREE.renderers.at(-1).camera;
+    return { position: { x, y, z }, target };
+  };
+  assert.deepEqual(cameraOf(), CAMERA);
+  const saved = structuredClone(CAMERA);
+  Object.assign(CAMERA.position, { y: 7 });
+  Object.assign(CAMERA.target, { y: -2 });
+  try {
+    assert.deepEqual(cameraOf(), CAMERA, 'the stage follows the module');
+  } finally {
+    Object.assign(CAMERA, saved);
+  }
 });
 
 test('the aim finds the enemy under the crosshair, and where its ray lands', () => {
