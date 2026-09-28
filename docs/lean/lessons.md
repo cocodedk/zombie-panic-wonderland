@@ -10,3 +10,5 @@
 - The Pages workflow copies a fixed list of files (`.github/workflows/pages.yml`); a new file the site serves goes on that list (spec 11, `CNAME`).
 - A test that forbids a text in tracked files must allow the spec that names it, or the spec must not name it (spec 11: the review refused this).
 - The game uses ES modules, so it is served over HTTP; opened from `file://` it does not load (spec 01).
+- The builder may run the suite and node, but not a web server or a browser: a picture made by screenshot is the supervisor's step, and the spec says so (spec 14: two repairs changed nothing).
+- "Where it shows today" is not enough for the grill: name each screen, even when the answer is "as today" (spec 12).
