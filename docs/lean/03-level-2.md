@@ -72,7 +72,8 @@ gains `level` (1 or 2), and nothing else about it changes.
 4. The flow: **Next level**, **Play again**, **Back to title** and **Try again** lead where section 2
    says.
 5. Hearts reset and score carry-over as section 4 says.
-6. `get_state` reports the level, and every level 1 test still passes unchanged.
+6. `get_state` reports the level. Level 1's tests still pass; the only change allowed in them is
+   adding `level: 1` where they assert `get_state`'s exact answer.
 
 ## Out of scope
 
