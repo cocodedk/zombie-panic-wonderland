@@ -43,14 +43,16 @@ makes no sound, so even when one lands it is easy to miss.
    gives no shake.
 4. Summoned enemies appear within 2 units of the boss's x, at its z.
 5. The Zombie King falls after 200 hits and the Scarecrow King after 240.
-6. Every earlier test still passes. The builder may change the tests that pin the old hit counts,
-   the old first-action time or the old summon position, and nothing else in them.
+6. Every earlier test still passes. The builder may change any earlier test whose expectation this
+   spec changes (the hit counts, the first-action time, the 4-second rhythm and the attack states it
+   leads to, the summon position), and nothing else in them.
 
 ## Answers to the grill
 
 - **The look of the wind-up and the shake.** The reference is each boss's existing model in
-  `src/view/models`; there is no new mock. Over the 0.6 seconds both arms rise from their resting
-  angle to shoulder height. The Zombie King's crown glows up to gold (#ffd76a) and the Scarecrow
+  `src/view/models`; there is no new mock. Over the 0.6 seconds the Zombie King's arms rise from
+  their resting angle to shoulder height. The Scarecrow King's resting pose does not change: its
+  arms, already level at shoulder height, rise to 45° above it. The Zombie King's crown glows up to gold (#ffd76a) and the Scarecrow
   King's hat to orange (#ff9a3c), at full brightness when the action comes. Arms and glow return to
   rest right after the action. The shake moves the camera by a random offset each frame, at most
   0.15 units in x and y, fading linearly to nothing over the 0.25 seconds.
