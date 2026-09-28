@@ -4,11 +4,11 @@
 const EPS = 1e-9;
 
 // In key order, 1 to 3. `rate` is shots a second held (the Popper's is the level's fireRate);
-// `ammo` is what a crate gives, null for never running out.
+// `ammo` is what a crate gives, null for never running out; `hits` is what each pellet or blast is worth.
 export const WEAPONS = {
   popper: { key: 1, name: 'Popper', ammo: null },
-  scattergun: { key: 2, name: 'Scattergun', notice: 'Scattergun!', rate: 1.5, ammo: 12, pellets: 6, cone: 10 },
-  launcher: { key: 3, name: 'Launcher', notice: 'Pumpkin launcher!', rate: 1, ammo: 5, flight: 0.5, arc: 1.5, blast: 2, hits: 8 },
+  scattergun: { key: 2, name: 'Scattergun', notice: 'Scattergun! 8 pellets a blast — best up close', rate: 2, ammo: 16, pellets: 8, cone: 4, hits: 2 },
+  launcher: { key: 3, name: 'Launcher', notice: 'Pumpkin launcher! Explodes — hits every enemy nearby', rate: 1.5, ammo: 8, flight: 0.35, arc: 1.5, blast: 2.5, hits: 12 },
 };
 export const ORDER = Object.keys(WEAPONS);
 
@@ -21,7 +21,7 @@ export const CRATES = [
 // Crates appear at a random x at z, fall from `top` to `height`, hover until `stay` seconds after
 // they appear, then leave upward over `leave` seconds.
 export const CRATE = { minX: -6, maxX: 6, z: -6, top: 9, height: 1.5, fall: 3, stay: 10, leave: 1, hits: 3, flash: 0.08, bob: 0.12 };
-export const NOTICE_LIFE = 1.5;
+export const NOTICE_LIFE = 2.5;
 
 // A crate on its way out cannot be hit.
 export const crateLeaving = (c) => c.t >= CRATE.stay - EPS;
@@ -47,8 +47,8 @@ export function shellAt(s) {
   return { x: lerp('x'), y: lerp('y') + Math.sin(f * Math.PI) * arc, z: lerp('z') };
 }
 
-// The scattergun's pellets around the unit direction `d`: one along it, five evenly around it at
-// half the cone's angle.
+// The scattergun's pellets around the unit direction `d`: one along it, the rest evenly around it
+// at half the cone's angle.
 export function pelletDirs(d) {
   const { pellets, cone } = WEAPONS.scattergun;
   const a = ((cone / 2) * Math.PI) / 180;

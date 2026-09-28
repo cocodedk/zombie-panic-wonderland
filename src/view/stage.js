@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 import { pumpkinAt, crowAt, CROW_CIRCLE, bossWindup, SHAKE } from '../logic/game.js';
-import { STREAK } from '../logic/effects.js';
+import { STREAK, SPARK } from '../logic/effects.js';
 import { CAMERA } from '../logic/camera.js';
 import { crateAt, crateLeaving, shellAt, pelletDirs } from '../logic/weapons.js';
 import { flat } from './models/parts.js';
@@ -107,10 +107,11 @@ export function createStage(container, firstLevel) {
   const shockMat = new THREE.MeshBasicMaterial({ color: '#f0b25a', transparent: true, opacity: 0.8 });
   const streakGeo = new THREE.BoxGeometry(0.035, 0.035, 1);
   const streakMat = new THREE.MeshBasicMaterial({ color: STREAK.color });
+  const sparkMat = new THREE.MeshBasicMaterial({ color: SPARK.color });
   const chunkGeo = new THREE.IcosahedronGeometry(1, 0);
   const puffGeo = new THREE.IcosahedronGeometry(1, 1);
   const chunkMats = new Map(); // colour -> material, shared by every chunk
-  const shared = new Set([shockGeo, shockMat, streakGeo, streakMat, chunkGeo, puffGeo]);
+  const shared = new Set([shockGeo, shockMat, streakGeo, streakMat, sparkMat, chunkGeo, puffGeo]);
   const chunkMat = (color) => {
     if (!chunkMats.has(color)) {
       chunkMats.set(color, flat(color));
@@ -227,7 +228,16 @@ export function createStage(container, firstLevel) {
       }
       const fx = game.effects;
       const mesh = (name, geometry, material) => () => Object.assign(new THREE.Mesh(geometry, material), { name });
-      for (const s of fx.streaks) span(place(`x${s.id}`, mesh('streak', streakGeo, streakMat)), s.from, s.to);
+      for (const s of fx.streaks) {
+        const obj = place(`x${s.id}`, mesh('streak', streakGeo, streakMat));
+        span(obj, s.from, s.to);
+        obj.scale.set(s.width, s.width, obj.scale.z);
+      }
+      for (const k of fx.sparks) {
+        const obj = place(`x${k.id}`, mesh('spark', chunkGeo, sparkMat));
+        obj.position.set(k.pos.x, k.pos.y, k.pos.z);
+        obj.scale.setScalar(SPARK.size);
+      }
       for (const c of fx.chunks) {
         const obj = place(`x${c.id}`, mesh('chunk', chunkGeo, chunkMat(c.color)));
         obj.position.set(c.pos.x, c.pos.y, c.pos.z);

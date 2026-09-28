@@ -116,5 +116,34 @@ body.playing, body.playing * { cursor: none; }
   background: #fff4d0;
   border-radius: 50%;
 }
+/* The Scattergun: a 44 px ring with its pellet pattern, 7 dots evenly on the ring from its right. */
+#crosshair.scattergun {
+  width: 40px;
+  height: 40px;
+  margin: -22px 0 0 -22px;
+}
+#crosshair.scattergun::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  width: 52px;
+  height: 52px;
+  background-image:
+    radial-gradient(circle, #fff4d0 2.5px, transparent 3px), radial-gradient(circle, #fff4d0 2.5px, transparent 3px),
+    radial-gradient(circle, #fff4d0 2.5px, transparent 3px), radial-gradient(circle, #fff4d0 2.5px, transparent 3px),
+    radial-gradient(circle, #fff4d0 2.5px, transparent 3px), radial-gradient(circle, #fff4d0 2.5px, transparent 3px),
+    radial-gradient(circle, #fff4d0 2.5px, transparent 3px);
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  background-position: 43px 22px, 35.09px 5.58px, 17.33px 1.53px, 3.08px 12.89px, 3.08px 31.11px, 17.33px 42.47px, 35.09px 38.42px;
+}
+/* The launcher: a dashed 52 px circle for the blast. */
+#crosshair.launcher {
+  width: 48px;
+  height: 48px;
+  margin: -26px 0 0 -26px;
+  border-style: dashed;
+}
 
 [hidden] { display: none !important; }

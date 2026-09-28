@@ -60,6 +60,7 @@ export function createHud(doc, game) {
       }
 
       el.crosshair.hidden = v.pointer || !!v.plain;
+      el.crosshair.className = game.weapon; // its shape, from style.css
       doc.body.classList.toggle('playing', !v.pointer);
     },
   };
