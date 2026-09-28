@@ -50,14 +50,14 @@ function durable(game) {
 }
 
 describe('1. the new numbers, and the Popper\'s unchanged', () => {
-  test('Scattergun: 8 pellets in a 4° cone, 2 blasts a second, 2 hits a pellet, 16 shells', () => {
+  test('Scattergun: 8 pellets in a 4° cone, 2 blasts a second, 2 hits a pellet, 4 shells', () => {
     const s = WEAPONS.scattergun;
-    assert.deepEqual([s.pellets, s.cone, s.rate, s.hits, s.ammo], [8, 4, 2, 2, 16]);
+    assert.deepEqual([s.pellets, s.cone, s.rate, s.hits, s.ammo], [8, 4, 2, 2, 4]);
   });
 
-  test('Pumpkin launcher: 1.5 shots a second, a 0.35-second flight, a 2.5-unit blast of 12 hits, 8 rounds', () => {
+  test('Pumpkin launcher: 1.5 shots a second, a 0.35-second flight, a 2.5-unit blast of 12 hits, 2 rounds', () => {
     const l = WEAPONS.launcher;
-    assert.deepEqual([l.rate, l.flight, l.blast, l.hits, l.ammo], [1.5, 0.35, 2.5, 12, 8]);
+    assert.deepEqual([l.rate, l.flight, l.blast, l.hits, l.ammo], [1.5, 0.35, 2.5, 12, 2]);
   });
 
   test('the Popper: 8 shots a second of 1 hit, never running out', () => {

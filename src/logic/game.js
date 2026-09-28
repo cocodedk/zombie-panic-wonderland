@@ -90,8 +90,10 @@ export class Game {
     this.firing = false;
     this.shots = 0;
     this.weapon = 'popper'; // in hand
-    this.ammo = { scattergun: 0, launcher: 0 }; // a weapon is owned while it has ammo
+    this.owned = { scattergun: false, launcher: false }; // from its crate until a reset
+    this.ammo = { scattergun: 0, launcher: 0 }; // rounds left in each magazine
     this.reload = { popper: 0, scattergun: 0, launcher: 0 }; // seconds until each may fire again
+    this.refill = { scattergun: 0, launcher: 0 }; // seconds until each magazine is reloaded, 0 when not reloading
     this.pellets = null; // [{ id, point }] on each scattergun pellet's line, from the stage
     this.cratesDue = []; // { weapon, t }: crates still to appear, in t seconds
     this.crates = []; // { id, weapon, x, t, hits, flash }
@@ -133,7 +135,12 @@ export class Game {
   }
 
   owns(weapon) {
-    return weapon === 'popper' || this.ammo[weapon] > 0;
+    return weapon === 'popper' || this.owned[weapon];
+  }
+
+  // Whether the weapon in hand is reloading its magazine.
+  get reloading() {
+    return this.refill[this.weapon] > EPS;
   }
 
   // --- the journey ---
@@ -225,7 +232,23 @@ export class Game {
   // Keys 1 to 3: an owned weapon, at once.
   selectWeapon(weapon) {
     if (!this.live || !this.owns(weapon)) return false;
+    this.take(weapon);
+    return true;
+  }
+
+  // Into the hand: the reload of the weapon put away stops, and an empty one starts its own.
+  take(weapon) {
+    if (weapon === this.weapon) return;
+    if (this.weapon !== 'popper') this.refill[this.weapon] = 0;
     this.weapon = weapon;
+    if (weapon !== 'popper' && this.ammo[weapon] === 0) this.refill[weapon] = WEAPONS[weapon].refill;
+  }
+
+  // R: reloads the weapon in hand early, where shooting works.
+  reloadMagazine() {
+    const w = this.weapon;
+    if (!this.live || this.winTimer != null || w === 'popper' || this.reloading || this.ammo[w] >= WEAPONS[w].ammo) return false;
+    this.refill[w] = WEAPONS[w].refill;
     return true;
   }
 
@@ -246,15 +269,13 @@ export class Game {
   }
 
   // One shot of the weapon in hand. The Popper and the pellets hit at once, the streaks only show
-  // them; the launcher's pumpkin explodes when it lands. A weapon run empty gives way to the Popper.
+  // them; the launcher's pumpkin explodes when it lands. A weapon reloading does not fire, and an
+  // empty magazine starts its reload.
   shoot() {
     const w = this.weapon;
+    if (this.reloading) return;
     this.shots += 1;
-    if (w !== 'popper' && --this.ammo[w] <= 0) {
-      this.ammo[w] = 0;
-      this.weapon = 'popper';
-      this.cue('click');
-    }
+    if (w !== 'popper' && --this.ammo[w] === 0) this.refill[w] = WEAPONS[w].refill;
     const from = muzzleAt(this.player.x, this.level.roadZ, { ...this.pose(), weapon: w });
     const to = this.aimPoint ?? { x: this.player.x, y: 1, z: this.level.spawn.z };
     if (w === 'popper') {
@@ -325,8 +346,10 @@ export class Game {
     this.effects.burst('crate', crateAt(c));
     if (c.hits < CRATE.hits) return;
     this.crates.splice(this.crates.indexOf(c), 1);
+    this.owned[c.weapon] = true;
     this.ammo[c.weapon] = WEAPONS[c.weapon].ammo;
-    this.weapon = c.weapon;
+    this.refill[c.weapon] = 0;
+    this.take(c.weapon);
     this.cue('pickup');
     this.notice = WEAPONS[c.weapon].notice;
     this.noticeTimer = NOTICE_LIFE;
@@ -439,13 +462,23 @@ export class Game {
   }
 
   // Each weapon keeps its own reload: held, the weapon in hand fires once its own interval has
-  // passed since it last fired.
+  // passed since it last fired. The weapon in hand reloads its magazine first, and fires as soon
+  // as that ends.
   fire(dt) {
     const w = this.weapon;
-    for (const k of ORDER) if (k !== w || !this.firing) this.reload[k] = Math.max(0, this.reload[k] - dt);
-    if (!this.firing) return;
+    if (this.reloading) {
+      this.refill[w] -= dt;
+      if (due(this.refill[w])) {
+        this.refill[w] = 0;
+        this.ammo[w] = WEAPONS[w].ammo;
+        this.cue('reload');
+      }
+    }
+    const idle = !this.firing || this.reloading;
+    for (const k of ORDER) if (k !== w || idle) this.reload[k] = Math.max(0, this.reload[k] - dt);
+    if (idle) return;
     this.reload[w] -= dt;
-    while (due(this.reload[w]) && this.weapon === w) {
+    while (due(this.reload[w]) && this.weapon === w && !this.reloading) {
       this.shoot();
       this.reload[w] += 1 / (WEAPONS[w].rate ?? this.level.player.fireRate);
       if (this.winTimer != null) return;
@@ -711,6 +744,7 @@ export class Game {
       boss_health: this.bossHealth,
       weapon: this.weapon,
       ammo: this.weapon === 'popper' ? null : this.ammo[this.weapon],
+      reloading: this.reloading,
     };
   }
 }

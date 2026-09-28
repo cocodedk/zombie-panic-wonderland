@@ -371,7 +371,7 @@ describe('5. victory, defeat and restart', () => {
     game.setAim(game.enemies[0].id);
     game.restart();
     assert.equal(game.screen, 'intro');
-    assert.deepEqual(game.snapshot(), { level: 1, screen: 'intro', wave: 1, score: 0, hearts: 5, enemies: 0, boss_health: null, weapon: 'popper', ammo: null });
+    assert.deepEqual(game.snapshot(), { level: 1, screen: 'intro', wave: 1, score: 0, hearts: 5, enemies: 0, boss_health: null, weapon: 'popper', ammo: null, reloading: false });
     assert.equal(game.player.x, 0);
     assert.equal(game.player.lastDir, 1);
     assert.equal(game.move, 0);

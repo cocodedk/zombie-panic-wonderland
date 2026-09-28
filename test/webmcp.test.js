@@ -39,12 +39,12 @@ test('8. get_state answers from the game at call time', async () => {
   const game = new Game(level1, { random: () => 0.5 });
   await registerWebMcp(registry, game);
   const getState = registry.tools.get('get_state');
-  assert.deepEqual(await getState.execute({}), { level: 1, screen: 'loading', wave: 1, score: 0, hearts: 5, enemies: 0, boss_health: null, weapon: 'popper', ammo: null });
+  assert.deepEqual(await getState.execute({}), { level: 1, screen: 'loading', wave: 1, score: 0, hearts: 5, enemies: 0, boss_health: null, weapon: 'popper', ammo: null, reloading: false });
   game.loaded();
   click(game);
   click(game);
   run(game, 1);
-  assert.deepEqual(await getState.execute([]), { level: 1, screen: 'play', wave: 1, score: 0, hearts: 5, enemies: 2, boss_health: null, weapon: 'popper', ammo: null });
+  assert.deepEqual(await getState.execute([]), { level: 1, screen: 'play', wave: 1, score: 0, hearts: 5, enemies: 2, boss_health: null, weapon: 'popper', ammo: null, reloading: false });
   game.pressEsc();
   assert.equal((await getState.execute({ junk: 1 })).screen, 'paused');
 });

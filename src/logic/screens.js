@@ -9,7 +9,7 @@ export const TEXT = {
   webgl: 'Your browser cannot show 3D graphics (WebGL). Try another browser.',
   title: 'Zombie Panic in Wonderland',
   start: 'Click to start',
-  controls: 'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons',
+  controls: 'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons · R reloads',
   paused: 'Paused — press Esc to go on',
   defeat: 'Game over',
   playAgain: 'Play again',
@@ -20,12 +20,13 @@ export const TEXT = {
 
 const pad = (score) => String(score).padStart(6, '0');
 
-// The weapon line, one entry each: in hand, owned, or not owned (dimmed, with — for its ammo).
+// The weapon line, one entry each: in hand, owned, or not owned (dimmed, with — for its ammo);
+// an owned magazine shows left/size, or reloading.
 function weapons(game) {
   return ORDER.map((w) => {
     const { key, name } = WEAPONS[w];
     const state = w === game.weapon ? 'hand' : game.owns(w) ? 'owned' : 'none';
-    const ammo = w === 'popper' ? '∞' : state === 'none' ? '—' : game.ammo[w];
+    const ammo = w === 'popper' ? '∞' : state === 'none' ? '—' : game.refill[w] > 0 ? 'reloading' : `${game.ammo[w]}/${WEAPONS[w].ammo}`;
     return { weapon: w, text: `${key} ${name} ${ammo}`, state };
   });
 }
