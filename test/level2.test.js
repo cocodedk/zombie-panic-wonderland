@@ -145,6 +145,7 @@ describe('level 2: the Scarecrow King', () => {
     assert.equal(game.screen, 'play');
     game.shoot();
     assert.equal(game.score, before + 3000);
+    run(game, 1.5);
     assert.equal(game.screen, 'victory');
   });
 

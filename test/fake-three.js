@@ -218,6 +218,7 @@ export class WebGLRenderer {
 
 // Hits the first mesh of each object it is given, in order.
 export class Raycaster {
+  ray = { at: (distance, v) => v.set(0, 0, -distance) };
   setFromCamera() {}
   intersectObjects(objects) {
     const hits = [];

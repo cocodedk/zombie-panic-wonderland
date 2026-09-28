@@ -1,0 +1,109 @@
+// What the eye sees of what happened: bullet streaks, the muzzle flash, bursts of chunks and
+// puffs, and fades in their place when motion is reduced. Plain data, so Node can test it; the
+// stage draws it. Effects only show: they never hit anything.
+
+const EPS = 1e-9;
+
+export const GRAVITY = 9.8;
+export const MAX_CHUNKS = 300;
+export const STREAK = { color: '#fff3b0', life: 0.06, flash: 0.04 };
+export const PUFF_LIFE = 0.3;
+export const FADE_LIFE = 0.3;
+
+// The gun's muzzle in the player model's body, from its waist pivot (0.6 up).
+export const MUZZLE = { x: 0.1, y: 0.3, z: -0.76 };
+export const WAIST = 0.6;
+
+// How the player model's body sits at time `t`: it bobs while walking, and through a dodge
+// (`roll` 0..1 toward `dir`) it lifts and turns a full circle about z. The model and the muzzle share it.
+export function bodyPose({ t = 0, walk = 0, roll = 0, dir = 1 } = {}) {
+  const bob = walk ? Math.abs(Math.sin(t * 12)) * 0.05 : 0;
+  const lift = roll ? Math.sin(roll * Math.PI) * 0.25 : 0;
+  return { y: WAIST + bob + lift, turn: -dir * roll * Math.PI * 2 };
+}
+
+// Where the muzzle is for a player at `x` in the pose `pose` (see bodyPose).
+export function muzzleAt(x, roadZ, pose = {}) {
+  const { y, turn } = bodyPose(pose);
+  return {
+    x: x + MUZZLE.x * Math.cos(turn) - MUZZLE.y * Math.sin(turn),
+    y: y + MUZZLE.x * Math.sin(turn) + MUZZLE.y * Math.cos(turn),
+    z: roadZ + MUZZLE.z,
+  };
+}
+
+// What each thing bursts into: chunks in its model's colours, and a puff (or none).
+export const BURSTS = {
+  zombie: { count: 12, life: 1, size: 0.18, colors: ['#7d9a6a', '#5b5270', '#3d3a35'], puff: '#9fd18b', puffSize: 1 },
+  pumpkinMonster: { count: 12, life: 1, size: 0.18, colors: ['#e0762b', '#3f6b2a', '#5f8f3a'], puff: '#e07b24', puffSize: 1 },
+  crow: { count: 12, life: 1, size: 0.18, colors: ['#16161c', '#c99a2e'], puff: '#3a3a3a', puffSize: 1 },
+  zombieKing: { count: 40, life: 1.5, size: 0.35, colors: ['#7d9a6a', '#5a1f3a', '#3d3a35', '#d9a520'], puff: '#9fd18b', puffSize: 3 },
+  scarecrowKing: { count: 40, life: 1.5, size: 0.35, colors: ['#9c8456', '#3d2f22', '#3f2a4a', '#d8c070'], puff: '#e07b24', puffSize: 3 },
+  pumpkin: { count: 6, life: 0.6, size: 0.14, colors: ['#e07b24'], puff: null },
+};
+
+export class Effects {
+  constructor({ random = Math.random, reducedMotion = false } = {}) {
+    this.random = random;
+    this.reducedMotion = reducedMotion;
+    this.nextId = 1;
+    this.clear();
+  }
+
+  clear() {
+    this.streaks = [];
+    this.chunks = [];
+    this.puffs = [];
+    this.fades = [];
+    this.flash = 0; // seconds of muzzle flash left
+  }
+
+  shot(from, to) {
+    this.streaks.push({ id: this.nextId++, from, to, age: 0, life: STREAK.life });
+    this.flash = STREAK.flash;
+  }
+
+  // `kind` bursts at `at`. With reduced motion, `fade` (the fallen enemy) fades out instead.
+  burst(kind, at, fade = null) {
+    if (this.reducedMotion) {
+      if (fade) this.fades.push({ ...fade, id: this.nextId++, age: 0, life: FADE_LIFE });
+      return;
+    }
+    const b = BURSTS[kind];
+    const r = this.random;
+    for (let i = 0; i < b.count; i++) {
+      const speed = 3 + 3 * r();
+      const turn = r() * Math.PI * 2;
+      const up = 0.3 + r() * 1.1; // out and up
+      this.chunks.push({
+        id: this.nextId++,
+        color: b.colors[i % b.colors.length],
+        size: b.size,
+        pos: { ...at },
+        vel: { x: speed * Math.cos(up) * Math.cos(turn), y: speed * Math.sin(up), z: speed * Math.cos(up) * Math.sin(turn) },
+        spin: { x: (r() - 0.5) * 12, y: (r() - 0.5) * 12, z: (r() - 0.5) * 12 },
+        rot: { x: 0, y: 0, z: 0 },
+        age: 0,
+        life: b.life,
+      });
+    }
+    if (this.chunks.length > MAX_CHUNKS) this.chunks.splice(0, this.chunks.length - MAX_CHUNKS);
+    if (b.puff) this.puffs.push({ id: this.nextId++, pos: { ...at }, color: b.puff, size: b.puffSize, age: 0, life: PUFF_LIFE });
+  }
+
+  update(dt) {
+    this.flash = Math.max(0, this.flash - dt);
+    const alive = (f) => (f.age += dt) < f.life - EPS;
+    for (const c of this.chunks) {
+      c.vel.y -= GRAVITY * dt;
+      for (const k of ['x', 'y', 'z']) {
+        c.pos[k] += c.vel[k] * dt;
+        c.rot[k] += c.spin[k] * dt;
+      }
+    }
+    this.streaks = this.streaks.filter(alive);
+    this.chunks = this.chunks.filter(alive);
+    this.puffs = this.puffs.filter(alive);
+    this.fades = this.fades.filter(alive);
+  }
+}

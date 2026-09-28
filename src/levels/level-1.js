@@ -54,6 +54,20 @@ export const level1 = {
     summons: 'zombie',
   },
 
+  // The level's loop: A minor. `root` is a MIDI note; `bass` a scale degree per bar, `melody` one
+  // per beat (null rests), an octave above the root.
+  music: {
+    key: 'A minor',
+    bpm: 120,
+    bars: 8,
+    root: 57,
+    bass: [0, 0, 5, 5, 3, 3, 4, 4],
+    melody: [
+      0, 2, 4, null, 4, 3, 2, null, 5, 4, 2, 0, 2, null, null, null,
+      3, 5, 7, 5, 4, 2, 0, null, 1, 2, 4, 6, 4, null, -1, null,
+    ],
+  },
+
   // The scene, for the stage. Each entry names a model and its parameters.
   scenery: [
     { model: 'sky', top: '#2b1d3f', horizon: '#c46a3b' },

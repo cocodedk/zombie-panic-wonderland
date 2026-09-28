@@ -3,6 +3,15 @@
 const LEFT = new Set(['KeyA', 'ArrowLeft']);
 const RIGHT = new Set(['KeyD', 'ArrowRight']);
 
+// M turns the sound off and on, on every screen, so it is bound before the stage loads.
+export function bindMute(win, game, hud) {
+  win.addEventListener('keydown', (e) => {
+    if (e.code !== 'KeyM' || e.repeat) return;
+    game.toggleSound();
+    hud.render();
+  });
+}
+
 export function bindInput(win, game, hud) {
   const aim = { x: 0, y: 0 };
   const held = new Set();
