@@ -52,7 +52,7 @@ describe('1. each event emits its cue once, and none before the start click', ()
     assert.deepEqual(names(game).filter((n) => n === 'burst'), ['burst']);
     run(game, 12.6); // the second zombie, a second behind, strikes once
     assert.equal(game.player.hearts, 4);
-    assert.deepEqual(names(game), ['hurt']);
+    assert.deepEqual(names(game), ['groan', 'hurt']); // it groans as it reaches the road
   });
 
   test('dodge only when it rolls', () => {

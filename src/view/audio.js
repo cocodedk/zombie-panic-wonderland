@@ -122,6 +122,10 @@ export function createAudio(win) {
       tone(60, t, 0.7, { to: 24, level: 0.6 });
       hiss(t, 0.5, { f: 700, to: 45, level: 0.6, buffer: crunch });
     },
+    groan: (t) => {
+      tone(98, t, 0.6, { type: 'sawtooth', to: 66, level: 0.1, attack: 0.15 });
+      tone(99.5, t, 0.6, { type: 'triangle', to: 67, level: 0.2, attack: 0.15 });
+    },
     pickup: (t) => notes([84, 91], t, 0.1, 0.16),
     click: (t) => hiss(t, 0.015, { filter: 'highpass', f: 4000, level: 0.25 }),
     victory: (t) => notes([72, 76, 79], t, 0.18, 0.3),
