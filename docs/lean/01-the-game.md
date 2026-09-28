@@ -133,6 +133,19 @@ nothing about WebMCP.
 8. The two WebMCP tools answer as described, with a fake registry, and a refusing or missing one
    changes nothing.
 
+## Answers to the grill
+
+The owner delegated these to the flow of the original, kept simple.
+
+- **Between waves and during the boss announcement,** the player keeps full control: moving,
+  shooting, dodging and pausing all work. No enemy is on the field then, so nothing can cause
+  damage. When an enemy falls, any pumpkin it threw vanishes with it. After `Wave N cleared`
+  disappears, only the HUD and the scene show until the next wave's first enemy arrives, one second
+  later.
+- **Space while standing still** dodges toward the direction of the player's last movement, or to
+  the right if the player has not moved yet in this level. A roll stops at the edge of the road
+  (x = -8 or x = 8), and it still counts as a dodge.
+
 ## Out of scope
 
 Sound and music, touch and mobile controls, more levels, cutscenes beyond the intro card, saving
