@@ -17,6 +17,7 @@ export const TEXT = {
 };
 
 const pad = (score) => String(score).padStart(6, '0');
+const sound = (game) => (game.soundOn ? 'on' : 'off');
 
 // The victory screen's button beside Play again: Next level, or Back to title after the first level.
 function second(game) {
@@ -32,7 +33,7 @@ export function screenView(game) {
   const view = { plain: null, band: null, hud: null, pointer: true };
   if (s === 'loading') view.plain = TEXT.loading;
   else if (s === 'error') view.plain = TEXT[game.error] ?? TEXT.network;
-  else if (s === 'title') view.band = { title: TEXT.title, lines: [TEXT.start, TEXT.controls] };
+  else if (s === 'title') view.band = { title: TEXT.title, lines: [TEXT.start, `${TEXT.controls} · M sound: ${sound(game)}`] };
   else if (s === 'intro') view.band = { lines: [text.intro] };
   else if (s === 'play' && game.banner) view.band = { lines: [game.banner] };
   else if (s === 'paused') view.band = { lines: [TEXT.paused] };
@@ -47,6 +48,7 @@ export function screenView(game) {
       score: `SCORE ${pad(game.score)}`,
       wave: boss ? null : `${prefix}Wave ${game.wave} / ${game.level.waves.length}`,
       boss: boss ? game.bossHealth / game.level.boss.hits : null,
+      sound: `♪ ${sound(game)}`,
     };
   }
   view.pointer = !['intro', 'play', 'paused'].includes(s);

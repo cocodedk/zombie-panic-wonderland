@@ -47,6 +47,19 @@ export const level2 = {
     summons: 'crow',
   },
 
+  // Level 1's shape of loop, slower, in D minor.
+  music: {
+    key: 'D minor',
+    bpm: 100,
+    bars: 8,
+    root: 50,
+    bass: [0, 3, 0, 4, 5, 3, 4, 4],
+    melody: [
+      4, null, 3, 2, 0, null, null, 2, 3, 4, 5, 4, 2, null, null, null,
+      4, null, 3, 2, 0, 2, 3, null, 1, null, -1, 1, 0, null, null, null,
+    ],
+  },
+
   // Moonlight in place of level 1's sunset.
   light: { fog: '#15302c', fogFar: 120,sky: '#5d7fa8', ground: '#1a2618', key: '#cfdcff', keyAt: [10, 14, -20], fill: '#7fa0c0' },
 

@@ -5,7 +5,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { register } from 'node:module';
 import { level2 } from '../src/levels/level-2.js';
-import { playing, run, kill, clearWave, click, level1 } from './helpers.js';
+import { playing, run, kill, clearWave, click, levelWith, level1 } from './helpers.js';
+import { Game } from '../src/logic/game.js';
 import { withWaves, short1, short2, journey } from './journey.js';
 
 register('./three-hooks.js', import.meta.url);
@@ -118,6 +119,7 @@ test('moving to level 2 builds its backdrop anew; Back to title brings level 1\'
   run(game, 3 + 2 + 0.05);
   assert.equal(named(draw(), 'zombieKing').length, 1);
   kill(game, game.enemies[0]);
+  run(game, 1.5);
   draw();
 
   const disposed = THREE.disposed.geometries;
@@ -135,10 +137,91 @@ test('moving to level 2 builds its backdrop anew; Back to title brings level 1\'
   run(game, 3 + 2 + 0.05);
   assert.equal(named(draw(), 'scarecrowKing').length, 1);
   kill(game, game.enemies[0]);
+  run(game, 1.5);
   game.toTitle();
   scene = draw();
   assert.equal(game.level, short1);
   assert.equal(backdropOf(scene).length, 1);
   assert.deepEqual(models(scene), level1.scenery.map((s) => s.model));
   assert.equal(hex(scene.fog.color), '#5a3148');
+});
+
+test('the aim finds the enemy under the crosshair, and where its ray lands', () => {
+  const game = playing(levelWith([{ zombie: 1 }]));
+  const { stage, draw } = stageFor(game);
+  draw();
+  assert.deepEqual(stage.aimAt(CENTRE), { id: game.enemies[0].id, point: { x: 0, y: 0, z: -60 } });
+});
+
+test('a streak starts where the drawn gun is, walking or rolling', () => {
+  const game = playing(levelWith([{ zombie: 1 }]));
+  const { draw } = stageFor(game);
+  game.setMove(1);
+  for (const [seconds, dodge] of [[0.3, false], [0.2, true]]) {
+    if (dodge) assert.ok(game.dodge());
+    run(game, seconds);
+    game.shoot();
+    const body = draw().children.find((c) => c.userData.flash).userData.body;
+    const { from } = game.effects.streaks.at(-1);
+    const [mx, my] = [0.1, 0.3]; // the muzzle, from the body's waist pivot
+    const a = body.rotation.z;
+    assert.ok(Math.abs(from.y - (body.position.y + mx * Math.sin(a) + my * Math.cos(a))) < 1e-9);
+    assert.ok(Math.abs(from.x - (game.player.x + mx * Math.cos(a) - my * Math.sin(a))) < 1e-9);
+  }
+});
+
+test('streaks, the muzzle flash, chunks and puffs are drawn; pause freezes them; a restart clears them', () => {
+  const game = playing(levelWith([{ zombie: 2 }]));
+  const { stage, draw } = stageFor(game);
+  const player = () => draw().children.find((c) => c.userData.flash);
+  game.setAim(game.enemies[0].id, { x: 0, y: 1.1, z: -11 });
+  for (let i = 0; i < 3; i++) game.shoot(); // it falls
+  let scene = draw();
+  const [streak] = named(scene, 'streak');
+  const from = game.effects.streaks[0].from;
+  assert.ok(Math.abs(streak.scale.z - Math.hypot(0 - from.x, 1.1 - from.y, -11 - from.z)) < 1e-9);
+  assert.equal(hex(streak.material.color), '#fff3b0');
+  assert.equal(player().userData.flash.visible, true);
+  assert.equal(named(scene, 'chunk').length, 12);
+  assert.ok(named(scene, 'chunk').every((c) => c.material.flatShading));
+  assert.equal(hex(named(scene, 'puff')[0].material.color), '#9fd18b');
+
+  run(game, 0.1);
+  scene = draw();
+  assert.equal(named(scene, 'streak').length, 0);
+  assert.equal(player().userData.flash.visible, false);
+  game.pressEsc();
+  const where = () => JSON.stringify(named(draw(), 'chunk').map((c) => [c.position, c.scale]));
+  const frozen = where();
+  for (let i = 0; i < 10; i++) stage.sync(game, 0.05);
+  assert.equal(where(), frozen);
+  game.pressEsc();
+  run(game, 1);
+  assert.equal(named(draw(), 'chunk').length, 0);
+
+  kill(game, game.enemies[0]);
+  game.player.hearts = 0;
+  game.end('defeat');
+  assert.equal(named(draw(), 'chunk').length, 12);
+  game.restart();
+  scene = draw();
+  assert.equal(named(scene, 'chunk').length + named(scene, 'puff').length, 0);
+});
+
+test('with reduced motion a fallen enemy fades out, and no chunks are drawn', () => {
+  const game = new Game(levelWith([{ zombie: 1 }]), { random: () => 0.5, reducedMotion: true });
+  game.loaded();
+  click(game);
+  click(game);
+  const { draw } = stageFor(game);
+  kill(game, game.enemies[0]);
+  run(game, 0.15);
+  const scene = draw();
+  assert.equal(named(scene, 'chunk').length, 0);
+  const [fade] = named(scene, 'fade');
+  let opacity;
+  fade.traverse((m) => { if (m.material) opacity = m.material.opacity; });
+  assert.ok(Math.abs(opacity - 0.5) < 1e-6, `opacity ${opacity}`);
+  run(game, 0.15);
+  assert.equal(named(draw(), 'fade').length, 0);
 });

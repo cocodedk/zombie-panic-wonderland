@@ -8,7 +8,7 @@ export function createHud(doc, game) {
     plain: $('#plain'), hud: $('#hud'), hearts: $('#hearts'), score: $('#score'), wave: $('#wave'),
     bossbar: $('#bossbar'), bossfill: $('#bossbar i'), band: $('#band'), title: $('#band h1'),
     lines: $('#band .lines'), button: $('#band button'), second: $('#band button + button'),
-    bossname: $('#bossbar span'), crosshair: $('#crosshair'), stage: $('#stage'),
+    bossname: $('#bossbar span'), sound: $('#sound'), crosshair: $('#crosshair'), stage: $('#stage'),
   };
   el.button.addEventListener('click', () => game.restart());
   el.second.addEventListener('click', () => (game.next ? game.nextLevel() : game.toTitle()));
@@ -47,6 +47,7 @@ export function createHud(doc, game) {
         el.bossbar.hidden = v.hud.boss == null;
         text(el.bossname, game.level.boss.name);
         el.bossfill.style.width = `${(v.hud.boss ?? 0) * 100}%`;
+        text(el.sound, v.hud.sound);
       }
 
       el.crosshair.hidden = v.pointer || !!v.plain;

@@ -18,10 +18,11 @@ export function journey() {
   return game;
 }
 
-// Clears the wave, waits for the boss and fells it.
+// Clears the wave, waits for the boss, fells it and waits out its 1.5-second burst.
 export function win(game) {
   clearWave(game);
   run(game, game.level.timing.gap + game.level.timing.bossBanner + 0.05);
   kill(game, game.enemies.find((e) => e.kind === 'boss'));
+  run(game, 1.5);
   assert.equal(game.screen, 'victory');
 }

@@ -2,6 +2,7 @@
 
 import * as THREE from 'three';
 import { flat, part, group } from './parts.js';
+import { bodyPose } from '../../logic/effects.js';
 
 export function buildPlayer({
   hood = '#b3202a',
@@ -58,8 +59,9 @@ export function buildPlayer({
       const swing = walk ? Math.sin(t * 12) * 0.5 : 0;
       legs[0].rotation.x = swing;
       legs[1].rotation.x = -swing;
-      body.position.y = 0.6 + (walk ? Math.abs(Math.sin(t * 12)) * 0.05 : 0) + (roll ? Math.sin(roll * Math.PI) * 0.25 : 0);
-      body.rotation.z = -dir * roll * Math.PI * 2;
+      const pose = bodyPose({ t, walk, roll, dir });
+      body.position.y = pose.y;
+      body.rotation.z = pose.turn;
     },
   };
   return root;

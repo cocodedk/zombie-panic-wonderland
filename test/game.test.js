@@ -321,6 +321,7 @@ describe('5. victory, defeat and restart', () => {
     const game = toBoss();
     run(game, 2);
     kill(game, game.enemies[0]);
+    run(game, 1.5);
     assert.equal(game.screen, 'victory');
     const frozen = JSON.stringify(game.snapshot());
     run(game, 5);
@@ -339,6 +340,7 @@ describe('5. victory, defeat and restart', () => {
     game.setAim(boss.id);
     game.pointerDown();
     game.update(0.01);
+    run(game, 1.5);
     assert.equal(game.screen, 'victory');
     assert.equal(game.player.hearts, 1);
   });

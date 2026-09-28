@@ -1,14 +1,20 @@
-// The page: game logic, HUD and WebMCP first; three.js and the stage load after, and may fail.
+// The page: game logic, HUD, sound and WebMCP first; three.js and the stage load after, and may fail.
 
 import { Game } from './logic/game.js';
+import { mix } from './logic/sound.js';
 import { registerWebMcp } from './logic/webmcp.js';
 import { level1 } from './levels/level-1.js';
 import { level2 } from './levels/level-2.js';
 import { createHud } from './view/hud.js';
-import { bindInput } from './view/input.js';
+import { createAudio } from './view/audio.js';
+import { bindInput, bindMute } from './view/input.js';
 
-const game = new Game(level1, { levels: [level1, level2] });
+const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+const game = new Game(level1, { levels: [level1, level2], reducedMotion });
 const hud = createHud(document, game);
+const audio = createAudio(window);
+bindMute(window, game, hud);
+window.addEventListener('pointerdown', () => audio.unlock()); // browsers allow sound only after a click
 registerWebMcp(document.modelContext, game);
 
 function hasWebGL() {
@@ -43,9 +49,11 @@ async function boot() {
   const frame = (now) => {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    game.setAim(stage.pick(aim));
+    const target = stage.aimAt(aim);
+    game.setAim(target.id, target.point);
     game.update(dt);
     stage.sync(game, dt);
+    audio.play(mix(game));
     hud.render();
     requestAnimationFrame(frame);
   };

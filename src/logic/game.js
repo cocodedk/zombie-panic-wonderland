@@ -1,5 +1,8 @@
 // The rules of a level: screens, waves, enemies, damage, score, dodge and pause.
-// No three.js here, so Node can test it. The stage reads this state and draws it.
+// No three.js here, so Node can test it. The stage reads this state and draws it; what happened
+// is also recorded as sound cues (`cues`) and effects (`effects`), for the audio module and the stage.
+
+import { Effects, BURSTS, muzzleAt } from './effects.js';
 
 const EPS = 1e-9;
 const due = (t) => t <= EPS;
@@ -8,15 +11,43 @@ const CLICK = 0.25; // seconds: a shorter press is a click
 
 export const SCREENS = ['loading', 'error', 'title', 'intro', 'play', 'paused', 'victory', 'defeat'];
 
+// Where a pumpkin is in its flight: thrown from its owner, arcing down to the road.
+export function pumpkinAt(p, roadZ) {
+  const f = Math.min(1, p.t / p.flight);
+  return { x: p.fromX + (p.x - p.fromX) * f, y: 2.4 * (1 - f) + 0.25 + Math.sin(f * Math.PI) * 4, z: p.fromZ + (roadZ - p.fromZ) * f };
+}
+
+export const CROW_CIRCLE = 1.5; // the radius a crow circles at
+
+// Where a crow is: flying in from the backdrop and circling, then diving at the road.
+export function crowAt(e, level) {
+  const c = level.enemies.crow;
+  if (e.diveX == null) {
+    const t = c.circle - e.timer;
+    const a = t * (Math.PI * 2) / c.circle;
+    const arrive = Math.min(1, t / 0.6);
+    const from = { x: e.x, y: c.height + 3, z: level.spawn.z - 8 };
+    const at = { x: e.x + Math.cos(a) * CROW_CIRCLE, y: c.height, z: e.z + Math.sin(a) * CROW_CIRCLE };
+    return { x: from.x + (at.x - from.x) * arrive, y: from.y + (at.y - from.y) * arrive, z: from.z + (at.z - from.z) * arrive };
+  }
+  const f = 1 - e.timer / c.dive;
+  const x = e.x + CROW_CIRCLE;
+  return { x: x + (e.diveX - x) * f, y: c.height + (0.5 - c.height) * f, z: e.z + (level.roadZ - e.z) * f };
+}
+
 export class Game {
   // `levels` is the order they are played in; `level` is the one on show.
-  constructor(level, { random = Math.random, levels = [level] } = {}) {
+  constructor(level, { random = Math.random, levels = [level], reducedMotion = false } = {}) {
     this.levels = levels;
     this.level = level;
     this.random = random;
+    this.reducedMotion = reducedMotion;
     this.screen = 'loading';
     this.error = null; // 'network' or 'webgl'
     this.startScore = 0; // the score when this level began
+    this.soundOn = true; // M flips it; it lasts until the page is closed
+    this.cues = []; // { name } for each sound due, taken by the audio module
+    this.clock = 0; // seconds the game has run, for the stage's animations
     this.reset();
   }
 
@@ -25,6 +56,7 @@ export class Game {
     this.player = { x: 0, hearts: player.hearts, dodging: 0, cooldown: 0, dir: 1, lastDir: 1 };
     this.move = 0;
     this.aim = null;
+    this.aimPoint = null; // where the crosshair's ray lands, for the bullet's streak
     this.score = this.startScore;
     this.wave = 1;
     this.phase = 'intro'; // then 'wave', 'cleared', 'announce', 'boss'
@@ -45,6 +77,16 @@ export class Game {
     this.pausedFrom = null;
     this.press = null;
     this.pressTime = 0;
+    this.winTimer = null; // after the boss falls, the seconds until the victory card
+    this.effects = new Effects({ random: this.random, reducedMotion: this.reducedMotion });
+  }
+
+  cue(name, extra = {}) {
+    this.cues.push({ name, ...extra });
+  }
+
+  toggleSound() {
+    this.soundOn = !this.soundOn;
   }
 
   get live() {
@@ -53,6 +95,13 @@ export class Game {
 
   get dodging() {
     return this.player.dodging > EPS;
+  }
+
+  // How the player is drawn now: walking, and how far through a dodge (see bodyPose).
+  pose() {
+    const p = this.player;
+    const roll = this.dodging ? 1 - p.dodging / this.level.player.dodgeTime : 0;
+    return { t: this.clock, walk: this.live && this.move ? 1 : 0, roll, dir: p.dir };
   }
 
   // --- the journey ---
@@ -133,8 +182,10 @@ export class Game {
     this.move = Math.sign(dir);
   }
 
-  setAim(id) {
+  // `point` is where the crosshair's ray lands: on the thing aimed at, or the ground or backdrop.
+  setAim(id, point = null) {
     this.aim = id ?? null;
+    this.aimPoint = point;
   }
 
   dodge() {
@@ -142,21 +193,26 @@ export class Game {
     if (!this.live || this.dodging || !due(p.cooldown)) return false;
     p.dodging = this.level.player.dodgeTime;
     p.dir = this.move || p.lastDir;
+    this.cue('dodge');
     return true;
   }
 
-  // One shot at whatever is under the crosshair.
+  // One shot at whatever is under the crosshair; it hits at once, the streak only shows it.
   shoot() {
     this.shots += 1;
+    this.cue('shot');
+    this.effects.shot(muzzleAt(this.player.x, this.level.roadZ, this.pose()), this.aimPoint ?? { x: this.player.x, y: 1, z: this.level.spawn.z });
     const id = this.aim;
     if (id == null) return;
     const pumpkin = this.pumpkins.findIndex((p) => p.id === id);
     if (pumpkin >= 0) {
-      this.score += this.pumpkins.splice(pumpkin, 1)[0].points;
+      this.cue('hit');
+      this.shootDown(this.pumpkins.splice(pumpkin, 1)[0]);
       return;
     }
     const enemy = this.enemies.find((e) => e.id === id);
     if (!enemy) return;
+    this.cue('hit');
     enemy.health -= 1;
     if (enemy.kind === 'boss') this.bossHealth = enemy.health;
     if (enemy.health <= 0) this.fall(enemy);
@@ -166,6 +222,8 @@ export class Game {
 
   update(dt) {
     if (!this.live) return;
+    this.clock += dt;
+    this.effects.update(dt);
     this.movePlayer(dt);
     if (this.screen === 'intro') {
       if (this.press === 'intro' && !this.firing) {
@@ -177,8 +235,15 @@ export class Game {
       if (due(this.timer)) this.startPlay();
       return;
     }
+    this.flyaways = this.flyaways.filter((f) => (f.t += dt) < this.level.enemies.crow.leave - EPS);
+    if (this.winTimer != null) {
+      // The boss has fallen: its burst plays out, then the victory card.
+      this.winTimer -= dt;
+      if (due(this.winTimer)) this.end('victory');
+      return;
+    }
     this.fire(dt);
-    if (this.screen !== 'play') return; // the shot that fells the boss ends the frame
+    if (this.winTimer != null) return; // the shot that fells the boss ends the frame
     // Pumpkins and shockwaves first, so one thrown this frame does not age in it.
     for (const p of [...this.pumpkins]) {
       p.t += dt;
@@ -187,7 +252,6 @@ export class Game {
       if (Math.abs(this.player.x - p.x) <= this.level.enemies.pumpkinMonster.splash + EPS) this.hurt(p.hearts);
       if (this.screen !== 'play') return;
     }
-    this.flyaways = this.flyaways.filter((f) => (f.t += dt) < this.level.enemies.crow.leave - EPS);
     for (const s of [...this.stomps]) {
       s.t -= dt;
       if (!due(s.t)) continue;
@@ -234,7 +298,7 @@ export class Game {
     while (due(this.fireTimer)) {
       this.shoot();
       this.fireTimer += 1 / this.level.player.fireRate;
-      if (!this.live) return;
+      if (this.winTimer != null) return;
     }
   }
 
@@ -259,6 +323,7 @@ export class Game {
         this.startWave(this.wave + 1);
       } else {
         this.phase = 'announce';
+        this.cue('boss');
         this.showBanner(this.level.text.boss, timing.bossBanner);
         this.timer = timing.bossBanner;
       }
@@ -350,6 +415,7 @@ export class Game {
   // A pumpkin flies from `from` to where the player stands now; the boss's burns.
   throwPumpkin(from, { hearts, points, flaming = false }) {
     const c = this.level.enemies.pumpkinMonster;
+    this.cue('throw');
     this.pumpkins.push({ id: this.nextId++, owner: from.id, fromX: from.x, fromZ: from.z, x: this.player.x, t: 0, flight: c.flight, hearts, points, flaming });
   }
 
@@ -361,6 +427,7 @@ export class Game {
     if (e.diveX == null) {
       e.diveX = this.player.x;
       e.timer += c.dive;
+      this.cue('caw');
       return;
     }
     this.enemies.splice(this.enemies.indexOf(e), 1);
@@ -384,22 +451,54 @@ export class Game {
     else for (let i = 0; i < b.summon; i++) this.spawn(b.summons);
   }
 
+  // When the boss falls, everything else on the field bursts with it, for no points, and the
+  // victory card waits for the boss's burst to finish.
   fall(e) {
     this.enemies.splice(this.enemies.indexOf(e), 1);
     this.pumpkins = this.pumpkins.filter((p) => p.owner !== e.id);
+    this.burst(e);
     if (e.kind === 'boss') {
+      this.cue('burst', { boss: true });
       this.score += this.level.boss.points;
       this.bossHealth = 0;
       this.stomps = [];
-      this.end('victory');
+      for (const other of this.enemies) {
+        this.burst(other);
+        this.cue('burst');
+      }
+      for (const p of this.pumpkins) this.shootDown(p, 0);
+      this.enemies = [];
+      this.pumpkins = [];
+      this.firing = false;
+      this.winTimer = BURSTS[this.level.boss.model].life;
     } else {
+      this.cue('burst');
       this.score += this.level.enemies[e.kind].points;
     }
   }
 
+  burst(e) {
+    const kind = e.kind === 'boss' ? this.level.boss.model : e.kind;
+    const at = this.centre(e);
+    this.effects.burst(kind, at, { kind: e.kind, x: at.x, y: e.kind === 'crow' ? at.y : 0, z: at.z });
+  }
+
+  // A pumpkin shot down in the air: its points, and a small burst.
+  shootDown(p, points = p.points) {
+    this.score += points;
+    this.effects.burst('pumpkin', pumpkinAt(p, this.level.roadZ));
+  }
+
+  // The middle of an enemy, where it bursts: where the stage draws it.
+  centre(e) {
+    if (e.kind === 'crow') return crowAt(e, this.level);
+    return { x: e.x, y: e.kind === 'boss' ? 3 : 1, z: e.z };
+  }
+
   hurt(hearts = 1) {
-    if (this.screen !== 'play' || this.dodging) return false;
+    if (this.screen !== 'play' || this.dodging || this.winTimer != null) return false;
     this.player.hearts -= hearts;
+    this.cue('hurt');
     if (this.player.hearts <= 0) {
       this.player.hearts = 0;
       this.end('defeat');
@@ -410,6 +509,7 @@ export class Game {
   end(screen) {
     this.screen = screen;
     this.firing = false;
+    this.cue(screen);
   }
 
   showBanner(text, seconds) {

@@ -1,8 +1,12 @@
 // The three.js stage: builds the level's scene, draws the game state each frame, and finds what
 // is under the crosshair. The camera is fixed behind and above the player; the backdrop never moves.
-// When the game moves to another level, the backdrop and its light are built anew.
+// When the game moves to another level, the backdrop and its light are built anew. The game's
+// effects (streaks, chunks, puffs and fades) are drawn here too.
 
 import * as THREE from 'three';
+import { pumpkinAt, crowAt, CROW_CIRCLE } from '../logic/game.js';
+import { STREAK } from '../logic/effects.js';
+import { flat } from './models/parts.js';
 import { buildPlayer } from './models/player.js';
 import { buildZombie, buildZombieKing } from './models/zombie.js';
 import { buildPumpkin, buildPumpkinMonster, buildFlamingPumpkin } from './models/pumpkin.js';
@@ -29,8 +33,6 @@ const ENEMIES = {
 // Level 1's dusk; a level may set its own.
 const LIGHT = { fog: '#5a3148', fogFar: 70, sky: '#8a6fb0', ground: '#3a2a1a', key: '#ffb070', keyAt: [-8, 6, -20], fill: '#c9b8ff' };
 
-const ANIMATED = new Set(['title', 'intro', 'play']);
-
 function buildBackdrop(scene, level) {
   const light = { ...LIGHT, ...level.light };
   scene.fog = new THREE.Fog(light.fog, 22, light.fogFar);
@@ -55,11 +57,21 @@ function buildBackdrop(scene, level) {
   return backdrop;
 }
 
-function dispose(obj, keep = []) {
+function dispose(obj, keep = new Set()) {
   obj.traverse((m) => {
-    if (m.geometry && !keep.includes(m.geometry)) m.geometry.dispose();
-    if (m.material && !keep.includes(m.material)) m.material.dispose();
+    if (m.geometry && !keep.has(m.geometry)) m.geometry.dispose();
+    if (m.material && !keep.has(m.material)) m.material.dispose();
   });
+}
+
+// Points `obj`, a unit length along z, from `a` to `b`.
+function span(obj, a, b) {
+  const d = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z };
+  const len = Math.hypot(d.x, d.y, d.z);
+  obj.position.set((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
+  obj.rotation.order = 'YXZ';
+  obj.rotation.set(-Math.atan2(d.y, Math.hypot(d.x, d.z)), Math.atan2(d.x, d.z), 0);
+  obj.scale.set(1, 1, len);
 }
 
 export function createStage(container, firstLevel) {
@@ -89,13 +101,23 @@ export function createStage(container, firstLevel) {
 
   const shockGeo = new THREE.TorusGeometry(1, 0.08, 3, 24);
   const shockMat = new THREE.MeshBasicMaterial({ color: '#f0b25a', transparent: true, opacity: 0.8 });
+  const streakGeo = new THREE.BoxGeometry(0.035, 0.035, 1);
+  const streakMat = new THREE.MeshBasicMaterial({ color: STREAK.color });
+  const chunkGeo = new THREE.IcosahedronGeometry(1, 0);
+  const puffGeo = new THREE.IcosahedronGeometry(1, 1);
+  const chunkMats = new Map(); // colour -> material, shared by every chunk
+  const shared = new Set([shockGeo, shockMat, streakGeo, streakMat, chunkGeo, puffGeo]);
+  const chunkMat = (color) => {
+    if (!chunkMats.has(color)) {
+      chunkMats.set(color, flat(color));
+      shared.add(chunkMats.get(color));
+    }
+    return chunkMats.get(color);
+  };
 
-  const shown = new Map(); // id -> object, for enemies, pumpkins, shockwaves and leaving crows
+  const shown = new Map(); // id -> object, for enemies, pumpkins, shockwaves, leaving crows and effects
   const pickable = [];
   const raycaster = new THREE.Raycaster();
-  let clock = 0;
-  let lastShots = 0;
-  let flashFor = 0;
 
   function place(id, make) {
     let obj = shown.get(id);
@@ -109,23 +131,13 @@ export function createStage(container, firstLevel) {
     return obj;
   }
 
-  // Where a crow is: flying in from the backdrop and circling, then diving at the road.
-  function crowAt(e, obj) {
+  // A crow flies in and circles facing along its circle, then dives facing the road.
+  function placeCrow(e, obj) {
     const c = level.enemies.crow;
-    const r = 1.5;
-    if (e.diveX == null) {
-      const t = c.circle - e.timer;
-      const a = t * (Math.PI * 2) / c.circle;
-      const arrive = Math.min(1, t / 0.6);
-      const from = [e.x, c.height + 3, level.spawn.z - 8];
-      const at = [e.x + Math.cos(a) * r, c.height, e.z + Math.sin(a) * r];
-      obj.position.set(...from.map((v, i) => v + (at[i] - v) * arrive));
-      obj.rotation.set(0, -a, 0.4);
-    } else {
-      const f = 1 - e.timer / c.dive;
-      obj.position.set(e.x + r + (e.diveX - e.x - r) * f, c.height + (0.5 - c.height) * f, e.z + (level.roadZ - e.z) * f);
-      obj.rotation.set(0.8, Math.atan2(e.diveX - e.x - r, level.roadZ - e.z), 0);
-    }
+    const at = crowAt(e, level);
+    obj.position.set(at.x, at.y, at.z);
+    if (e.diveX == null) obj.rotation.set(0, -((c.circle - e.timer) * (Math.PI * 2)) / c.circle, 0.4);
+    else obj.rotation.set(0.8, Math.atan2(e.diveX - e.x - CROW_CIRCLE, level.roadZ - e.z), 0);
   }
 
   return {
@@ -134,23 +146,20 @@ export function createStage(container, firstLevel) {
         for (const [id, obj] of shown) {
           scene.remove(obj);
           shown.delete(id);
-          dispose(obj, [shockGeo, shockMat]);
+          dispose(obj, shared);
         }
         scene.remove(backdrop);
         dispose(backdrop);
         level = game.level;
         backdrop = buildBackdrop(scene, level);
       }
-      if (ANIMATED.has(game.screen)) clock += dt;
+      const clock = game.clock; // the game's, so the drawn gun is where its shots start
       const p = game.player;
-      const roll = game.dodging ? 1 - p.dodging / level.player.dodgeTime : 0;
+      const pose = game.pose();
       player.position.x = p.x;
-      player.userData.tick(clock, { walk: game.live && game.move ? 1 : 0, roll, dir: p.dir });
+      player.userData.tick(pose.t, pose);
 
-      if (game.shots !== lastShots) flashFor = 0.05;
-      lastShots = game.shots;
-      flashFor -= ANIMATED.has(game.screen) ? dt : 0;
-      player.userData.flash.visible = flashFor > 0;
+      player.userData.flash.visible = game.effects.flash > 0;
 
       for (const obj of shown.values()) obj.userData.seen = false;
       pickable.length = 0;
@@ -159,7 +168,7 @@ export function createStage(container, firstLevel) {
         const obj = place(e.id, () => ENEMIES[e.kind](e, level));
         pickable.push(obj);
         if (e.kind === 'crow') {
-          crowAt(e, obj);
+          placeCrow(e, obj);
           obj.userData.tick(clock, { diving: e.diveX == null ? 0 : 1 });
           continue;
         }
@@ -179,8 +188,8 @@ export function createStage(container, firstLevel) {
       }
       for (const k of game.pumpkins) {
         const obj = place(k.id, () => (k.flaming ? buildFlamingPumpkin({ size: 0.55 }) : buildPumpkin({ size: 0.45 })));
-        const f = Math.min(1, k.t / k.flight);
-        obj.position.set(k.fromX + (k.x - k.fromX) * f, 2.4 * (1 - f) + 0.25 + Math.sin(f * Math.PI) * 4, k.fromZ + (level.roadZ - k.fromZ) * f);
+        const at = pumpkinAt(k, level.roadZ);
+        obj.position.set(at.x, at.y, at.z);
         obj.rotation.set(clock * 6, clock * 3, 0);
         pickable.push(obj);
       }
@@ -192,22 +201,55 @@ export function createStage(container, firstLevel) {
         obj.position.set(boss ? boss.x : 0, 0.1, (boss ? boss.z : level.boss.standZ) + (level.roadZ - level.boss.standZ) * f);
         obj.scale.set(2 + f * 12, 2 + f * 12, 1);
       }
+      const fx = game.effects;
+      const mesh = (name, geometry, material) => () => Object.assign(new THREE.Mesh(geometry, material), { name });
+      for (const s of fx.streaks) span(place(`x${s.id}`, mesh('streak', streakGeo, streakMat)), s.from, s.to);
+      for (const c of fx.chunks) {
+        const obj = place(`x${c.id}`, mesh('chunk', chunkGeo, chunkMat(c.color)));
+        obj.position.set(c.pos.x, c.pos.y, c.pos.z);
+        obj.rotation.set(c.rot.x, c.rot.y, c.rot.z);
+        obj.scale.setScalar(c.size * (1 - c.age / c.life));
+      }
+      for (const p of fx.puffs) {
+        const obj = place(`x${p.id}`, () => mesh('puff', puffGeo, flat(p.color, { transparent: true }))());
+        const k = p.age / p.life;
+        obj.position.set(p.pos.x, p.pos.y, p.pos.z);
+        obj.scale.setScalar(p.size * (0.3 + 0.7 * k));
+        obj.material.opacity = 0.85 * (1 - k);
+      }
+      for (const f of fx.fades) {
+        const obj = place(`x${f.id}`, () => {
+          const model = ENEMIES[f.kind](f, level);
+          model.name = 'fade';
+          model.traverse((m) => { if (m.material) m.material.transparent = true; });
+          return model;
+        });
+        obj.position.set(f.x, f.y, f.z);
+        obj.traverse((m) => { if (m.material) m.material.opacity = 1 - f.age / f.life; });
+      }
       for (const [id, obj] of shown) {
         if (obj.userData.seen) continue;
         scene.remove(obj);
         shown.delete(id);
-        dispose(obj, [shockGeo, shockMat]);
+        dispose(obj, shared);
       }
       renderer.render(scene, camera);
     },
 
-    // The id of the first enemy or pumpkin under the crosshair, or null.
-    pick(aim) {
+    // The first enemy or pumpkin under the crosshair (id, or null) and where the ray lands: on it,
+    // else on the ground or backdrop, else far along the ray.
+    aimAt(aim) {
       raycaster.setFromCamera(aim, camera);
       const hit = raycaster.intersectObjects(pickable, true)[0];
       let obj = hit?.object;
       while (obj && obj.userData.entityId == null) obj = obj.parent;
-      return obj ? obj.userData.entityId : null;
+      const land = hit ?? raycaster.intersectObjects([backdrop], true)[0];
+      const p = land?.point ?? raycaster.ray.at(60, new THREE.Vector3());
+      return { id: obj ? obj.userData.entityId : null, point: { x: p.x, y: p.y, z: p.z } };
+    },
+
+    pick(aim) {
+      return this.aimAt(aim).id;
     },
   };
 }
