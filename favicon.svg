@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- A zombie's head, faceted like the game's models. -->
+  <polygon points="16,2 27,8 29,19 22,29 10,29 3,19 5,8" fill="#7d9a6a"/>
+  <polygon points="16,2 27,8 16,12 5,8" fill="#93b07f"/>
+  <polygon points="3,19 10,29 16,24 16,12 5,8" fill="#6a8659"/>
+  <polygon points="16,12 27,8 29,19 22,29 16,24" fill="#5d7a4e"/>
+  <polygon points="6,13 14,12 14,19 7,19" fill="#1e1a24"/>
+  <polygon points="18,12 26,13 25,19 18,19" fill="#1e1a24"/>
+  <rect x="8" y="14" width="4" height="3" fill="#ff3b30"/>
+  <rect x="20" y="14" width="4" height="3" fill="#ff3b30"/>
+  <polygon points="11,23 21,23 19,27 13,27" fill="#1e1a24"/>
+</svg>

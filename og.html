@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- The link preview, og.png: a screenshot of this page at 1200 × 630. Not linked from the game, not deployed. -->
+  <title>Zombie Panic in Wonderland — preview</title>
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+  </script>
+  <style>
+    html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #140e1f; }
+    canvas { position: absolute; inset: 0; display: block; }
+    #text {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 520px;
+      padding: 0 110px 0 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(to right, rgba(10, 6, 18, 0.88) 70%, rgba(10, 6, 18, 0));
+      font-family: "Trebuchet MS", system-ui, sans-serif;
+      color: #f3e9d2;
+      text-shadow: 0 3px 6px #000;
+    }
+    h1 { margin: 0; font-size: 88px; line-height: 1.02; color: #f0b25a; }
+    p { margin: 22px 0 0; font-size: 38px; line-height: 1.2; }
+    p.url { margin-top: 14px; font-size: 30px; color: #fff4d0; opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div id="text">
+    <h1>Zombie Panic in Wonderland</h1>
+    <p>A low-poly zombie shooter in your browser</p>
+    <p class="url">wonderland.cocode.dk</p>
+  </div>
+  <script type="module">
+    import * as THREE from 'three';
+    import { level1 } from './src/levels/level-1.js';
+    import { buildZombie, buildZombieKing } from './src/view/models/zombie.js';
+    import { buildSky, buildGround, buildRoad, buildTree, buildMushroom, buildCrypt, buildClockTower, buildHedge, buildFence } from './src/view/models/scenery.js';
+
+    const SCENERY = {
+      sky: buildSky, ground: buildGround, road: buildRoad, tree: buildTree, mushroom: buildMushroom,
+      crypt: buildCrypt, clockTower: buildClockTower, hedge: buildHedge, fence: buildFence,
+    };
+
+    const W = 1200;
+    const H = 630;
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(1);
+    renderer.setSize(W, H);
+    document.body.prepend(renderer.domElement);
+
+    // Level 1's backdrop and dusk light, as the stage builds them.
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog('#5a3148', 22, 70);
+    scene.add(new THREE.HemisphereLight('#8a6fb0', '#3a2a1a', 1.2));
+    const key = new THREE.DirectionalLight('#ffb070', 2.2);
+    key.position.set(-8, 6, -20);
+    scene.add(key);
+    const fill = new THREE.DirectionalLight('#c9b8ff', 0.8);
+    fill.position.set(4, 10, 12);
+    scene.add(fill);
+    for (const { model, x = 0, z = 0, turn = 0, ...params } of level1.scenery) {
+      const obj = SCENERY[model](params);
+      obj.position.set(x, 0, z);
+      obj.rotation.y = turn;
+      scene.add(obj);
+    }
+
+    // A soft red halo on each eye, so the eyes glow at a thumbnail's size.
+    const halo = (() => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 64;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(255, 90, 70, 1)');
+      grad.addColorStop(0.35, 'rgba(255, 59, 48, 0.55)');
+      grad.addColorStop(1, 'rgba(255, 59, 48, 0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 64, 64);
+      return new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+    })();
+    const glowEyes = (model) => model.traverse((m) => {
+      if (m.isMesh && m.material.isMeshBasicMaterial && m.material.color.getHexString() === 'ff3b30') {
+        const s = new THREE.Sprite(halo);
+        s.scale.setScalar(0.22);
+        m.add(s);
+      }
+    });
+
+    // The Zombie King and three zombies coming toward the viewer.
+    const place = (model, x, z, t, turn = 0) => {
+      model.position.set(x, 0, z);
+      model.rotation.y = turn;
+      model.userData.tick(t, { walk: 1, twitch: false });
+      glowEyes(model);
+      scene.add(model);
+    };
+    // They stand in the picture's right half, clear of the text on the left.
+    place(buildZombieKing(), 1.6, -8.5, 0.4, -0.15);
+    place(buildZombie({ seed: 1.7 }), -0.6, -3.2, 1.1, 0.25);
+    place(buildZombie({ seed: 3.4 }), 1.4, -1.6, 2.3, 0.05);
+    place(buildZombie({ seed: 5.1 }), 3.2, -3.6, 0.7, -0.25);
+
+    const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 400);
+    camera.position.set(0, 1.9, 5.2);
+    camera.lookAt(-2.6, 2.2, -6);
+    renderer.render(scene, camera);
+    document.body.dataset.ready = 'true';
+  </script>
+</body>
+</html>

@@ -29,9 +29,9 @@ test('pages.yml uses the pinned actions in order', () => {
   assert.match(pages, /- id: deployment\n        uses: actions\/deploy-pages@/);
 });
 
-test('pages.yml copies exactly CNAME, index.html, style.css, llms.txt and src/ into _site', () => {
+test('pages.yml copies exactly CNAME, index.html, style.css, llms.txt, og.png, favicon.svg, robots.txt, sitemap.xml and src/ into _site', () => {
   const copies = [...pages.matchAll(/^\s*cp .*$/gm)].map((m) => m[0].trim());
-  assert.deepEqual(copies, ['cp -r CNAME index.html style.css llms.txt src _site/']);
+  assert.deepEqual(copies, ['cp -r CNAME index.html style.css llms.txt og.png favicon.svg robots.txt sitemap.xml src _site/']);
 });
 
 test('README.md has the play link, the local command and the test command', () => {
