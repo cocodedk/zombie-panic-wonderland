@@ -46,6 +46,19 @@ body.playing, body.playing * { cursor: none; }
 #bossbar div { width: 14rem; height: 0.8rem; border: 2px solid #f3e9d2; background: #2b1d3f; }
 #bossbar i { display: block; height: 100%; background: #c9a227; }
 #sound { position: fixed; right: 1rem; bottom: 0.7rem; font-size: 0.85rem; opacity: 0.8; }
+#weapons { position: fixed; left: 1.2rem; bottom: 0.7rem; font-size: 1rem; }
+#weapons .hand { font-weight: bold; color: #fff4d0; }
+#weapons .none { opacity: 0.4; }
+/* The pickup notice: in the banners' style, on its own line just below them. */
+#notice {
+  position: fixed;
+  top: calc(50% + 2.2rem);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.2rem 1.2rem;
+  font-size: 1.25rem;
+  background: rgba(10, 6, 18, 0.72);
+}
 
 #band {
   position: fixed;

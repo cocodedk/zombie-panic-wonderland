@@ -34,6 +34,14 @@ export function buildFlamingPumpkin({ flame = '#ff8a1f', core = '#ffe066', size 
   return lit;
 }
 
+// The launcher's pumpkin: small, carved and glowing orange.
+export function buildLaunchedPumpkin({ glow: light = '#e07b24', size = 0.3 } = {}) {
+  const shell = buildPumpkin({ carved: true, size });
+  shell.name = 'launchedPumpkin';
+  shell.children[0].material.emissive = new THREE.Color(light);
+  return shell;
+}
+
 // A vine along a curve, as a thin low-poly tube.
 function vine(points, radius, material) {
   const curve = new THREE.CatmullRomCurve3(points.map(([x, y, z]) => new THREE.Vector3(x, y, z)));

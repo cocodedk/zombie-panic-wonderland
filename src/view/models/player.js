@@ -1,8 +1,8 @@
-// The hero: a small figure in a red hood and cape with a stubby gun, facing -z (away from the camera).
+// The hero: a small figure in a red hood and cape with the gun in hand, facing -z (away from the camera).
 
 import * as THREE from 'three';
 import { flat, part, group } from './parts.js';
-import { bodyPose } from '../../logic/effects.js';
+import { bodyPose, MUZZLES } from '../../logic/effects.js';
 
 export function buildPlayer({
   hood = '#b3202a',
@@ -35,11 +35,19 @@ export function buildPlayer({
   const armGeo = new THREE.CylinderGeometry(0.06, 0.05, 0.42, 5);
   body.add(part(armGeo, hood, [0.2, 0.86, -0.16], [-Math.PI / 2 + 0.2, 0, -0.3]));
   body.add(part(armGeo, hood, [-0.08, 0.86, -0.18], [-Math.PI / 2 + 0.2, 0, 0.5]));
-  const gunGroup = group(
-    part(new THREE.BoxGeometry(0.12, 0.14, 0.26), gun, [0, 0, 0]),
-    part(new THREE.CylinderGeometry(0.045, 0.05, 0.2, 6), gun, [0, 0.02, -0.2], [Math.PI / 2, 0, 0]),
-    part(new THREE.BoxGeometry(0.07, 0.14, 0.08), '#5a3a22', [0, -0.1, 0.06], [0.3, 0, 0]),
-  );
+  // One gun per weapon; only the one in hand shows. Each muzzle is at MUZZLES in the body.
+  const grip = () => part(new THREE.BoxGeometry(0.07, 0.14, 0.08), '#5a3a22', [0, -0.1, 0.06], [0.3, 0, 0]);
+  const barrel = (r, length, x, z) => part(new THREE.CylinderGeometry(r, r, length, 6), gun, [x, 0.02, z], [Math.PI / 2, 0, 0]);
+  const guns = {
+    popper: group(part(new THREE.BoxGeometry(0.12, 0.14, 0.26), gun), barrel(0.045, 0.2, 0, -0.2), grip()),
+    scattergun: group(part(new THREE.BoxGeometry(0.16, 0.14, 0.26), gun), barrel(0.035, 0.38, -0.038, -0.31), barrel(0.035, 0.38, 0.038, -0.31), grip()),
+    launcher: group(
+      barrel(0.09, 0.56, 0, -0.18),
+      part(new THREE.TorusGeometry(0.09, 0.028, 4, 10), '#e07b24', [0, 0.02, -0.46]),
+      grip(),
+    ),
+  };
+  const gunGroup = group(...Object.values(guns));
   gunGroup.position.set(0.1, 0.88, -0.42);
   body.add(gunGroup);
 
@@ -54,8 +62,12 @@ export function buildPlayer({
   root.userData = {
     body,
     flash,
-    // walk: how fast it walks (0 standing), roll: 0..1 through a dodge, dir: which way it rolls.
-    tick(t, { walk = 0, roll = 0, dir = 1 } = {}) {
+    guns,
+    // walk: how fast it walks (0 standing), roll: 0..1 through a dodge, dir: which way it rolls,
+    // weapon: the gun in hand, with the flash at its muzzle.
+    tick(t, { walk = 0, roll = 0, dir = 1, weapon = 'popper' } = {}) {
+      for (const [w, g] of Object.entries(guns)) g.visible = w === weapon;
+      flash.position.z = MUZZLES[weapon].z - gunGroup.position.z;
       const swing = walk ? Math.sin(t * 12) * 0.5 : 0;
       legs[0].rotation.x = swing;
       legs[1].rotation.x = -swing;

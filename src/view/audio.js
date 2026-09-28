@@ -110,6 +110,20 @@ export function createAudio(win) {
       tone(90, t, 0.45, { to: 30, level: 0.7 });
       hiss(t, 0.3, { f: 400, to: 50, level: 0.6, buffer: crunch });
     },
+    scatter: (t) => {
+      hiss(t, 0.12, { f: 1800, to: 150, level: 0.55, buffer: crunch });
+      tone(110, t, 0.12, { to: 40, level: 0.4 });
+    },
+    launch: (t) => {
+      tone(160, t, 0.14, { type: 'triangle', to: 80, level: 0.4 });
+      hiss(t, 0.05, { filter: 'bandpass', f: 500, q: 4, level: 0.2 });
+    },
+    boom: (t) => {
+      tone(60, t, 0.7, { to: 24, level: 0.6 });
+      hiss(t, 0.5, { f: 700, to: 45, level: 0.6, buffer: crunch });
+    },
+    pickup: (t) => notes([84, 91], t, 0.1, 0.16),
+    click: (t) => hiss(t, 0.015, { filter: 'highpass', f: 4000, level: 0.25 }),
     victory: (t) => notes([72, 76, 79], t, 0.18, 0.3),
     defeat: (t) => notes([67, 63, 60], t, 0.25, 0.4),
   };

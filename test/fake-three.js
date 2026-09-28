@@ -218,10 +218,19 @@ export class WebGLRenderer {
   }
 }
 
-// Hits the first mesh of each object it is given, in order.
+// Hits the first mesh of each object it is given, in order, whatever the ray. `sets` records
+// each ray set by origin and direction. Every raycaster made is in `raycasters`.
+export const raycasters = [];
 export class Raycaster {
-  ray = { at: (distance, v) => v.set(0, 0, -distance) };
+  ray = { origin: new Vector3(0, 0, 0), direction: new Vector3(0, 0, -1), at: (distance, v) => v.set(0, 0, -distance) };
+  sets = [];
+  constructor() {
+    raycasters.push(this);
+  }
   setFromCamera() {}
+  set(origin, direction) {
+    this.sets.push({ origin: { ...origin }, direction: { ...direction } });
+  }
   intersectObjects(objects) {
     const hits = [];
     for (const o of objects) {

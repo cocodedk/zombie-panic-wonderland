@@ -10,9 +10,12 @@ export const STREAK = { color: '#fff3b0', life: 0.06, flash: 0.04 };
 export const PUFF_LIFE = 0.3;
 export const FADE_LIFE = 0.3;
 
-// The gun's muzzle in the player model's body, from its waist pivot (0.6 up).
+// The gun's muzzle in the player model's body, from its waist pivot (0.6 up); the longer guns
+// reach further forward.
 export const MUZZLE = { x: 0.1, y: 0.3, z: -0.76 };
+export const MUZZLES = { popper: MUZZLE, scattergun: { ...MUZZLE, z: -0.92 }, launcher: { ...MUZZLE, z: -0.88 } };
 export const WAIST = 0.6;
+export const EXPLOSION_FLASH = 0.3; // with reduced motion, the explosion's puff alone, this long
 
 // How the player model's body sits at time `t`: it bobs while walking, and through a dodge
 // (`roll` 0..1 toward `dir`) it lifts and turns a full circle about z. The model and the muzzle share it.
@@ -22,13 +25,14 @@ export function bodyPose({ t = 0, walk = 0, roll = 0, dir = 1 } = {}) {
   return { y: WAIST + bob + lift, turn: -dir * roll * Math.PI * 2 };
 }
 
-// Where the muzzle is for a player at `x` in the pose `pose` (see bodyPose).
+// Where the muzzle of the gun in hand is for a player at `x` in the pose `pose` (see bodyPose).
 export function muzzleAt(x, roadZ, pose = {}) {
   const { y, turn } = bodyPose(pose);
+  const m = MUZZLES[pose.weapon ?? 'popper'];
   return {
-    x: x + MUZZLE.x * Math.cos(turn) - MUZZLE.y * Math.sin(turn),
-    y: y + MUZZLE.x * Math.sin(turn) + MUZZLE.y * Math.cos(turn),
-    z: roadZ + MUZZLE.z,
+    x: x + m.x * Math.cos(turn) - m.y * Math.sin(turn),
+    y: y + m.x * Math.sin(turn) + m.y * Math.cos(turn),
+    z: roadZ + m.z,
   };
 }
 
@@ -40,6 +44,8 @@ export const BURSTS = {
   zombieKing: { count: 40, life: 1.5, size: 0.35, colors: ['#7d9a6a', '#5a1f3a', '#3d3a35', '#d9a520'], puff: '#9fd18b', puffSize: 3 },
   scarecrowKing: { count: 40, life: 1.5, size: 0.35, colors: ['#9c8456', '#3d2f22', '#3f2a4a', '#d8c070'], puff: '#e07b24', puffSize: 3 },
   pumpkin: { count: 6, life: 0.6, size: 0.14, colors: ['#e07b24'], puff: null },
+  explosion: { count: 16, life: 0.6, size: 0.2, colors: ['#e07b24', '#ff9a3c', '#ffd35a'], puff: '#ff9a3c', puffSize: 2, puffLife: 0.6 },
+  crate: { count: 4, life: 0.3, size: 0.08, colors: ['#8b5a2b'], puff: null }, // wood chips from a hit
 };
 
 export class Effects {
@@ -56,11 +62,26 @@ export class Effects {
     this.puffs = [];
     this.fades = [];
     this.flash = 0; // seconds of muzzle flash left
+    this.flashSize = 1;
   }
 
   shot(from, to) {
     this.streaks.push({ id: this.nextId++, from, to, age: 0, life: STREAK.life });
     this.flash = STREAK.flash;
+    this.flashSize = 1;
+  }
+
+  // The scattergun: a streak to each pellet's end, and a larger flash.
+  blast(from, points) {
+    for (const to of points) this.shot(from, to);
+    this.flashSize = 2;
+  }
+
+  // The launcher's pumpkin exploding; with reduced motion, only a flash of its puff.
+  explode(at) {
+    if (!this.reducedMotion) return this.burst('explosion', at);
+    const b = BURSTS.explosion;
+    this.puffs.push({ id: this.nextId++, pos: { ...at }, color: b.puff, size: b.puffSize, age: 0, life: EXPLOSION_FLASH });
   }
 
   // `kind` bursts at `at`. With reduced motion, `fade` (the fallen enemy) fades out instead.
@@ -88,7 +109,7 @@ export class Effects {
       });
     }
     if (this.chunks.length > MAX_CHUNKS) this.chunks.splice(0, this.chunks.length - MAX_CHUNKS);
-    if (b.puff) this.puffs.push({ id: this.nextId++, pos: { ...at }, color: b.puff, size: b.puffSize, age: 0, life: PUFF_LIFE });
+    if (b.puff) this.puffs.push({ id: this.nextId++, pos: { ...at }, color: b.puff, size: b.puffSize, age: 0, life: b.puffLife ?? PUFF_LIFE });
   }
 
   update(dt) {

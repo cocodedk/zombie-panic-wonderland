@@ -9,6 +9,7 @@ export function createHud(doc, game) {
     bossbar: $('#bossbar'), bossfill: $('#bossbar i'), band: $('#band'), title: $('#band h1'),
     lines: $('#band .lines'), button: $('#band button'), second: $('#band button + button'),
     bossname: $('#bossbar span'), sound: $('#sound'), crosshair: $('#crosshair'), stage: $('#stage'),
+    notice: $('#notice'), weapons: ['popper', 'scattergun', 'launcher'].map((w) => $(`#weapon-${w}`)),
   };
   el.button.addEventListener('click', () => game.restart());
   el.second.addEventListener('click', () => (game.next ? game.nextLevel() : game.toTitle()));
@@ -48,6 +49,12 @@ export function createHud(doc, game) {
         text(el.bossname, game.level.boss.name);
         el.bossfill.style.width = `${(v.hud.boss ?? 0) * 100}%`;
         text(el.sound, v.hud.sound);
+        v.hud.weapons.forEach((w, i) => {
+          text(el.weapons[i], w.text);
+          el.weapons[i].className = w.state;
+        });
+        el.notice.hidden = !v.hud.notice;
+        text(el.notice, v.hud.notice ?? '');
       }
 
       el.crosshair.hidden = v.pointer || !!v.plain;

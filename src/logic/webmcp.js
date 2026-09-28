@@ -20,7 +20,7 @@ export function tools(game) {
       name: 'get_state',
       title: 'The game right now',
       description:
-        'Returns { level, screen, wave, score, hearts, enemies, boss_health }: level is 1 or 2; screen is one of loading, error, title, intro, play, paused, victory or defeat; enemies is how many are on the field; boss_health is the level boss\'s remaining hits, or null until it appears.',
+        'Returns { level, screen, wave, score, hearts, enemies, boss_health, weapon, ammo }: level is 1 or 2; screen is one of loading, error, title, intro, play, paused, victory or defeat; enemies is how many are on the field; boss_health is the level boss\'s remaining hits, or null until it appears; weapon is popper, scattergun or launcher, the one in hand; ammo is its rounds left, or null for the popper.',
       inputSchema: { type: 'object', properties: {} },
       annotations: READ_ONLY,
       execute: async () => game.snapshot(),
