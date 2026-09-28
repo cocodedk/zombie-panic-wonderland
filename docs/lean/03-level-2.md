@@ -19,8 +19,8 @@ Every material flat-shaded, no textures, every model our own, made in code.
 - **Zombies and pumpkin monsters:** the same components and rules as in level 1.
 - **Crow (new):** flies in from the backdrop at a height, circles for 2 seconds, then dives at the
   player's x at that moment and reaches the road 1 second later. It costs 1 heart if the player is
-  within 1 unit of where it lands and is not dodging. It falls after 1 hit (50 points). A crow that
-  misses flies away, leaves the field and counts as cleared.
+  within 1 unit of where it lands and is not dodging. It falls after 1 hit (50 points). After its
+  dive, hit or miss, a crow flies away, leaves the field and counts as cleared.
 - **Waves:** 1: 5 zombies and 2 crows. 2: 6 zombies, 1 pumpkin monster and 3 crows. 3: 6 zombies,
   2 pumpkin monsters and 3 crows. 4: 8 zombies, 2 pumpkin monsters and 4 crows. 5: 8 zombies,
   3 pumpkin monsters and 5 crows. Each wave's enemies arrive one second apart, in the order the
