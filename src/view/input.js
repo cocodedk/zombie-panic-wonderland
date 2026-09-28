@@ -2,7 +2,7 @@
 
 const LEFT = new Set(['KeyA', 'ArrowLeft']);
 const RIGHT = new Set(['KeyD', 'ArrowRight']);
-const WEAPON_KEYS = { Digit1: 'popper', Digit2: 'scattergun', Digit3: 'launcher' };
+const WEAPON_KEYS = { Digit1: 'popper', Digit2: 'scattergun', Digit3: 'launcher', Digit4: 'gatling' };
 
 // M turns the sound off and on, on every screen, so it is bound before the stage loads.
 export function bindMute(win, game, hud) {

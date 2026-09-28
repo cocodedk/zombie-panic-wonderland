@@ -9,6 +9,7 @@ const POPPER_ONLY = [
   { weapon: 'popper', text: '1 Popper ∞', state: 'hand' },
   { weapon: 'scattergun', text: '2 Scattergun —', state: 'none' },
   { weapon: 'launcher', text: '3 Launcher —', state: 'none' },
+  { weapon: 'gatling', text: '4 Gatling —', state: 'none' },
 ];
 
 test('7. loading shows only "Loading…", then the title screen', () => {
@@ -41,7 +42,7 @@ test('7. the title: name, click to start, controls; no HUD, pointer visible; onl
   assert.equal(view.band.title, 'Zombie Panic in Wonderland');
   assert.deepEqual(view.band.lines, [
     'Click to start',
-    'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 or wheel: weapons · R reloads · M sound: on',
+    'A / D or ← / → move · mouse aims · hold the left button to shoot · Space dodges · Esc pauses · 1 2 3 4 or wheel: weapons · R reloads · M sound: on',
   ]);
   assert.equal(view.hud, null);
   assert.equal(view.pointer, true);

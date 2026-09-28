@@ -146,4 +146,25 @@ body.playing, body.playing * { cursor: none; }
   border-style: dashed;
 }
 
+/* The Gatling: today's ring at 40 px, with a 6 px tick outside it at the top, bottom, left and right. */
+#crosshair.gatling {
+  width: 36px;
+  height: 36px;
+  margin: -20px 0 0 -20px;
+}
+#crosshair.gatling::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: -10px;
+  width: 56px;
+  height: 56px;
+  background-image:
+    linear-gradient(#fff4d0, #fff4d0), linear-gradient(#fff4d0, #fff4d0),
+    linear-gradient(#fff4d0, #fff4d0), linear-gradient(#fff4d0, #fff4d0);
+  background-size: 2px 6px, 2px 6px, 6px 2px, 6px 2px;
+  background-repeat: no-repeat;
+  background-position: 27px 0, 27px 50px, 0 27px, 50px 27px;
+}
+
 [hidden] { display: none !important; }

@@ -15,6 +15,11 @@ const EMBLEMS = {
     part(new THREE.CylinderGeometry(0.18, 0.18, 0.02, 8), mat, [0, -0.03, 0], [Math.PI / 2, 0, 0]),
     part(new THREE.BoxGeometry(0.05, 0.12, 0.02), mat, [0, 0.19, 0]),
   ],
+  // Six small circles in a ring: the barrels seen from the front.
+  gatling: (mat) => Array.from({ length: 6 }, (_, i) => {
+    const a = (i * Math.PI) / 3;
+    return part(new THREE.CylinderGeometry(0.06, 0.06, 0.02, 8), mat, [Math.cos(a) * 0.17, Math.sin(a) * 0.17, 0], [Math.PI / 2, 0, 0]);
+  }),
 };
 
 export function buildCrate({ weapon = 'scattergun', wood = '#8b5a2b', emblem = '#2a1a0e', size = 0.9 } = {}) {

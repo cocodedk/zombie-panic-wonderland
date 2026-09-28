@@ -467,15 +467,15 @@ describe('3. switching', () => {
 describe('4. the HUD and the title', () => {
   const line = (game) => screenView(game).hud.weapons.map((w) => w.text).join(' · ');
 
-  test('bottom left, one line lists all three: in hand, owned, not owned', () => {
+  test('bottom left, one line lists all four: in hand, owned, not owned', () => {
     const game = playing(one());
-    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun — · 3 Launcher —');
+    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun — · 3 Launcher — · 4 Gatling —');
     give(game, 'scattergun');
     for (let i = 0; i < 3; i++) game.shoot();
-    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 1/4 · 3 Launcher —');
-    assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['owned', 'hand', 'none']);
+    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 1/4 · 3 Launcher — · 4 Gatling —');
+    assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['owned', 'hand', 'none', 'none']);
     game.selectWeapon('popper');
-    assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['hand', 'owned', 'none']);
+    assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['hand', 'owned', 'none', 'none']);
   });
 
   test('it shows wherever the HUD does, and not on loading, error or title', () => {
@@ -501,14 +501,14 @@ describe('4. the HUD and the title', () => {
     const game = playing(one());
     const hud = createHud(doc, game);
     hud.render();
-    const spans = ['popper', 'scattergun', 'launcher'].map((w) => els[`#weapon-${w}`]);
-    assert.deepEqual(spans.map((s) => [s.textContent, s.className]), [['1 Popper ∞', 'hand'], ['2 Scattergun —', 'none'], ['3 Launcher —', 'none']]);
+    const spans = ['popper', 'scattergun', 'launcher', 'gatling'].map((w) => els[`#weapon-${w}`]);
+    assert.deepEqual(spans.map((s) => [s.textContent, s.className]), [['1 Popper ∞', 'hand'], ['2 Scattergun —', 'none'], ['3 Launcher —', 'none'], ['4 Gatling —', 'none']]);
     assert.equal(els['#notice'].hidden, true);
     const c = game.dropCrate('launcher');
     game.setAim(c.id);
     for (let i = 0; i < 3; i++) game.shoot();
     hud.render();
-    assert.deepEqual(spans.map((s) => [s.textContent, s.className]), [['1 Popper ∞', 'owned'], ['2 Scattergun —', 'none'], ['3 Launcher 2/2', 'hand']]);
+    assert.deepEqual(spans.map((s) => [s.textContent, s.className]), [['1 Popper ∞', 'owned'], ['2 Scattergun —', 'none'], ['3 Launcher 2/2', 'hand'], ['4 Gatling —', 'none']]);
     assert.equal(els['#notice'].hidden, false);
     assert.equal(els['#notice'].textContent, 'Pumpkin launcher! Explodes — hits every enemy nearby');
     assert.equal(els['#sound'].textContent, '♪ on', 'the sound stays bottom right');
@@ -526,9 +526,9 @@ describe('4. the HUD and the title', () => {
     assert.equal(view.hud.notice, 'Scattergun! 8 pellets a blast — best up close');
   });
 
-  test('the title\'s controls line gains "· 1 2 3 or wheel: weapons", before "· M sound"', () => {
-    assert.match(screenView(newGame()).band.lines[1], / · Esc pauses · 1 2 3 or wheel: weapons · R reloads · M sound: on$/);
-    assert.match(TEXT.controls, / · 1 2 3 or wheel: weapons · R reloads$/);
+  test('the title\'s controls line gains "· 1 2 3 4 or wheel: weapons", before "· M sound"', () => {
+    assert.match(screenView(newGame()).band.lines[1], / · Esc pauses · 1 2 3 4 or wheel: weapons · R reloads · M sound: on$/);
+    assert.match(TEXT.controls, / · 1 2 3 4 or wheel: weapons · R reloads$/);
   });
 });
 
@@ -545,7 +545,7 @@ describe('5. resets and pause', () => {
   }
   const bare = (game) => {
     assert.equal(game.weapon, 'popper');
-    assert.deepEqual(game.ammo, { scattergun: 0, launcher: 0 });
+    assert.deepEqual(game.ammo, { scattergun: 0, launcher: 0, gatling: 0 });
     assert.deepEqual([game.crates, game.shells, game.cratesDue, game.notice], [[], [], [], null]);
   };
 

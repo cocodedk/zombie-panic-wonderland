@@ -180,7 +180,7 @@ describe('4. switching and pause', () => {
     assert.equal(game.ammo.scattergun, 3);
     game.selectWeapon('scattergun');
     assert.equal(game.reloading, false, 'a magazine not empty does not start reloading');
-    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 3/4 · 3 Launcher —');
+    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 3/4 · 3 Launcher — · 4 Gatling —');
   });
 
   test('switching back to an empty weapon starts its reload from the beginning', () => {
@@ -215,7 +215,7 @@ describe('4. switching and pause', () => {
     game.pressEsc();
     run(game, 5);
     assert.equal(game.reloading, true);
-    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun reloading · 3 Launcher —');
+    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun reloading · 3 Launcher — · 4 Gatling —');
     game.pressEsc();
     run(game, 0.49);
     assert.equal(game.reloading, true);
@@ -236,12 +236,12 @@ describe('5. what the player sees and hears', () => {
   test('the weapon line shows left/size, or reloading', () => {
     const game = give(playing(one()), 'scattergun');
     game.shoot();
-    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 3/4 · 3 Launcher —');
+    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun 3/4 · 3 Launcher — · 4 Gatling —');
     give(game, 'launcher');
     game.selectWeapon('scattergun');
     empty(game);
-    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun reloading · 3 Launcher 2/2');
-    assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['owned', 'hand', 'owned']);
+    assert.equal(line(game), '1 Popper ∞ · 2 Scattergun reloading · 3 Launcher 2/2 · 4 Gatling —');
+    assert.deepEqual(screenView(game).hud.weapons.map((w) => w.state), ['owned', 'hand', 'owned', 'none']);
   });
 
   test('the crosshair is at half opacity while the weapon in hand reloads', () => {
@@ -263,7 +263,7 @@ describe('5. what the player sees and hears', () => {
   });
 
   test('the title\'s controls line gains "· R reloads" before "· M sound"', () => {
-    assert.match(TEXT.controls, / · 1 2 3 or wheel: weapons · R reloads$/);
+    assert.match(TEXT.controls, / · 1 2 3 4 or wheel: weapons · R reloads$/);
     assert.match(screenView(newGame()).band.lines[1], / · R reloads · M sound: on$/);
   });
 

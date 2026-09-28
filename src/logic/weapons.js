@@ -1,15 +1,18 @@
-// The three weapons, the crates that give them and the launcher's flying pumpkins, as plain data
+// The four weapons, the crates that give them and the launcher's flying pumpkins, as plain data
 // and plain geometry, so Node can test them; the game uses them and the stage draws them.
 
 const EPS = 1e-9;
 
-// In key order, 1 to 3. `rate` is shots a second held (the Popper's is the level's fireRate);
+// In key order, 1 to 4. `rate` is shots a second held (the Popper's is the level's fireRate);
 // `ammo` is the magazine a crate fills, null for never running out; `refill` is the seconds a
-// magazine takes to reload; `hits` is what each pellet or blast is worth.
+// magazine takes to reload; `hits` is what each pellet, round or blast is worth. The Gatling's
+// barrels spin up for `spinUp` seconds before it fires, reach `turns` a second, and stop over
+// `spinDown` seconds; `pitch` is how far a round's crack may stray from its base pitch.
 export const WEAPONS = {
   popper: { key: 1, name: 'Popper', ammo: null },
   scattergun: { key: 2, name: 'Scattergun', notice: 'Scattergun! 8 pellets a blast — best up close', rate: 2, ammo: 4, refill: 1.5, pellets: 8, cone: 4, hits: 2 },
   launcher: { key: 3, name: 'Launcher', notice: 'Pumpkin launcher! Explodes — hits every enemy nearby', rate: 1.5, ammo: 2, refill: 2, flight: 0.35, arc: 1.5, blast: 2.5, hits: 12 },
+  gatling: { key: 4, name: 'Gatling', notice: 'Gatling! Hold fire to spin it up — 20 rounds a second', rate: 20, ammo: 100, refill: 3, hits: 2, spinUp: 0.5, spinDown: 0.4, turns: 12, pitch: 0.05 },
 };
 export const ORDER = Object.keys(WEAPONS);
 
@@ -17,6 +20,7 @@ export const ORDER = Object.keys(WEAPONS);
 export const CRATES = [
   { weapon: 'scattergun', wave: 2, delay: 2 },
   { weapon: 'launcher', wave: 4, delay: 2 },
+  { weapon: 'gatling', wave: 5, delay: 2 },
 ];
 
 // Crates appear at a random x at z, fall from `top` to `height`, hover until `stay` seconds after
