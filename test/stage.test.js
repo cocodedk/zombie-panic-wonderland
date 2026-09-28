@@ -184,7 +184,7 @@ test('the Scarecrow King\'s crows fly out from beside it, not from the backdrop'
   run(game, 3 + 2 + 5); // the first summon
   const king = game.enemies.find((e) => e.kind === 'boss');
   assert.equal(game.enemies.filter((e) => e.kind === 'crow').length, 3);
-  const z = king.z; // where it stood as it summoned them
+  const z = king.z - 2; // 2 units behind where it stood as it summoned them
   for (let i = 0; i < 70; i++) {
     for (const crow of named(draw(), 'crow')) {
       assert.ok(Math.abs(crow.position.z - z) <= CROW_CIRCLE + 1e-9, `z = ${crow.position.z}, the king at ${z}`);

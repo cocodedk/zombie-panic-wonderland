@@ -122,7 +122,7 @@ describe('3. the stomp is felt', () => {
 
 describe('4. summons come from the boss', () => {
   for (const level of [level1, level2]) {
-    test(`the ${level.boss.name}'s ${level.boss.summons}s appear within 2 units of its x, at its z`, () => {
+    test(`the ${level.boss.name}'s ${level.boss.summons}s appear within 2 units of its x, at its z minus 2`, () => {
       for (const r of [0, 0.2, 0.5, 1]) {
         const game = fight(level, { random: () => r });
         game.player.hearts = 99;
@@ -133,7 +133,7 @@ describe('4. summons come from the boss', () => {
         assert.equal(summoned.length, level.boss.summon);
         for (const s of summoned) {
           assert.ok(Math.abs(s.x - boss.x) <= 2 + 1e-9, `x = ${s.x}`);
-          near(s.z, boss.z, 'z');
+          near(s.z, boss.z - 2, 'z');
         }
         near(summoned[0].x, boss.x + (r * 2 - 1) * 2, 'spread by the random');
       }
