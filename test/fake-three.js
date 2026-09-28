@@ -195,7 +195,9 @@ export class PerspectiveCamera extends Object3D {
     super();
     this.aspect = aspect;
   }
-  lookAt() {}
+  lookAt(x, y, z) {
+    this.target = { x, y, z };
+  }
   updateProjectionMatrix() {}
 }
 
