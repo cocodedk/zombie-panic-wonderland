@@ -2,7 +2,7 @@
 
 ## Goal
 
-The game is playable at https://cocodedk.github.io/zombie-panic-wonderland/, and the repository
+The game is playable at https://wonderland.cocode.dk/, and the repository
 explains itself in a short README.
 
 ## Behaviour
@@ -17,7 +17,7 @@ explains itself in a short README.
   `actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1` with id `deployment`.
   Tests, specs and docs are never published.
 - `README.md`: a title, one paragraph saying what the game is, the line
-  `Play it: https://cocodedk.github.io/zombie-panic-wonderland/`, the controls as the title screen
+  `Play it: https://wonderland.cocode.dk/`, the controls as the title screen
   shows them, how to run the tests (`node --test`), how to play locally (any static web server in
   the repository folder, for example `python3 -m http.server`), and that it was built by
   graph-loop's lean loop (https://github.com/cocodedk/graph-loop) from the specs in `docs/lean/`.

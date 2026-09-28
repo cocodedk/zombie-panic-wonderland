@@ -3,7 +3,7 @@
 A low-poly 3D browser game made with three.js: zombies have risen in Wonderland, and you hold the
 ruined road against wave after wave of them, then their boss.
 
-Play it: https://cocodedk.github.io/zombie-panic-wonderland/
+Play it: https://wonderland.cocode.dk/
 
 ## Controls
 

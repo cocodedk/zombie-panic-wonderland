@@ -29,14 +29,14 @@ test('pages.yml uses the pinned actions in order', () => {
   assert.match(pages, /- id: deployment\n        uses: actions\/deploy-pages@/);
 });
 
-test('pages.yml copies exactly index.html, style.css, llms.txt and src/ into _site', () => {
+test('pages.yml copies exactly CNAME, index.html, style.css, llms.txt and src/ into _site', () => {
   const copies = [...pages.matchAll(/^\s*cp .*$/gm)].map((m) => m[0].trim());
-  assert.deepEqual(copies, ['cp -r index.html style.css llms.txt src _site/']);
+  assert.deepEqual(copies, ['cp -r CNAME index.html style.css llms.txt src _site/']);
 });
 
 test('README.md has the play link, the local command and the test command', () => {
   const readme = read('README.md');
-  assert.match(readme, /^Play it: https:\/\/cocodedk\.github\.io\/zombie-panic-wonderland\/$/m);
+  assert.match(readme, /^Play it: https:\/\/wonderland\.cocode\.dk\/$/m);
   assert.match(readme, /python3 -m http\.server/);
   assert.match(readme, /node --test/);
 });

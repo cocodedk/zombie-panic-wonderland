@@ -4,7 +4,7 @@
 
 The next level of the game, playing like the original's next level, kept simple, and built from
 the same reusable components as level 1 (`docs/lean/01-the-game.md`), which is merged and live at
-https://cocodedk.github.io/zombie-panic-wonderland/. Every model stays our own, made in code.
+https://wonderland.cocode.dk/. Every model stays our own, made in code.
 
 ## The owner's answers to the grill (approved on 28 September 2026)
 
