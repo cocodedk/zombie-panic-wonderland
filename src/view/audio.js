@@ -122,6 +122,11 @@ export function createAudio(win) {
       tone(60, t, 0.7, { to: 24, level: 0.6 });
       hiss(t, 0.5, { f: 700, to: 45, level: 0.6, buffer: crunch });
     },
+    gas: (t) => { // a short hiss, then a deep boom: about 400 ms
+      hiss(t, 0.1, { filter: 'highpass', f: 3000, level: 0.3 });
+      tone(55, t + 0.1, 0.3, { to: 22, level: 0.7 });
+      hiss(t + 0.1, 0.3, { f: 600, to: 40, level: 0.6, buffer: crunch });
+    },
     groan: (t) => {
       tone(98, t, 0.6, { type: 'sawtooth', to: 66, level: 0.1, attack: 0.15 });
       tone(99.5, t, 0.6, { type: 'triangle', to: 67, level: 0.2, attack: 0.15 });

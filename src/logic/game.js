@@ -4,6 +4,7 @@
 
 import { Effects, BURSTS, muzzleAt } from './effects.js';
 import { WEAPONS, ORDER, CRATES, CRATE, NOTICE_LIFE, crateAt, crateLeaving } from './weapons.js';
+import { CANISTER, placeCanisters, canisterAt } from './canisters.js';
 
 const EPS = 1e-9;
 const due = (t) => t <= EPS;
@@ -98,6 +99,7 @@ export class Game {
     this.cratesDue = []; // { weapon, t }: crates still to appear, in t seconds
     this.crates = []; // { id, weapon, x, t, hits, flash }
     this.shells = []; // the launcher's pumpkins in flight: { id, from, to, t }
+    this.canisters = []; // { id, x, z, hits, flash }: standing until their wave is cleared
     this.notice = null; // the pickup notice
     this.noticeTimer = 0;
     this.hint = null; // the boss fight's hint, on its own line below the notice
@@ -293,7 +295,7 @@ export class Game {
     }
   }
 
-  // A hit on the first thing on a shot's line: a pumpkin, a crate or an enemy, which takes `hits`.
+  // A hit on the first thing on a shot's line: a pumpkin, a crate, a canister or an enemy, which takes `hits`.
   hit(id, hits = 1) {
     if (id == null) return;
     const pumpkin = this.pumpkins.findIndex((p) => p.id === id);
@@ -304,6 +306,8 @@ export class Game {
     }
     const crate = this.crates.find((c) => c.id === id && !crateLeaving(c));
     if (crate) return this.hitCrate(crate);
+    const canister = this.canisters.find((c) => c.id === id);
+    if (canister) return this.hitCanister(canister);
     const enemy = this.enemies.find((e) => e.id === id);
     if (!enemy) return;
     this.cue('hit');
@@ -316,12 +320,12 @@ export class Game {
     if (enemy.health <= 0) this.fall(enemy);
   }
 
-  // Every enemy, pumpkin and crate within the blast of `at`: the launcher's hits, shot down, one hit.
-  explode(at) {
-    const { blast, hits } = WEAPONS.launcher;
+  // Every enemy, pumpkin, crate and canister within the blast of `at`: `hits`, shot down, one hit,
+  // blown up. The launcher's blast, or a canister's.
+  explode(at, { blast = WEAPONS.launcher.blast, hits = WEAPONS.launcher.hits, cue = 'boom', kind = 'explosion' } = {}) {
     const near = (p) => Math.hypot(p.x - at.x, p.y - at.y, p.z - at.z) <= blast + EPS;
-    this.cue('boom');
-    this.effects.explode(at);
+    this.cue(cue);
+    this.effects.explode(at, kind);
     for (const p of [...this.pumpkins]) {
       if (!near(pumpkinAt(p, this.level.roadZ))) continue;
       this.pumpkins.splice(this.pumpkins.indexOf(p), 1);
@@ -329,6 +333,21 @@ export class Game {
     }
     for (const c of [...this.crates]) if (!crateLeaving(c) && near(crateAt(c))) this.hitCrate(c);
     for (const e of [...this.enemies]) if (this.enemies.includes(e) && near(this.centre(e))) this.damage(e, hits);
+    for (const c of [...this.canisters]) if (this.canisters.includes(c) && near(canisterAt(c))) this.blowUp(c);
+  }
+
+  // --- gas canisters ---
+
+  hitCanister(c) {
+    this.cue('hit');
+    c.hits += 1;
+    c.flash = CANISTER.flash;
+    if (c.hits >= CANISTER.hits) this.blowUp(c);
+  }
+
+  blowUp(c) {
+    this.canisters.splice(this.canisters.indexOf(c), 1);
+    this.explode(canisterAt(c), { blast: CANISTER.blast, hits: CANISTER.damage, cue: 'gas', kind: 'gas' });
   }
 
   // --- crates ---
@@ -365,7 +384,8 @@ export class Game {
       c.t += dt;
       c.flash = Math.max(0, c.flash - dt);
     }
-    this.crates = this.crates.filter((c) => c.t < CRATE.stay + CRATE.leave - EPS);
+    for (const c of this.canisters) c.flash = Math.max(0, c.flash - dt);
+    this.crates =this.crates.filter((c) => c.t < CRATE.stay + CRATE.leave - EPS);
     for (const d of [...this.cratesDue]) {
       d.t -= dt;
       if (!due(d.t)) continue;
@@ -496,6 +516,7 @@ export class Game {
       this.spawnDue();
       if (this.queue.length === 0 && this.enemies.length === 0) {
         this.phase = 'cleared';
+        this.canisters = [];
         this.showBanner(`Wave ${this.wave} cleared`, timing.clearedBanner);
         this.timer = timing.gap;
       }
@@ -530,6 +551,7 @@ export class Game {
     this.spawnTimer = 0;
     this.spawnDue();
     for (const c of CRATES) if (c.wave === n) this.cratesDue.push({ weapon: c.weapon, t: c.delay });
+    if (CANISTER.waves.includes(n)) for (const at of placeCanisters(this.random)) this.canisters.push({ id: this.nextId++, ...at, hits: 0, flash: 0 });
   }
 
   spawnDue() {
