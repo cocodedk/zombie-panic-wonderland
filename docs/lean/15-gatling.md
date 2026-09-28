@@ -47,7 +47,7 @@ the pickup notice. Only the parts below are new.
 ## Every screen
 
 - Loading, error and title: no weapon line, no crosshair and no firing, as today.
-- Intro card: the Gatling is not owned yet, so nothing new shows.
+- Intro card: the weapon line lists all four weapons, `4 Gatling —` dimmed, like every weapon not owned.
 - Play, the gaps between waves and the boss fight: as above.
 - Paused: everything freezes, the spin-up, the spinning barrels, the reload and the sounds included.
 - Victory and defeat: the scene and the HUD freeze as they are, and the Gatling stops firing.
@@ -79,6 +79,19 @@ the pickup notice. Only the parts below are new.
    spec changes (the weapon order and wheel, the weapon line, the controls line, the crate list,
    `llms.txt`), and nothing else in them. The builder adds or edits test files as the checks above
    need.
+
+## Answers to the grill
+
+- **The intro card** shows `4 Gatling —`, dimmed, in the weapon line: the line always lists all four
+  weapons wherever it shows.
+- **The crate's emblem:** six small circles in a ring, the barrels seen from the front, in the crates'
+  dark emblem colour (#2a1a0e), on each side.
+- **Held fire through a reload:** firing stops when the magazine empties, and the barrels spin down
+  with `spindown`. When the reload ends with the button still held, the barrels spin up for 0.5
+  seconds again, with `spinup`, before firing. Putting the Gatling away stops its barrels at once,
+  with no sound; taking it back with the button held spins up for 0.5 seconds again.
+- **Victory and defeat** freeze everything at once, the barrels included: no spin-down animation and
+  no `spindown` sound.
 
 ## Out of scope
 
