@@ -10,7 +10,7 @@ explains itself in a short README.
 - `.github/workflows/pages.yml`, named `Deploy Pages`, runs on push to main and on
   workflow_dispatch, with permissions `contents: read`, `pages: write`, `id-token: write`,
   concurrency group `pages` with `cancel-in-progress: false`, and one job `deploy` in the
-  `github-pages` environment. Its steps: `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4`;
+  `github-pages` environment. Its steps: `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1`;
   a step copying only `index.html`, `style.css`, `llms.txt` and the `src/` folder into `_site`;
   `actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0`;
   `actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0` with path `_site`;
