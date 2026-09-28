@@ -22,9 +22,10 @@ show its spread.
   12 hits to every enemy caught in it, bosses included, 8 rounds. Pumpkins in the air within the
   blast are still shot down.
 - **The Popper** does not change.
-- **A crosshair for each weapon.** Popper: today's ring. Scattergun: a wider ring with 8 small dots
-  around it showing the pellet pattern. Launcher: a dashed circle for the blast, with a centre dot.
-  All drawn in the crosshair's present colour.
+- **A crosshair for each weapon.** Popper: today's ring. Scattergun: a wider ring with its pellet
+  pattern, as below. Launcher: a dashed circle for the blast, with a centre dot.
+  All drawn in the crosshair's present colour. The Scattergun's crosshair matches its pellets: a centre
+  dot and 7 dots evenly around the ring.
 - **Pickup notices say what the weapon does**, for 2.5 seconds: `Scattergun! 8 pellets a blast — best
   up close` and `Pumpkin launcher! Explodes — hits everything nearby`.
 - **Pellets you can see.** Scattergun streaks are twice as thick as the Popper's and last 0.1 seconds.
@@ -38,8 +39,9 @@ show its spread.
 
 1. The new numbers for both weapons, and that the Popper's are unchanged.
 2. At 9.5 units, at least 6 of the Scattergun's 8 pellets pass within 0.4 units of the aim point.
-3. On a single zombie at the road, the Scattergun deals at least 16 hits a second and the launcher
-   at least 12 hits a shot, both more than the Popper's 8 hits a second.
+3. Against a durable zombie-sized target at the road (a target as wide as a zombie that does not
+   fall), the Scattergun deals at least 16 hits a second and the launcher at least 12 hits a shot,
+   both more than the Popper's 8 hits a second.
 4. The crosshair shape follows the weapon in hand, and the pickup notices read as above for
    2.5 seconds.
 5. Pellet streaks' thickness and life, and sparks where pellets hit.
