@@ -13,6 +13,7 @@ import { buildPlayer } from './models/player.js';
 import { buildZombie, buildZombieKing } from './models/zombie.js';
 import { buildPumpkin, buildPumpkinMonster, buildFlamingPumpkin, buildLaunchedPumpkin } from './models/pumpkin.js';
 import { buildCrate } from './models/crate.js';
+import { buildCanister } from './models/canister.js';
 import { buildCrow } from './models/crow.js';
 import { buildScarecrow, buildScarecrowKing } from './models/scarecrow.js';
 import { buildSky, buildGround, buildRoad, buildTree, buildMushroom, buildCrypt, buildClockTower, buildHedge, buildFence } from './models/scenery.js';
@@ -209,6 +210,12 @@ export function createStage(container, firstLevel) {
         obj.userData.tick(clock, { flash: c.flash > 0 ? 1 : 0 });
         if (!crateLeaving(c)) pickable.push(obj);
       }
+      for (const c of game.canisters) {
+        const obj = place(c.id, () => buildCanister());
+        obj.position.set(c.x, 0, c.z);
+        obj.userData.tick(clock, { flash: c.flash > 0 ? 1 : 0 });
+        pickable.push(obj);
+      }
       for (const s of game.shells) {
         const obj = place(s.id, () => buildLaunchedPumpkin());
         const at = shellAt(s);
@@ -274,7 +281,7 @@ export function createStage(container, firstLevel) {
       renderer.render(scene, camera);
     },
 
-    // The first enemy, pumpkin or crate under the crosshair (id, or null) and where the ray lands:
+    // The first enemy, pumpkin, crate or canister under the crosshair (id, or null) and where the ray lands:
     // on it, else on the ground or backdrop, else far along the ray. With `pellets`, the same for
     // each scattergun pellet's line in `pellets`.
     aimAt(aim, pellets = false) {

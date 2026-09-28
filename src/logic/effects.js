@@ -48,6 +48,7 @@ export const BURSTS = {
   scarecrowKing: { count: 40, life: 1.5, size: 0.35, colors: ['#9c8456', '#3d2f22', '#3f2a4a', '#d8c070'], puff: '#e07b24', puffSize: 3 },
   pumpkin: { count: 6, life: 0.6, size: 0.14, colors: ['#e07b24'], puff: null },
   explosion: { count: 16, life: 0.6, size: 0.2, colors: ['#e07b24', '#ff9a3c', '#ffd35a'], puff: '#ff9a3c', puffSize: 2, puffLife: 0.6 },
+  gas: { count: 20, life: 0.7, size: 0.22, colors: ['#ff8c1a', '#9acd32'], puff: '#9acd32', puffSize: 3, puffLife: 0.7 }, // a gas canister's fireball
   crate: { count: 4, life: 0.3, size: 0.08, colors: ['#8b5a2b'], puff: null }, // wood chips from a hit
 };
 
@@ -85,10 +86,10 @@ export class Effects {
     this.flashSize = 2;
   }
 
-  // The launcher's pumpkin exploding; with reduced motion, only a flash of its puff.
-  explode(at) {
-    if (!this.reducedMotion) return this.burst('explosion', at);
-    const b = BURSTS.explosion;
+  // The launcher's pumpkin exploding, or a gas canister (`kind` 'gas'); with reduced motion, only a flash of its puff.
+  explode(at, kind = 'explosion') {
+    if (!this.reducedMotion) return this.burst(kind, at);
+    const b = BURSTS[kind];
     this.puffs.push({ id: this.nextId++, pos: { ...at }, color: b.puff, size: b.puffSize, age: 0, life: EXPLOSION_FLASH });
   }
 
