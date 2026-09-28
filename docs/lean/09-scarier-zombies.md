@@ -16,8 +16,23 @@ The zombies a little more scary, with small changes only.
 - **Groan:** a new cue, `groan`, a low short moan made with the Web Audio API. It sounds when a
   zombie reaches the road, and at most once every 1.5 seconds across all zombies. It follows mute and
   pause like every other sound.
-- Nothing else changes: the zombies' shape, colours other than the eyes, size, speed, hits, points
-  and every rule of play. Reduced motion turns the twitch off.
+- Nothing else changes: apart from the eyes, the jaw and the teeth above, which are the only
+  exceptions, the zombies' shape, colours, size, speed, hits, points and every rule of play stay as
+  they are. Reduced motion turns the twitch off.
+
+## Answers to the grill
+
+- **The reference.** The existing zombie and Zombie King models in `src/view/models`, changed only
+  as above; there is no new mock.
+- **What each screen shows and sounds like.** The changes live on the zombies, so they show and sound
+  only where zombies exist.
+  - Loading, error, title and intro look and sound exactly as today, because no zombie is there.
+  - Moments with no zombie on the field, such as between waves, have no twitches and no groans.
+  - In play, zombies show the new eyes, jaw and teeth and twitch as above, and groans sound as above.
+  - Pause freezes the twitch where it is and sounds nothing. Victory and defeat freeze the scene,
+    twitches included, as today.
+  - A restart, **Next level**, **Play again** or **Back to title** resets the groan's 1.5-second
+    limit.
 
 ## Done when
 
