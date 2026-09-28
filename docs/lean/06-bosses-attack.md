@@ -46,6 +46,17 @@ makes no sound, so even when one lands it is easy to miss.
 6. Every earlier test still passes. The builder may change the tests that pin the old hit counts,
    the old first-action time or the old summon position, and nothing else in them.
 
+## Answers to the grill
+
+- **The look of the wind-up and the shake.** The reference is each boss's existing model in
+  `src/view/models`; there is no new mock. Over the 0.6 seconds both arms rise from their resting
+  angle to shoulder height. The Zombie King's crown glows up to gold (#ffd76a) and the Scarecrow
+  King's hat to orange (#ff9a3c), at full brightness when the action comes. Arms and glow return to
+  rest right after the action. The shake moves the camera by a random offset each frame, at most
+  0.15 units in x and y, fading linearly to nothing over the 0.25 seconds.
+- **A stomp that takes the last heart.** The defeat card shows at once, as it does today, and the
+  scene freezes with it, the shake included: no shake continues behind the card.
+
 ## Out of scope
 
 New attacks, new enemies, weapons (the next spec), and any other change. The builder adds or edits
