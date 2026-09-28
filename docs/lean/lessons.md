@@ -1,0 +1,12 @@
+- For anything the player sees, name its design reference: today's screen or model with only the named parts changing, or a sketch in the spec (the grill asked "which mock or screen" in specs 01, 03, 06, 07, 08, 09 and 10).
+- Say on which screens a new visible thing shows (loading, error, title, intro, play, paused, victory, defeat) and whether pause freezes its timer (the grill asked in specs 01, 03, 04, 07, 08 and 09).
+- When a new message at the centre can meet another (wave cleared, boss announcement, pickup notice, boss hint), say which shows where (specs 07, 08).
+- Say which earlier tests the builder may change, that it changes nothing else in them, and that it may add or edit test files (the grill asked in specs 02, 03 and 06).
+- Name every exception to "everything else stays as it is" (specs 06, 09, 10).
+- Check a spec's numbers against the code before running it (spec 08: the first summon's zombies needed 6.7 s to reach the road, not 4; spec 10: a 22 px ring would have been smaller than today's 32 px one).
+- A zombie has 3 health and vanishes when it falls, so damage is measured against a durable, zombie-sized target (spec 10).
+- A balance change needs a bot play-test in the suite: the Zombie King passed every unit test, yet a bot that did not dodge won none of 20 fights (spec 08).
+- Earlier tests assert `get_state`'s exact answer, so a new field updates them (specs 03, 07).
+- The Pages workflow copies a fixed list of files (`.github/workflows/pages.yml`); a new file the site serves goes on that list (spec 11, `CNAME`).
+- A test that forbids a text in tracked files must allow the spec that names it, or the spec must not name it (spec 11: the review refused this).
+- The game uses ES modules, so it is served over HTTP; opened from `file://` it does not load (spec 01).
