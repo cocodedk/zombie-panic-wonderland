@@ -344,7 +344,7 @@ describe('2. crates', () => {
     for (let i = 0; i < 3; i++) game.shoot();
     assert.equal(c.hits, 0);
     assert.equal(game.weapon, 'popper');
-    assert.deepEqual(names(game), ['shot', 'shot', 'shot']);
+    assert.deepEqual(names(game), ['groan', 'shot', 'shot', 'shot']); // the zombie reached the road
     game.explode(crateAt(c));
     assert.equal(c.hits, 0);
   });

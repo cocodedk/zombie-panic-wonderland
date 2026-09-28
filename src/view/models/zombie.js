@@ -2,13 +2,19 @@
 // The Zombie King is the same figure, bigger, with a bent crown.
 
 import * as THREE from 'three';
-import { flat, glow, glowing, part, group } from './parts.js';
+import { flat, glow, glowing, part, group, seeded } from './parts.js';
+
+const TEETH = '#e8e0c8';
+
+// Now and then the head snaps up to `angle` radians to one side and back within `time` seconds,
+// every `every` seconds at random.
+export const TWITCH = { every: [2, 4], angle: (20 * Math.PI) / 180, time: 0.15 };
 
 export function buildZombie({
   skin = '#7d9a6a',
   shirt = '#5b5270',
   pants = '#3d3a35',
-  eyes = '#f2e36b',
+  eyes = '#ff3b30',
   size = 1,
   seed = 0, // shifts the shamble so a crowd does not move in step
 } = {}) {
@@ -37,12 +43,24 @@ export function buildZombie({
   torso.add(part(new THREE.BoxGeometry(0.14, 0.12, 0.02), skinMat, [0.1, 0.36, 0.151], [0, 0, 0.4]));
   torso.add(part(new THREE.BoxGeometry(0.1, 0.16, 0.02), skinMat, [-0.26, 0.2, 0.05], [0, Math.PI / 2, 0.2]));
 
-  // A tilted head with glowing eyes and a slack jaw.
+  // A torn-open jaw hanging below the face, with a few crooked teeth.
+  const jaw = group(part(new THREE.BoxGeometry(0.16, 0.06, 0.1), '#4b5e40'));
+  jaw.name = 'jaw';
+  const tooth = new THREE.ConeGeometry(0.014, 0.04, 3);
+  [-0.05, -0.01, 0.025, 0.055].forEach((x, i) => {
+    const t = part(tooth, TEETH, [x, 0.045, 0.035], [0, 0, (i % 2 ? -0.35 : 0.3) + i * 0.05]);
+    t.name = 'tooth';
+    jaw.add(t);
+  });
+  jaw.position.set(0, -0.19, 0.1);
+  jaw.rotation.x = 0.55;
+
+  // A tilted head with glowing eyes and the jaw.
   const head = group(
     part(new THREE.IcosahedronGeometry(0.2, 0), skinMat),
     part(new THREE.BoxGeometry(0.06, 0.04, 0.02), glow(eyes), [-0.07, 0.03, 0.18]),
     part(new THREE.BoxGeometry(0.06, 0.04, 0.02), glow(eyes), [0.07, 0.03, 0.18]),
-    part(new THREE.BoxGeometry(0.16, 0.06, 0.1), '#4b5e40', [0, -0.15, 0.1], [0.3, 0, 0]),
+    jaw,
   );
   head.position.set(0.03, 0.76, 0.06);
   head.rotation.z = 0.35;
@@ -62,13 +80,29 @@ export function buildZombie({
     return shoulder;
   });
 
+  // The head's twitch: the next one's start, side and angle, drawn from a seeded random.
+  const random = seeded(Math.round(seed * 1000) + 1);
+  let next = null;
+  let angle = 0;
+  const plan = (from) => {
+    next = from + TWITCH.every[0] + random() * (TWITCH.every[1] - TWITCH.every[0]);
+    angle = (random() < 0.5 ? -1 : 1) * TWITCH.angle * (0.5 + random() * 0.5);
+  };
+  const twitchAt = (t) => {
+    if (next == null || t < next - TWITCH.every[1]) plan(t); // the first tick, or time went back
+    while (t >= next + TWITCH.time) plan(next);
+    return t < next ? 0 : angle * Math.sin((Math.PI * (t - next)) / TWITCH.time);
+  };
+
   root.scale.setScalar(size);
   root.userData = {
     head,
     arms,
     torso,
-    // walk: 1 while it walks, 0 standing; windup: 0 to 1, the arms rising to shoulder height.
-    tick(t, { walk = 1, windup = 0 } = {}) {
+    jaw,
+    // walk: 1 while it walks, 0 standing; windup: 0 to 1, the arms rising to shoulder height;
+    // twitch: false under reduced motion.
+    tick(t, { walk = 1, windup = 0, twitch = true } = {}) {
       const s = t * 3.2 + seed;
       const step = Math.sin(s) * 0.35 * walk;
       legs[0].rotation.x = step;
@@ -80,6 +114,7 @@ export function buildZombie({
       });
       torso.rotation.z = Math.sin(s) * 0.12;
       head.rotation.z = 0.35 + Math.sin(s * 0.5) * 0.1;
+      head.rotation.y = twitch ? twitchAt(t) : 0;
     },
   };
   return root;

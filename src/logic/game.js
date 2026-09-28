@@ -45,6 +45,8 @@ export function bossWindup(e, boss) {
 // The camera shakes when a stomp's shockwave reaches the road, fading over `time` seconds.
 export const SHAKE = { time: 0.25, size: 0.15 };
 
+export const GROAN = 1.5; // seconds: the least time between two zombies' groans
+
 // Shown once per boss fight, at its first wind-up, for `life` seconds.
 export const HINT = { text: 'Space: dodge — or step aside!', life: 2 };
 
@@ -81,6 +83,7 @@ export class Game {
     this.stomps = [];
     this.flyaways = []; // crows leaving after their dive; no longer enemies
     this.shake = 0; // seconds of camera shake left
+    this.groanWait = 0; // seconds until a zombie may groan again
     this.banner = null;
     this.bannerTimer = 0;
     this.bossHealth = null;
@@ -362,6 +365,7 @@ export class Game {
     this.clock += dt;
     this.effects.update(dt);
     this.shake = Math.max(0, this.shake - dt);
+    this.groanWait = Math.max(0, this.groanWait - dt);
     this.movePlayer(dt);
     if (this.screen === 'intro') {
       if (this.press === 'intro' && !this.firing) {
@@ -536,6 +540,7 @@ export class Game {
     const road = this.level.roadZ;
     if (e.z < road - EPS) {
       e.z = Math.min(road, e.z + c.speed * dt);
+      if (e.z >= road - EPS) this.groan();
       return;
     }
     const dx = this.player.x - e.x;
@@ -549,6 +554,13 @@ export class Game {
       e.strike += c.strikeEvery;
       this.hurt();
     }
+  }
+
+  // A zombie reaching the road groans, at most once every GROAN seconds across all zombies.
+  groan() {
+    if (this.groanWait > EPS) return;
+    this.groanWait = GROAN;
+    this.cue('groan');
   }
 
   pumpkinMonster(e, dt) {
