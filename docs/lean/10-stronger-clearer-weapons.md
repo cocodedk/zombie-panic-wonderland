@@ -27,7 +27,7 @@ show its spread.
   All drawn in the crosshair's present colour. The Scattergun's crosshair matches its pellets: a centre
   dot and 7 dots evenly around the ring.
 - **Pickup notices say what the weapon does**, for 2.5 seconds: `Scattergun! 8 pellets a blast — best
-  up close` and `Pumpkin launcher! Explodes — hits everything nearby`.
+  up close` and `Pumpkin launcher! Explodes — hits every enemy nearby`.
 - **Pellets you can see.** Scattergun streaks are twice as thick as the Popper's and last 0.1 seconds.
   Each pellet that hits something shows a small spark (#fff3b0) where it lands, for 0.15 seconds.
 - Everything else stays as it is: crates, switching, the HUD line, sounds, resets and every other
@@ -47,6 +47,15 @@ show its spread.
 5. Pellet streaks' thickness and life, and sparks where pellets hit.
 6. Every earlier test still passes. The builder may change any earlier test whose expectation this
    spec changes, and nothing else in them.
+
+## Answers to the grill
+
+- **Crosshair size.** Fixed-size symbols, the same at every distance: the Scattergun's ring is 22 px
+  across with its centre dot and 7 dots on the ring; the launcher's circle is 26 px across, dashed,
+  with a centre dot.
+- **The reference.** Today's crosshair: its colour, stroke width and centre dot stay; only the ring's
+  size, the dots and the dashing change. There is no new mock.
+- **The launcher's notice** says `hits every enemy nearby`, because the blast never hurts the player.
 
 ## Out of scope
 
