@@ -85,6 +85,21 @@ assert `get_state`'s exact answer, and change nothing else in those tests.
 6. `get_state` reports the weapon and its ammo, and every earlier test still passes. The builder may
    change any earlier test whose expectation this spec changes, and nothing else in them.
 
+## Answers to the grill
+
+- **The look.** The reference is level 1's sketch and today's HUD and banners: the weapon line uses
+  the HUD's own font and colours, and the pickup notice uses the banners' style. The crate is a
+  wooden box with planks in #8b5a2b and a dark emblem of its weapon (#2a1a0e) on each side.
+- **Where the weapon line shows.** Wherever the HUD shows: intro, play, between waves, boss, pause,
+  victory and defeat. It is absent on loading, error and title.
+- **The pickup notice and announcements.** The pickup notice has its own line at the centre, just
+  below where the banners show, so it and a wave-clear or boss banner can show at the same time.
+- **A crate leaving.** During its one-second departure a crate cannot be hit or collected; shots pass
+  through it.
+- **Switching while firing.** Each weapon keeps its own reload time. With the button held, the weapon
+  in hand fires as soon as its own interval has passed since that weapon last fired, or at once if it
+  has not fired yet. Switching back and forth therefore never fires faster than each weapon's rate.
+
 ## Out of scope
 
 More weapons, weapon upgrades, saving weapons between levels, and any change to enemies, bosses or
