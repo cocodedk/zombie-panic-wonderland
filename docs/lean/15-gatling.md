@@ -9,9 +9,9 @@ A Gatling gun with massive fire power and a suitable sound. The owner asked for 
 
 - **Gatling**, key **4**, after the launcher in the order the mouse wheel steps through.
 - Hold the fire button: the barrels spin up for 0.5 seconds, then it fires 20 rounds a second for as
-  long as the button is held. Each round hits the first enemy, pumpkin, crate or canister under the
-  crosshair for 1 hit, like a Popper shot. Releasing the button stops firing at once. Every new press
-  spins up for 0.5 seconds again, even during a spin-down.
+  long as the button is held. Each round is worth 2 hits and hits the first enemy, pumpkin, crate or
+  canister under the crosshair, the way a Scattergun pellet does. Releasing the button stops firing
+  at once. Every new press spins up for 0.5 seconds again, even during a spin-down.
 - A magazine of 100 rounds. It reloads like the Scattergun and the launcher (spec 12): by itself when
   empty, early with R, in 3 seconds; switching away stops the reload.
 - It is collected from a **Gatling crate**, which appears in each level 2 seconds after wave 5
@@ -65,13 +65,13 @@ the pickup notice. Only the parts below are new.
 
 1. Key 4 and the wheel reach the Gatling only once it is owned, and the wheel wraps around four
    weapons.
-2. The 0.5-second spin-up on every press, then 20 rounds a second while held, each 1 hit on the first
-   thing under the crosshair, and firing stopping at once on release.
+2. The 0.5-second spin-up on every press, then 20 rounds a second while held, each worth 2 hits on the
+   first thing under the crosshair as a pellet is, and firing stopping at once on release.
 3. The magazine of 100, the 3-second reload by itself or with R, and switching away stopping it.
 4. The Gatling crate 2 seconds after wave 5 starts in both levels, collected like the other crates,
    giving a full magazine.
-5. Against a durable, zombie-sized target it deals 20 hits a second once spun up, more than any other
-   weapon's.
+5. Against a durable, zombie-sized target it deals 40 hits a second once spun up, more than the
+   Scattergun's best (8 pellets × 2 hits × 2 blasts = 32).
 6. The gun model's parts and colours and its barrels' spin, the tracers, the crosshair, the weapon
    line, the notice, the controls line, and the three cues when they should play.
 7. Pause and the resets as above; `get_state` and `llms.txt` as above.
