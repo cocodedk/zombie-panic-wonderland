@@ -146,6 +146,18 @@ The owner delegated these to the flow of the original, kept simple.
   the right if the player has not moved yet in this level. A roll stops at the edge of the road
   (x = -8 or x = 8), and it still counts as a dodge.
 
+- **Every overlay, in one rule.** The scene always stays visible behind an overlay, under a dark
+  band that carries its text.
+  - **Title:** the scene is idle, with no HUD. No control works except the click that starts, and the
+    pointer is visible.
+  - **Intro card:** the HUD shows 5 hearts, score 0 and `Wave 1 / 5`. Moving, aiming, shooting and
+    dodging all work, and nothing can cause damage. Esc pauses and holds the 3-second timer. The
+    click that skips the card does not fire a shot.
+  - **Between waves and the boss announcement:** as above, with full control.
+  - **Paused:** everything is frozen, the HUD stays, and only Esc works.
+  - **Victory and defeat:** the scene freezes. The HUD stays, the pointer is visible again, and only
+    the button works.
+
 ## Out of scope
 
 Sound and music, touch and mobile controls, more levels, cutscenes beyond the intro card, saving
