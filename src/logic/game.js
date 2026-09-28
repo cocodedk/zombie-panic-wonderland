@@ -9,11 +9,14 @@ const CLICK = 0.25; // seconds: a shorter press is a click
 export const SCREENS = ['loading', 'error', 'title', 'intro', 'play', 'paused', 'victory', 'defeat'];
 
 export class Game {
-  constructor(level, { random = Math.random } = {}) {
+  // `levels` is the order they are played in; `level` is the one on show.
+  constructor(level, { random = Math.random, levels = [level] } = {}) {
+    this.levels = levels;
     this.level = level;
     this.random = random;
     this.screen = 'loading';
     this.error = null; // 'network' or 'webgl'
+    this.startScore = 0; // the score when this level began
     this.reset();
   }
 
@@ -22,7 +25,7 @@ export class Game {
     this.player = { x: 0, hearts: player.hearts, dodging: 0, cooldown: 0, dir: 1, lastDir: 1 };
     this.move = 0;
     this.aim = null;
-    this.score = 0;
+    this.score = this.startScore;
     this.wave = 1;
     this.phase = 'intro'; // then 'wave', 'cleared', 'announce', 'boss'
     this.timer = timing.intro;
@@ -31,6 +34,7 @@ export class Game {
     this.enemies = [];
     this.pumpkins = [];
     this.stomps = [];
+    this.flyaways = []; // crows leaving after their dive; no longer enemies
     this.banner = null;
     this.bannerTimer = 0;
     this.bossHealth = null;
@@ -67,8 +71,7 @@ export class Game {
   // a longer hold shoots. The press that starts the level from the title does neither.
   pointerDown() {
     if (this.screen === 'title') {
-      this.reset();
-      this.screen = 'intro';
+      this.begin(this.levels[0], 0);
       this.press = 'title';
     } else if (this.screen === 'intro') {
       this.press = 'intro';
@@ -94,8 +97,32 @@ export class Game {
     }
   }
 
+  // Play again and Try again: this level from its intro card, with the score it began with.
   restart() {
     if (this.screen !== 'victory' && this.screen !== 'defeat') return;
+    this.begin(this.level, this.startScore);
+  }
+
+  // The level after this one, or null.
+  get next() {
+    return this.levels[this.levels.indexOf(this.level) + 1] ?? null;
+  }
+
+  nextLevel() {
+    if (this.screen === 'victory' && this.next) this.begin(this.next, this.score);
+  }
+
+  toTitle() {
+    if (this.screen !== 'victory') return;
+    this.level = this.levels[0];
+    this.startScore = 0;
+    this.reset();
+    this.screen = 'title';
+  }
+
+  begin(level, score) {
+    this.level = level;
+    this.startScore = score;
     this.reset();
     this.screen = 'intro';
   }
@@ -125,8 +152,7 @@ export class Game {
     if (id == null) return;
     const pumpkin = this.pumpkins.findIndex((p) => p.id === id);
     if (pumpkin >= 0) {
-      this.pumpkins.splice(pumpkin, 1);
-      this.score += this.level.enemies.pumpkinMonster.pumpkinPoints;
+      this.score += this.pumpkins.splice(pumpkin, 1)[0].points;
       return;
     }
     const enemy = this.enemies.find((e) => e.id === id);
@@ -158,9 +184,10 @@ export class Game {
       p.t += dt;
       if (p.t < p.flight - EPS) continue;
       this.pumpkins.splice(this.pumpkins.indexOf(p), 1);
-      if (Math.abs(this.player.x - p.x) <= this.level.enemies.pumpkinMonster.splash + EPS) this.hurt();
+      if (Math.abs(this.player.x - p.x) <= this.level.enemies.pumpkinMonster.splash + EPS) this.hurt(p.hearts);
       if (this.screen !== 'play') return;
     }
+    this.flyaways = this.flyaways.filter((f) => (f.t += dt) < this.level.enemies.crow.leave - EPS);
     for (const s of [...this.stomps]) {
       s.t -= dt;
       if (!due(s.t)) continue;
@@ -171,6 +198,7 @@ export class Game {
     for (const e of [...this.enemies]) {
       if (e.kind === 'zombie') this.zombie(e, dt);
       else if (e.kind === 'pumpkinMonster') this.pumpkinMonster(e, dt);
+      else if (e.kind === 'crow') this.crow(e, dt);
       else this.boss(e, dt);
       if (this.screen !== 'play') return;
     }
@@ -231,7 +259,7 @@ export class Game {
         this.startWave(this.wave + 1);
       } else {
         this.phase = 'announce';
-        this.showBanner('The Zombie King is here!', timing.bossBanner);
+        this.showBanner(this.level.text.boss, timing.bossBanner);
         this.timer = timing.bossBanner;
       }
     } else if (this.phase === 'announce') {
@@ -273,6 +301,11 @@ export class Game {
     };
     if (kind === 'zombie') e.strike = enemies.zombie.strikeEvery;
     if (kind === 'pumpkinMonster') e.throwTimer = enemies.pumpkinMonster.throwEvery;
+    if (kind === 'crow') {
+      e.z = enemies.crow.z;
+      e.timer = enemies.crow.circle;
+      e.diveX = null; // set when it dives
+    }
     this.enemies.push(e);
     return e;
   }
@@ -311,7 +344,28 @@ export class Game {
     e.throwTimer -= dt;
     if (!due(e.throwTimer)) return;
     e.throwTimer += c.throwEvery;
-    this.pumpkins.push({ id: this.nextId++, owner: e.id, fromX: e.x, fromZ: e.z, x: this.player.x, t: 0, flight: c.flight });
+    this.throwPumpkin(e, { hearts: 1, points: c.pumpkinPoints });
+  }
+
+  // A pumpkin flies from `from` to where the player stands now; the boss's burns.
+  throwPumpkin(from, { hearts, points, flaming = false }) {
+    const c = this.level.enemies.pumpkinMonster;
+    this.pumpkins.push({ id: this.nextId++, owner: from.id, fromX: from.x, fromZ: from.z, x: this.player.x, t: 0, flight: c.flight, hearts, points, flaming });
+  }
+
+  // Circles, then dives at where the player is then, lands on the road and flies away.
+  crow(e, dt) {
+    const c = this.level.enemies.crow;
+    e.timer -= dt;
+    if (!due(e.timer)) return;
+    if (e.diveX == null) {
+      e.diveX = this.player.x;
+      e.timer += c.dive;
+      return;
+    }
+    this.enemies.splice(this.enemies.indexOf(e), 1);
+    this.flyaways.push({ id: e.id, x: e.diveX, t: 0 });
+    if (Math.abs(this.player.x - e.diveX) <= c.splash + EPS) this.hurt();
   }
 
   boss(e, dt) {
@@ -326,7 +380,8 @@ export class Game {
     const action = b.actions[e.next];
     e.next = (e.next + 1) % b.actions.length;
     if (action === 'stomp') this.stomps.push({ id: this.nextId++, t: b.stompDelay });
-    else for (let i = 0; i < b.summon; i++) this.spawn('zombie');
+    else if (action === 'throw') this.throwPumpkin(e, { ...b.flamingPumpkin, flaming: true });
+    else for (let i = 0; i < b.summon; i++) this.spawn(b.summons);
   }
 
   fall(e) {
@@ -342,9 +397,9 @@ export class Game {
     }
   }
 
-  hurt() {
+  hurt(hearts = 1) {
     if (this.screen !== 'play' || this.dodging) return false;
-    this.player.hearts -= 1;
+    this.player.hearts -= hearts;
     if (this.player.hearts <= 0) {
       this.player.hearts = 0;
       this.end('defeat');
@@ -365,6 +420,7 @@ export class Game {
   // The answer of the WebMCP get_state tool.
   snapshot() {
     return {
+      level: this.level.number,
       screen: this.screen,
       wave: this.wave,
       score: this.score,

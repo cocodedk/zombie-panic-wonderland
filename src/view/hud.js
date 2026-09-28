@@ -7,9 +7,11 @@ export function createHud(doc, game) {
   const el = {
     plain: $('#plain'), hud: $('#hud'), hearts: $('#hearts'), score: $('#score'), wave: $('#wave'),
     bossbar: $('#bossbar'), bossfill: $('#bossbar i'), band: $('#band'), title: $('#band h1'),
-    lines: $('#band .lines'), button: $('#band button'), crosshair: $('#crosshair'), stage: $('#stage'),
+    lines: $('#band .lines'), button: $('#band button'), second: $('#band button + button'),
+    bossname: $('#bossbar span'), crosshair: $('#crosshair'), stage: $('#stage'),
   };
   el.button.addEventListener('click', () => game.restart());
+  el.second.addEventListener('click', () => (game.next ? game.nextLevel() : game.toTitle()));
 
   const text = (node, value) => { if (node.textContent !== value) node.textContent = value; };
 
@@ -32,6 +34,8 @@ export function createHud(doc, game) {
         el.lines.style.whiteSpace = 'pre-line';
         el.button.hidden = !v.band.button;
         text(el.button, v.band.button ?? '');
+        el.second.hidden = !v.band.second;
+        text(el.second, v.band.second ?? '');
       }
 
       el.hud.hidden = !v.hud;
@@ -41,6 +45,7 @@ export function createHud(doc, game) {
         el.wave.hidden = v.hud.wave == null;
         text(el.wave, v.hud.wave ?? '');
         el.bossbar.hidden = v.hud.boss == null;
+        text(el.bossname, game.level.boss.name);
         el.bossfill.style.width = `${(v.hud.boss ?? 0) * 100}%`;
       }
 

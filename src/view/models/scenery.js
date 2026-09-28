@@ -23,7 +23,7 @@ export function buildGround({ color = '#2d3526', size = 120 } = {}) {
 }
 
 // Yellow brick along x, with bricks missing and rubble: the ruined road.
-export function buildRoad({ color = '#b89a4e', mortar = '#6d5a33', length = 26, width = 2.6, seed = 7 } = {}) {
+export function buildRoad({ color = '#b89a4e', mortar = '#6d5a33', length = 26, width = 2.6, missing = 0.07, seed = 7 } = {}) {
   const rand = seeded(seed);
   const road = group(part(new THREE.BoxGeometry(length, 0.06, width), mortar, [0, 0.03, 0]));
   const bw = 0.62;
@@ -36,7 +36,7 @@ export function buildRoad({ color = '#b89a4e', mortar = '#6d5a33', length = 26, 
   let n = 0;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (rand() < 0.07) continue; // a missing brick
+      if (rand() < missing) continue; // a missing brick
       const x = -length / 2 + (c + (r % 2 ? 1 : 0.5)) * bw;
       if (x > length / 2 - bw / 2) continue;
       m.makeRotationY((rand() - 0.5) * 0.08);
@@ -169,7 +169,7 @@ export function buildHedge({ color = '#2f4a2c', length = 4, height = 1, seed = 1
   return hedge;
 }
 
-export function buildFence({ color = '#d8d0c0', length = 6, height = 1, seed = 1 } = {}) {
+export function buildFence({ color = '#d8d0c0', length = 6, height = 1, missing = 0.1, seed = 1 } = {}) {
   const rand = seeded(seed);
   const wood = flat(color);
   const fence = group();
@@ -177,7 +177,7 @@ export function buildFence({ color = '#d8d0c0', length = 6, height = 1, seed = 1
   const board = new THREE.BoxGeometry(0.14, height, 0.05);
   const tip = new THREE.ConeGeometry(0.1, 0.18, 4);
   for (let x = -length / 2 + 0.1; x < length / 2; x += 0.3) {
-    if (rand() < 0.1) continue; // a missing picket
+    if (rand() < missing) continue; // a missing picket
     const picket = group(part(board, wood, [0, height / 2, 0]), part(tip, wood, [0, height + 0.09, 0], [0, Math.PI / 4, 0]));
     picket.position.x = x;
     picket.rotation.z = (rand() - 0.5) * 0.25;

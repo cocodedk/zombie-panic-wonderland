@@ -1,10 +1,10 @@
 # Zombie Panic in Wonderland (low-poly)
 
-> A low-poly 3D browser game made with three.js: hold a ruined road against five waves of zombies and pumpkin monsters, then the Zombie King.
+> A low-poly 3D browser game made with three.js: hold a ruined road against five waves of zombies and pumpkin monsters, then the Zombie King; then a crumbling road through a cornfield against zombies, pumpkin monsters and crows, then the Scarecrow King.
 
 ## WebMCP tools
 
 The game page (`/index.html`) registers WebMCP tools with `document.modelContext.registerTool` when the browser has a registry. Both are read-only.
 
 - `describe`: returns `{ description }`, one sentence saying what the page is.
-- `get_state`: returns `{ screen, wave, score, hearts, enemies, boss_health }`. `screen` is one of `loading`, `error`, `title`, `intro`, `play`, `paused`, `victory` or `defeat`; `boss_health` is `null` until the boss appears.
+- `get_state`: returns `{ level, screen, wave, score, hearts, enemies, boss_health }`. `level` is `1` or `2`; `screen` is one of `loading`, `error`, `title`, `intro`, `play`, `paused`, `victory` or `defeat`; `boss_health` is `null` until the boss appears.

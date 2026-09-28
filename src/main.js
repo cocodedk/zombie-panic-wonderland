@@ -3,10 +3,11 @@
 import { Game } from './logic/game.js';
 import { registerWebMcp } from './logic/webmcp.js';
 import { level1 } from './levels/level-1.js';
+import { level2 } from './levels/level-2.js';
 import { createHud } from './view/hud.js';
 import { bindInput } from './view/input.js';
 
-const game = new Game(level1);
+const game = new Game(level1, { levels: [level1, level2] });
 const hud = createHud(document, game);
 registerWebMcp(document.modelContext, game);
 
@@ -30,7 +31,7 @@ async function boot() {
   let stage;
   try {
     if (!hasWebGL()) throw new Error('no WebGL');
-    stage = createStage(document.getElementById('stage'), level1);
+    stage = createStage(document.getElementById('stage'), game.level);
   } catch {
     game.fail('webgl');
     return;
