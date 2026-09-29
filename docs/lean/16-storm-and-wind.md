@@ -159,5 +159,9 @@ else in them.
    plays on intro, play and paused only, its gain follows the wind strength, it is silent when the
    sound is off and held while paused; the thunder is one crack and one rumble; no earlier cue,
    volume or loop changes.
-9. Every file the spec names is under 200 lines, and `audio.js` and `stage.js` are no longer than
-   they were, plus a few lines of calls.
+9. The 200-line limit applies only to the new files (`src/logic/weather.js`, `src/view/weather.js`,
+   `src/view/audio-weather.js` and the new test files). The existing files (`game.js` at 829 lines,
+   `stage.js` at 313, `audio.js` at 235) are not split and are not made to fit: each may grow only by
+   the calls, hooks and data this spec names, at most 25 lines each, and the builder does not
+   restructure them. A test pins the sizes: the three new files under 200 lines, and `game.js`,
+   `stage.js` and `audio.js` each no more than 25 lines longer than today.
