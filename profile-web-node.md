@@ -20,3 +20,9 @@ There is no build step: the repository itself is the site. The build is the suit
     index.html
 
 The page to open. Serve the repository root with any static server and open it.
+
+## account
+
+The one Claude account this project spends, by the name GRAPH_ACCOUNTS gives it on the machine.
+
+    personal
