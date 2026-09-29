@@ -133,14 +133,14 @@ describe('2. mute, pause and each level\'s loop', () => {
     failed.fail('network');
     m();
     assert.equal(failed.soundOn, false, 'the choice carries from the error screen');
-    assert.deepEqual(mix(failed), { cues: [], music: null, paused: false, muted: true });
+    assert.deepEqual(mix(failed), { cues: [], music: null, wind: null, paused: false, muted: true });
   });
 
   test('with the sound off no cue sounds and no music plays; on again, they do', () => {
     const game = playing(levelWith([{ zombie: 1 }]));
     game.toggleSound();
     game.shoot();
-    assert.deepEqual(mix(game), { cues: [], music: null, paused: false, muted: true });
+    assert.deepEqual(mix(game), { cues: [], music: null, wind: null, paused: false, muted: true });
     game.toggleSound();
     game.shoot();
     const frame = mix(game);
@@ -152,7 +152,7 @@ describe('2. mute, pause and each level\'s loop', () => {
     const game = playing(levelWith([{ zombie: 1 }]));
     game.shoot();
     game.pressEsc();
-    assert.deepEqual(mix(game), { cues: [], music: level1.music, paused: true, muted: false });
+    assert.deepEqual(mix(game), { cues: [], music: level1.music, wind: 0, paused: true, muted: false });
     assert.equal(game.cues.length, 1, 'held, not dropped');
     game.pressEsc();
     const frame = mix(game);

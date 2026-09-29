@@ -73,6 +73,10 @@ export const level1 = {
     ],
   },
 
+  // Thunder, lightning and wind: seconds between strikes, the wind at rest and how far a gust adds
+  // to it (0 to 1), and the colour of the drifting leaves.
+  weather: { between: [10, 22], rest: 0.3, gusts: 0.5, leaf: '#8a6a2f' },
+
   // The scene, for the stage. Each entry names a model and its parameters.
   scenery: [
     { model: 'sky', top: '#2b1d3f', horizon: '#c46a3b' },

@@ -7,13 +7,16 @@ export const VOLUME = { master: 0.5, music: 0.3, effects: 1 };
 const MUSIC = new Set(['intro', 'play', 'paused']);
 
 // Takes the cues due this frame. While paused they wait; with the sound off they are dropped,
-// and `muted` silences whatever is still sounding.
+// and `muted` silences whatever is still sounding. Thunder sounds only where the music does, and
+// the wind bed follows the wind there: `wind` is its strength, or null.
 export function mix(game) {
   const paused = game.screen === 'paused';
-  const cues = paused ? [] : game.cues.splice(0);
+  const heard = game.soundOn && MUSIC.has(game.screen);
+  const cues = paused ? [] : game.cues.splice(0).filter((c) => c.name !== 'thunder' || heard);
   return {
     cues: game.soundOn ? cues : [],
-    music: game.soundOn && MUSIC.has(game.screen) ? game.level.music : null,
+    music: heard ? game.level.music : null,
+    wind: heard ? game.weather.wind : null,
     paused,
     muted: !game.soundOn,
   };

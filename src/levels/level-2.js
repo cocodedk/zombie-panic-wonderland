@@ -67,6 +67,8 @@ export const level2 = {
   // Moonlight in place of level 1's sunset.
   light: { fog: '#15302c', fogFar: 120,sky: '#5d7fa8', ground: '#1a2618', key: '#cfdcff', keyAt: [10, 14, -20], fill: '#7fa0c0' },
 
+  weather: { between: [7, 16], rest: 0.5, gusts: 0.5, leaf: '#a8943e' },
+
   scenery: [
     { model: 'sky', top: '#0f1a33', horizon: '#1f4d3f' },
     { model: 'moon', x: 18, z: -70, height: 26, color: '#e8ecd1', size: 4 },

@@ -5,6 +5,7 @@
 import { Effects, BURSTS, TRACER, muzzleAt } from './effects.js';
 import { WEAPONS, ORDER, CRATES, CRATE, NOTICE_LIFE, crateAt, crateLeaving } from './weapons.js';
 import { CANISTER, placeCanisters, canisterAt } from './canisters.js';
+import { Weather, ownRandom } from './weather.js';
 
 const EPS = 1e-9;
 const due = (t) => t <= EPS;
@@ -53,10 +54,11 @@ export const HINT = { text: 'Space: dodge — or step aside!', life: 2 };
 
 export class Game {
   // `levels` is the order they are played in; `level` is the one on show.
-  constructor(level, { random = Math.random, levels = [level], reducedMotion = false } = {}) {
+  constructor(level, { random = Math.random, levels = [level], reducedMotion = false, weatherRandom = ownRandom() } = {}) {
     this.levels = levels;
     this.level = level;
     this.random = random;
+    this.weatherRandom = weatherRandom; // the weather's own stream: it never reads `random`
     this.reducedMotion = reducedMotion;
     this.screen = 'loading';
     this.error = null; // 'network' or 'webgl'
@@ -114,6 +116,7 @@ export class Game {
     this.pressTime = 0;
     this.winTimer = null; // after the boss falls, the seconds until the victory card
     this.effects = new Effects({ random: this.random, reducedMotion: this.reducedMotion });
+    this.weather = new Weather(this.level.weather, this.weatherRandom, this.reducedMotion);
   }
 
   cue(name, extra = {}) {
@@ -415,6 +418,7 @@ export class Game {
   update(dt) {
     if (!this.live) return;
     this.clock += dt;
+    for (const _ of this.weather.update(dt)) this.cue('thunder'); // one for each strike
     this.effects.update(dt);
     this.shake = Math.max(0, this.shake - dt);
     this.groanWait = Math.max(0, this.groanWait - dt);

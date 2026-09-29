@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { Game } from '../src/logic/game.js';
 import { level2 } from '../src/levels/level-2.js';
-import { run, kill, clearWave, click, level1 } from './helpers.js';
+import { run, kill, clearWave, click, level1, calm } from './helpers.js';
 
-export const withWaves = (level, waves) => ({ ...level, waves });
+// The level with these waves and no weather: these tests list cues, and no thunder comes into them.
+export const withWaves = (level, waves) => ({ ...calm(level), waves });
 
 // Both levels, each one short wave, as the page plays them.
 export const short1 = withWaves(level1, [{ zombie: 1 }]);
