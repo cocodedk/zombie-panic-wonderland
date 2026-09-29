@@ -2,6 +2,7 @@
 // and noise; there are no audio files. The context is made on the first click, as browsers ask.
 
 import { VOLUME } from '../logic/sound.js';
+import { weatherSound } from './audio-weather.js';
 
 const MINOR = [0, 2, 3, 5, 7, 8, 10];
 const hz = (midi) => 440 * 2 ** ((midi - 69) / 12);
@@ -11,7 +12,7 @@ const AHEAD = 0.2; // seconds of music scheduled ahead
 
 export function createAudio(win) {
   let ctx = null;
-  let master, musicBus, fxBus, noise, crunch;
+  let master, musicBus, fxBus, noise, crunch, bed;
   let held = false; // suspended by the pause
   let loop = null; // { tune, out, step, at }
   let voice = null; // the gain of the Gatling's whine now sounding
@@ -166,6 +167,7 @@ export function createAudio(win) {
       hiss(t + 0.1, 0.05, { filter: 'bandpass', f: 2200, q: 6, level: 0.35 });
       tone(1300, t + 0.1, 0.05, { type: 'square', to: 900, level: 0.07 });
     },
+    thunder: (t) => bed.thunder(t),
     victory: (t) => notes([72, 76, 79], t, 0.18, 0.3),
     defeat: (t) => notes([67, 63, 60], t, 0.25, 0.4),
   };
@@ -210,12 +212,13 @@ export function createAudio(win) {
         fxBus = gainNode(VOLUME.effects, master);
         noise = noiseBuffer(1);
         crunch = noiseBuffer(6); // held samples sound crunchy
+        bed = weatherSound(ctx, fxBus, noise);
       }
       if (!held && ctx.state === 'suspended') ctx.resume();
     },
 
     // `frame` is what mix() returned.
-    play({ cues, music, paused, muted = false }) {
+    play({ cues, music, paused, muted = false, wind = null }) {
       if (!ctx) return;
       master.gain.value = muted ? 0 : VOLUME.master; // silences sounds already playing, too
       if (paused !== held) {
@@ -224,6 +227,7 @@ export function createAudio(win) {
         else ctx.resume();
       }
       if (paused) return;
+      bed.wind(wind);
       if (music !== (loop?.tune ?? null)) {
         loop?.out.disconnect();
         loop = music ? { tune: music, out: gainNode(1, musicBus), step: 0, at: ctx.currentTime + 0.05 } : null;

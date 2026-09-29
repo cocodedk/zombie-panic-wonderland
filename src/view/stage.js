@@ -9,6 +9,7 @@ import { STREAK, TRACER, SPARK } from '../logic/effects.js';
 import { CAMERA } from '../logic/camera.js';
 import { crateAt, crateLeaving, shellAt, pelletDirs } from '../logic/weapons.js';
 import { flat } from './models/parts.js';
+import { createWeatherView } from './weather.js';
 import { buildPlayer } from './models/player.js';
 import { buildZombie, buildZombieKing } from './models/zombie.js';
 import { buildPumpkin, buildPumpkinMonster, buildFlamingPumpkin, buildLaunchedPumpkin } from './models/pumpkin.js';
@@ -86,6 +87,7 @@ export function createStage(container, firstLevel) {
   const scene = new THREE.Scene();
   let level = firstLevel;
   let backdrop = buildBackdrop(scene, level);
+  const weather = createWeatherView(scene);
 
   const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 400);
   const { position: at, target } = CAMERA;
@@ -160,6 +162,7 @@ export function createStage(container, firstLevel) {
         level = game.level;
         backdrop = buildBackdrop(scene, level);
       }
+      weather.sync(game, backdrop);
       const clock = game.clock; // the game's, so the drawn gun is where its shots start
       const p = game.player;
       const pose = game.pose();

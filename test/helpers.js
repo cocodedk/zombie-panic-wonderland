@@ -1,11 +1,14 @@
 import { Game } from '../src/logic/game.js';
-import { level1 } from '../src/levels/level-1.js';
+import { level1 as stormy } from '../src/levels/level-1.js';
 
-export { level1 };
+// Level 1 without weather: earlier specs' tests play long games and list every cue, and no thunder
+// should come into them. The weather has its own tests, on the real levels (test/weather*.test.js).
+export const level1 = { ...stormy, weather: null };
+export const calm = (level) => (level.weather ? { ...level, weather: null } : level); // any level, without weather
 
 // A game with a fixed random: 0.5 puts every enemy at x = 0, 1 at x = 8.
 export function newGame(level = level1, random = () => 0.5) {
-  const game = new Game(level, { random });
+  const game = new Game(calm(level), { random });
   game.loaded();
   return game;
 }
