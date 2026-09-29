@@ -45,10 +45,16 @@ they move, stand, fly and throw exactly as today.
   z 0): a zombie at x −8 walks 11.04 to the entry point and 2.6 on to the road, about 11.4 seconds
   against today's 10; a zombie already in the gap walks straight and takes 10, as today. No zombie
   needs more than 12 seconds.
-- A summoned zombie starts where the summons place it today (near the boss, `summonBack` behind it,
-  at z −12 or beyond) and follows the same rule. If its x falls behind no fence it walks straight.
-- A held zombie does not strike, and cannot be struck: nothing changes about the road, the player or
-  the reach.
+- A summoned zombie starts where the summons place it today (within `summonNear` of the boss's x,
+  `summonBack` behind its z, wherever that is at the time; its z can be nearer than −12 at the
+  first summon) and follows the same rule: if it is above (in z) a fence's stop line and behind that
+  fence, it is held; if it is already past the stop line, it is not. If its x falls behind no fence it walks straight.
+- A held zombie is too far to strike the player (it is never on the road while held), and nothing
+  changes about the road, the player or the reach. It can be hurt like any zombie: by a shot that
+  reaches it (over the fence), and by the launcher's and a gas canister's explosions, which the fence
+  does not stop.
+- **Facing:** zombies keep today's rotation (facing forward before the road); they do not turn to
+  face the diagonal.
 
 ## The bullets
 
@@ -63,6 +69,10 @@ know it; the stage's aiming does.
   so a shot at a zombie's head passes over a 1-unit fence), is as today.
 - The **launcher's** aiming ignores the panels: its shell arcs over the fence and lands where the
   crosshair points, as today. Thrown pumpkins and crows ignore fences too.
+- **Which path decides:** the camera's aiming ray through the crosshair alone decides whether the fence
+  blocks a shot, as it decides every hit today. If that ray clears the panel, the shot hits what it
+  meets, even though the streak drawn from the lower muzzle may cross the panel on its way. A blocked
+  shot's streak ends on the panel.
 - The panel is not a target: it is not in the list of what a shot can hit, it gives no points, and it
   cannot be destroyed.
 
@@ -85,7 +95,7 @@ animation, on a new path. No new text, no HUD change, no new sound.
 ## Nothing else changes
 
 Scoring, damage, spawns, wave sizes and timing, weapons, the weather, the sounds, `get_state` and
-`llms.txt` stay as they are. `get_state`'s enemies show wherever the zombies now are.
+`llms.txt` stay as they are. `get_state.enemies` is a count, and stays a count: `get_state` does not change.
 
 ## Files
 
@@ -129,8 +139,10 @@ stands, and only those numbers (`fair-boss`, `bosses-attack`, `scarier-zombies`,
    on a level change.
 7. Paused, the zombies' walk stands still and goes on from the same place; a level start, Try again,
    Play again, Next level and Back to title start fresh.
-8. Balance: the suite's bot, which plays the levels today, wins the same number of 20 seeded runs of
-   each level as it does on `main` before this change (the builder measures that first and writes the
-   numbers into the test), give or take 2.
+8. Balance: a bot written in the test (each frame it fires the weapon in hand at the nearest
+   zombie's id, ignoring fences as the suite's other bots do, and does not dodge) plays each level
+   with seeds 1 to 20. The builder first measures, on `main` before this change, how many of the 20
+   runs of each level the player survives, and the test asserts the fenced game survives at least
+   that many minus 2. Fences only delay zombies, so this catches a level made impossible.
 9. The new source files (`fences.js`, `fence-panels.js`) and new test files are under 200 lines, and `game.js` and `stage.js` are each at most 25 lines
    longer than today.
