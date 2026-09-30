@@ -11,6 +11,7 @@ import { crateAt, crateLeaving, shellAt, pelletDirs } from '../logic/weapons.js'
 import { flat } from './models/parts.js';
 import { createWeatherView } from './weather.js';
 import { createBubbleView } from './bubbles.js';
+import { createSkyView } from './sky.js';
 import { buildPlayer } from './models/player.js';
 import { buildZombie, buildZombieKing } from './models/zombie.js';
 import { zombieTint } from './models/zombie-details.js';
@@ -91,6 +92,7 @@ export function createStage(container, firstLevel) {
   let level = firstLevel;
   let backdrop = buildBackdrop(scene, level);
   const weather = createWeatherView(scene);
+  const sky = createSkyView();
   const bubbles = createBubbleView(scene);
 
   const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 400);
@@ -168,6 +170,7 @@ export function createStage(container, firstLevel) {
         backdrop = buildBackdrop(scene, level);
       }
       weather.sync(game, backdrop);
+      sky.sync(game, backdrop);
       const clock = game.clock; // the game's, so the drawn gun is where its shots start
       const p = game.player;
       const pose = game.pose();

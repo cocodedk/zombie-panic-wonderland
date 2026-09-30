@@ -78,6 +78,13 @@ export const level1 = {
   // to it (0 to 1), and the colour of the drifting leaves.
   weather: { between: [10, 22], rest: 0.3, gusts: 0.5, leaf: '#8a6a2f' },
 
+  // Clouds and a crescent moon, for the stage: their colours change over `cycle` seconds.
+  sky: {
+    cycle: 90,
+    clouds: { seed: 3, colors: ['#ffd9a8', '#ff9d6c', '#d96f9a', '#8b6fb0'] },
+    moon: { radius: 3, at: [-20, 22, -75], colors: ['#f6ead0', '#ffd6a0', '#f3b8c8'] },
+  },
+
   // The scene, for the stage. Each entry names a model and its parameters.
   scenery: [
     { model: 'sky', top: '#2b1d3f', horizon: '#c46a3b' },

@@ -124,8 +124,37 @@ export class Float32BufferAttribute {
     this.itemSize = itemSize;
   }
 }
+export const ShapeGeometry = geometry();
+// A shape: given `points`, or drawn with `moveTo` and `absarc`, which only record what they are given.
+// `getPoints` walks the outline as three.js does: each arc in its own direction, `steps` points an arc.
 export class Shape {
-  constructor(points) { this.points = points; }
+  constructor(points) {
+    this.points = points;
+    this.holes = [];
+    this.arcs = [];
+    this.start = null;
+  }
+  moveTo(x, y) {
+    this.start = { x, y };
+    return this;
+  }
+  absarc(x, y, radius, from, to, clockwise = false) {
+    this.arcs.push({ x, y, radius, from, to, clockwise });
+    return this;
+  }
+  getPoints(steps = 64) {
+    const points = this.start ? [{ ...this.start }] : [];
+    for (const { x, y, radius, from, to, clockwise } of this.arcs) {
+      let delta = to - from;
+      if (!clockwise && delta < 0) delta += 2 * Math.PI;
+      if (clockwise && delta > 0) delta -= 2 * Math.PI;
+      for (let i = 0; i <= steps; i++) {
+        const a = from + (delta * i) / steps;
+        points.push({ x: x + radius * Math.cos(a), y: y + radius * Math.sin(a) });
+      }
+    }
+    return points;
+  }
 }
 export class CatmullRomCurve3 {
   constructor(points) { this.points = points; }
