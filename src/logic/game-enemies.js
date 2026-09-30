@@ -11,6 +11,12 @@ export const enemies = {
     const c = this.level.enemies[e.kind];
     const road = this.level.roadZ;
     const speed = zombie ? this.speedOf(e) : c.speed;
+    if (e.drop) {
+      // A dropper lowers on its thread, neither walking nor striking; it lands the moment its drop runs out.
+      e.drop -= dt;
+      if (due(e.drop)) delete e.drop;
+      return;
+    }
     if (e.z < road - EPS) {
       if (zombie) stepZombie(e, this.level, speed, dt); // led to a gap in the fences, then straight to the road
       else e.z = Math.min(road, e.z + speed * dt);

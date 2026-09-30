@@ -14,6 +14,9 @@ export function pumpkinAt(p, roadZ) {
   return { x: p.fromX + (p.x - p.fromX) * f, y: 2.4 * (1 - f) + 0.25 + Math.sin(f * Math.PI) * 4, z: p.fromZ + (roadZ - p.fromZ) * f };
 }
 
+// How high a hanging dropper's root is: `from` at the start, lowering evenly to 0 as its `drop` runs out.
+export const dropHeight = (e, rule) => (e.drop ? rule.from * (e.drop / rule.time) : 0);
+
 export const CROW_CIRCLE = 1.5; // the radius a crow circles at
 
 // Where a crow is: flying in from the backdrop, or out from the boss that summoned it, and

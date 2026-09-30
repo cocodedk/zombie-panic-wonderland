@@ -1,5 +1,5 @@
 import { BURSTS } from './effects.js';
-import { pumpkinAt, crowAt } from './game-shared.js';
+import { pumpkinAt, crowAt, dropHeight } from './game-shared.js';
 
 export const outcome = {
   // When the boss falls, everything else on the field bursts with it, for no points, and the
@@ -35,7 +35,8 @@ export const outcome = {
   burst(e) {
     const kind = e.kind === 'boss' ? this.level.boss.model : e.fast ? 'fastZombie' : e.kind;
     const at = this.centre(e);
-    this.effects.burst(kind, at, { kind: e.kind, enemyId: e.id, fast: e.fast, x: at.x, y: e.kind === 'crow' ? at.y : 0, z: at.z });
+    const root = e.kind === 'crow' ? at.y : dropHeight(e, this.level.enemies.spider?.drop); // a fading copy is drawn from its root
+    this.effects.burst(kind, at, { kind: e.kind, enemyId: e.id, fast: e.fast, x: at.x, y: root, z: at.z });
   },
 
   // A pumpkin shot down in the air: its points, and a small burst.
@@ -48,7 +49,8 @@ export const outcome = {
   // The middle of an enemy, where it bursts: where the stage draws it.
   centre(e) {
     if (e.kind === 'crow') return crowAt(e, this.level);
-    return { x: e.x, y: e.kind === 'boss' ? 3 : e.kind === 'spider' ? 0.3 : 1, z: e.z }; // a spider's body stands 0.3 high
+    if (e.kind === 'spider') return { x: e.x, y: 0.3 + dropHeight(e, this.level.enemies.spider.drop), z: e.z }; // its body stands 0.3 above its root
+    return { x: e.x, y: e.kind === 'boss' ? 3 : 1, z: e.z };
   },
 
   hurt(hearts = 1) {

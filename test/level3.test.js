@@ -45,7 +45,7 @@ describe('1. level 3\'s data', () => {
   test('level 2\'s enemies plus the spider, level 1\'s boss and shape', () => {
     const { spider, ...others } = level3.enemies;
     assert.deepEqual(others, level2.enemies);
-    assert.deepEqual(spider, { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2 });
+    assert.deepEqual(spider, { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2, drop: { fromWave: 2, every: 3, at: -5, from: 5, time: 1.2 } });
     assert.deepEqual(level3.boss, level1.boss);
     assert.equal(level3.boss.name, 'Zombie King');
     assert.equal(level3.boss.model, 'zombieKing');

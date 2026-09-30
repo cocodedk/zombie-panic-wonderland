@@ -16,6 +16,7 @@ export const waves = {
     this.queue = Object.entries(this.level.waves[n - 1]).flatMap(([kind, count]) => Array(count).fill(kind));
     this.spawnTimer = 0;
     this.sent = 0;
+    this.sentSpiders = 0;
     this.spawnDue();
     for (const c of CRATES) if (c.wave === n) this.cratesDue.push({ weapon: c.weapon, t: c.delay });
     if (CANISTER.waves.includes(n)) for (const at of placeCanisters(this.random)) this.canisters.push({ id: this.nextId++, ...at, hits: 0, flash: 0 });
@@ -25,6 +26,7 @@ export const waves = {
     while (this.queue.length && due(this.spawnTimer)) {
       const e = this.spawn(this.queue.shift());
       if (e.kind === 'zombie') this.markFast(e);
+      else if (e.kind === 'spider') this.markDropper(e);
       this.spawnTimer += this.level.timing.spacing;
     }
   },
@@ -34,6 +36,15 @@ export const waves = {
     const rule = this.level.enemies.zombie.fast;
     this.sent += 1;
     if (rule && this.wave >= rule.fromWave && this.sent % rule.every === 0) e.fast = true;
+  },
+
+  // A fixed rule, never chance: from `fromWave`, every `every`th spider a wave sends hangs at z `at`, its `drop` seconds to lower.
+  markDropper(e) {
+    const rule = this.level.enemies.spider.drop;
+    this.sentSpiders += 1;
+    if (!rule || this.wave < rule.fromWave || this.sentSpiders % rule.every !== 0) return;
+    e.drop = rule.time;
+    e.z = rule.at;
   },
 
   // A zombie's speed: its own, `speedFactor` times the level's when it is fast.

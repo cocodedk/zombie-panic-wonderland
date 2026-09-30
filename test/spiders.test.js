@@ -19,7 +19,7 @@ function oneSpider(random = () => 0.5) {
 
 describe('1. a spider walks straight to the road, closes in and strikes', () => {
   test('its data', () => {
-    assert.deepEqual(S, { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2 });
+    assert.deepEqual(S, { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2, drop: { fromWave: 2, every: 3, at: -5, from: 5, time: 1.2 } });
     const { spider } = oneSpider();
     assert.equal(spider.kind, 'spider');
     assert.equal(spider.health, 2);
