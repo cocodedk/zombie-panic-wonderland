@@ -1,4 +1,4 @@
-import { EPS, due, clamp, CLICK, SHAKE } from './game-shared.js';
+import { EPS, due, clamp, CLICK, SHAKE, isFlyer } from './game-shared.js';
 
 export const timeMixin = {
   // --- time ---
@@ -21,7 +21,7 @@ export const timeMixin = {
       if (due(this.timer)) this.startPlay();
       return;
     }
-    this.flyaways = this.flyaways.filter((f) => (f.t += dt) < this.level.enemies.crow.leave - EPS);
+    this.flyaways = this.flyaways.filter((f) => (f.t += dt) < this.level.enemies[f.kind].leave - EPS);
     if (this.winTimer != null) {
       // The boss has fallen: its burst plays out, then the victory card.
       this.winTimer -= dt;
@@ -55,7 +55,7 @@ export const timeMixin = {
     for (const e of [...this.enemies]) {
       if (e.kind === 'zombie' || e.kind === 'spider' || e.kind === 'wolf') this.walker(e, dt);
       else if (e.kind === 'pumpkinMonster') this.pumpkinMonster(e, dt);
-      else if (e.kind === 'crow') this.crow(e, dt);
+      else if (isFlyer(e)) this.crow(e, dt);
       else this.boss(e, dt);
       if (this.screen !== 'play') return;
     }

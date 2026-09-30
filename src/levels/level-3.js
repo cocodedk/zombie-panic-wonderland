@@ -24,17 +24,19 @@ export const level3 = {
     spider: { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2, drop: { fromWave: 2, every: 3, at: -5, from: 5, time: 1.2 } },
     // The wolf: a fast, tough runner that hits hard. Held by fences like a zombie, at its own speed.
     wolf: { hits: 4, points: 200, speed: 3, reach: 1.6, closeIn: 1, strikeEvery: 1.5, hearts: 2 },
+    // The bat: a crow's flight, smaller and quicker.
+    bat: { hits: 1, points: 75, z: -6, height: 3, circle: 1.2, dive: 0.6, splash: 1, leave: 1.2 },
   },
 
   timing: level1.timing,
 
-  // Each wave's enemies arrive in this order (zombie, spider, wolf, pumpkin monster, crow), `timing.spacing` seconds apart.
+  // Each wave's enemies arrive in this order (zombie, spider, wolf, pumpkin monster, crow, bat), `timing.spacing` seconds apart.
   waves: [
     { zombie: 4, spider: 2, crow: 1 },
-    { zombie: 5, spider: 3, crow: 2 },
-    { zombie: 5, spider: 3, wolf: 1, pumpkinMonster: 1, crow: 2 },
-    { zombie: 6, spider: 4, wolf: 2, pumpkinMonster: 2, crow: 3 },
-    { zombie: 6, spider: 5, wolf: 2, pumpkinMonster: 2, crow: 3 },
+    { zombie: 5, spider: 3, crow: 2, bat: 1 },
+    { zombie: 5, spider: 3, wolf: 1, pumpkinMonster: 1, crow: 2, bat: 2 },
+    { zombie: 6, spider: 4, wolf: 2, pumpkinMonster: 2, crow: 3, bat: 2 },
+    { zombie: 6, spider: 5, wolf: 2, pumpkinMonster: 2, crow: 3, bat: 3 },
   ],
 
   boss: { ...level1.boss },

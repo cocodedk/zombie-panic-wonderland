@@ -13,7 +13,7 @@ import { waves } from './game-waves.js';
 import { enemies } from './game-enemies.js';
 import { outcome } from './game-outcome.js';
 
-export { SCREENS, pumpkinAt, CROW_CIRCLE, crowAt, dropHeight, bossWindup, SHAKE, GROAN, HINT } from './game-shared.js';
+export { SCREENS, pumpkinAt, CROW_CIRCLE, crowAt, isFlyer, dropHeight, bossWindup, SHAKE, GROAN, HINT } from './game-shared.js';
 
 export class Game {
   // `levels` is the order they are played in; `level` is the one on show.

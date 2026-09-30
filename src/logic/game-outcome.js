@@ -1,5 +1,5 @@
 import { BURSTS } from './effects.js';
-import { pumpkinAt, crowAt, dropHeight } from './game-shared.js';
+import { pumpkinAt, crowAt, dropHeight, isFlyer } from './game-shared.js';
 
 export const outcome = {
   // When the boss falls, everything else on the field bursts with it, for no points, and the
@@ -35,7 +35,7 @@ export const outcome = {
   burst(e) {
     const kind = e.kind === 'boss' ? this.level.boss.model : e.fast ? 'fastZombie' : e.kind;
     const at = this.centre(e);
-    const root = e.kind === 'crow' ? at.y : dropHeight(e, this.level.enemies.spider?.drop); // a fading copy is drawn from its root
+    const root = isFlyer(e) ? at.y : dropHeight(e, this.level.enemies.spider?.drop); // a fading copy is drawn from its root
     this.effects.burst(kind, at, { kind: e.kind, enemyId: e.id, fast: e.fast, x: at.x, y: root, z: at.z });
   },
 
@@ -48,7 +48,7 @@ export const outcome = {
 
   // The middle of an enemy, where it bursts: where the stage draws it.
   centre(e) {
-    if (e.kind === 'crow') return crowAt(e, this.level);
+    if (isFlyer(e)) return crowAt(e, this.level);
     if (e.kind === 'spider') return { x: e.x, y: 0.3 + dropHeight(e, this.level.enemies.spider.drop), z: e.z }; // its body stands 0.3 above its root
     return { x: e.x, y: e.kind === 'boss' ? 3 : 1, z: e.z };
   },
