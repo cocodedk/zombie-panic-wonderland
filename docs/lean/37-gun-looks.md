@@ -45,8 +45,9 @@ tip** (z −0.34 for the Popper, −0.50 for the Scattergun, −0.46 for the lau
 2. A brass bead sight: an icosahedron of radius 0.012 (detail 0) in `#b8860b` at (0, 0.068, −0.47) (its
    front, z −0.482, is behind the tip).
 3. A wooden forend under the barrels: a box 0.1 × 0.06 × 0.16 in `#7a5230` at (0, −0.045, −0.3).
-4. A short wooden stock behind the body: a box 0.09 × 0.11 × 0.12 in `#7a5230` at (0, −0.02, 0.18) (from
-   z 0.12 to 0.24, which ends about where the hero's tunic begins, so none of it is sunk into the chest).
+4. A short wooden stock behind the body: a box 0.09 × 0.11 × 0.095 in `#7a5230` at (0, −0.02, 0.1675), from
+   z 0.12 to 0.215 in the gun's frame, so that its back face stops at the hero's tunic (the tunic's front face
+   is at about body z −0.205, which is z 0.215 in the gun's frame) and no part of it is sunk into the chest.
 5. Two brass side plates: boxes 0.005 × 0.08 × 0.1 in `#b8860b` at (±0.0825, 0, −0.02).
 
 **The launcher** (a tube of radius 0.09 from z −0.46 to 0.1 at y 0.02, an orange ring at its mouth):
