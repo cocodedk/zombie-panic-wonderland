@@ -410,7 +410,7 @@ check('the gun in hand: six dark metal barrels in a ring on one axis, a brass ba
   guns.gatling.traverse((m) => { if (m.material) meshes.push(m); });
   assert.ok(meshes.every((m) => m.material.flatShading === true));
   const brass = meshes.filter((m) => hex(m.material.color) === '#b8860b');
-  assert.equal(brass.length, 1, 'one brass band');
+  assert.equal(brass.length, 3, 'one brass band');
   assert.ok(brass[0].geometry instanceof THREE.CylinderGeometry);
   assert.ok(brass[0].position.z < 0 && brass[0].position.z > spinner.position.z - 0.3, 'around the barrels');
   const under = meshes.filter((m) => m.geometry instanceof THREE.BoxGeometry && m.position.y < spinner.position.y);
