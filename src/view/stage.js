@@ -19,6 +19,7 @@ import { buildZombie, buildZombieKing } from './models/zombie.js';
 import { zombieTint, ZOMBIE_EXTRAS } from './models/zombie-details.js';
 import { buildPumpkinMonster } from './models/pumpkin.js';
 import { buildCrow } from './models/crow.js';
+import { buildBat } from './models/bat.js';
 import { buildSpider } from './models/spider.js';
 import { buildWolf } from './models/wolf.js';
 import { buildScarecrow, buildScarecrowKing } from './models/scarecrow.js';
@@ -37,10 +38,9 @@ const BOSSES = { zombieKing: buildZombieKing, scarecrowKing: buildScarecrowKing 
 const idOf = (e) => e.enemyId ?? e.id;
 const ENEMIES = {
   zombie: (e) => buildZombie({ seed: idOf(e) * 1.7, fast: e.fast, tint: zombieTint(idOf(e)), extras: ZOMBIE_EXTRAS }),
-  spider: (e) => buildSpider({ seed: idOf(e) * 1.7 }),
-  wolf: (e) => buildWolf({ seed: idOf(e) * 1.7 }),
+  spider: (e) => buildSpider({ seed: idOf(e) * 1.7 }), wolf: (e) => buildWolf({ seed: idOf(e) * 1.7 }),
   pumpkinMonster: () => buildPumpkinMonster(),
-  crow: (e) => buildCrow({ seed: e.id }),
+  crow: (e) => buildCrow({ seed: e.id }), bat: (e) => buildBat({ seed: idOf(e) }),
   boss: (e, level) => BOSSES[level.boss.model]({ tint: zombieTint(idOf(e)) }), // the scarecrow king ignores it
 };
 

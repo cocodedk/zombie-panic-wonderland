@@ -140,10 +140,10 @@ describe('3. a spider falls after 2 hits', () => {
 
 describe('4. level 3\'s waves', () => {
   test('the counts and the order', () => {
-    const expected = [[4, 2, 0, 0, 1], [5, 3, 0, 0, 2], [5, 3, 1, 1, 2], [6, 4, 2, 2, 3], [6, 5, 2, 2, 3]];
+    const expected = [[4, 2, 0, 0, 1, 0], [5, 3, 0, 0, 2, 1], [5, 3, 1, 1, 2, 2], [6, 4, 2, 2, 3, 2], [6, 5, 2, 2, 3, 3]];
     const game = started(level3);
-    expected.forEach(([zombie, spider, wolf, pumpkinMonster, crow], i) => {
-      const kinds = [['zombie', zombie], ['spider', spider], ['wolf', wolf], ['pumpkinMonster', pumpkinMonster], ['crow', crow]].flatMap(([k, n]) => Array(n).fill(k));
+    expected.forEach(([zombie, spider, wolf, pumpkinMonster, crow, bat], i) => {
+      const kinds = [['zombie', zombie], ['spider', spider], ['wolf', wolf], ['pumpkinMonster', pumpkinMonster], ['crow', crow], ['bat', bat]].flatMap(([k, n]) => Array(n).fill(k));
       assert.deepEqual(sendWave(game, i + 1).map((e) => e.kind), kinds, `wave ${i + 1}`);
     });
   });

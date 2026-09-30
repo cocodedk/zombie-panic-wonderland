@@ -19,10 +19,13 @@ export const dropHeight = (e, rule) => (e.drop ? rule.from * (e.drop / rule.time
 
 export const CROW_CIRCLE = 1.5; // the radius a crow circles at
 
-// Where a crow is: flying in from the backdrop, or out from the boss that summoned it, and
+// The kinds that fly: circle, then dive, each on the numbers of its own kind.
+export const isFlyer = (e) => e.kind === 'crow' || e.kind === 'bat';
+
+// Where a flyer (a crow or a bat) is: flying in from the backdrop, or out from the boss that summoned it, and
 // circling, then diving at the road.
 export function crowAt(e, level) {
-  const c = level.enemies.crow;
+  const c = level.enemies[e.kind];
   if (e.diveX == null) {
     const t = c.circle - e.timer;
     const a = t * (Math.PI * 2) / c.circle;

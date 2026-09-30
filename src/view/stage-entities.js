@@ -1,17 +1,18 @@
 // Places the game's enemies, flyaways, pumpkins, crates, canisters and shells each frame.
 // `place(id, make)` finds or makes the object for an id; `pickable` collects what the crosshair can hit.
 
-import { pumpkinAt, crowAt, CROW_CIRCLE, bossWindup, dropHeight } from '../logic/game.js';
+import { pumpkinAt, crowAt, isFlyer, CROW_CIRCLE, bossWindup, dropHeight } from '../logic/game.js';
 import { buildThread, placeThread } from './stage-thread.js';
 import { crateAt, crateLeaving, shellAt } from '../logic/weapons.js';
 import { buildPumpkin, buildFlamingPumpkin, buildLaunchedPumpkin } from './models/pumpkin.js';
 import { buildCrate } from './models/crate.js';
 import { buildCanister } from './models/canister.js';
 import { buildCrow } from './models/crow.js';
+import { buildBat } from './models/bat.js';
 
-// A crow flies in and circles facing along its circle, then dives facing the road.
+// A crow or a bat flies in and circles facing along its circle, then dives facing the road.
 function placeCrow(e, obj, level) {
-  const c = level.enemies.crow;
+  const c = level.enemies[e.kind];
   const at = crowAt(e, level);
   obj.position.set(at.x, at.y, at.z);
   if (e.diveX == null) obj.rotation.set(0, -((c.circle - e.timer) * (Math.PI * 2)) / c.circle, 0.4);
@@ -25,7 +26,7 @@ export function syncEntities(game, level, { place, pickable, enemies }) {
   for (const e of game.enemies) {
     const obj = place(e.id, () => enemies[e.kind](e, level));
     pickable.push(obj);
-    if (e.kind === 'crow') {
+    if (isFlyer(e)) {
       placeCrow(e, obj, level);
       obj.userData.tick(clock, { diving: e.diveX == null ? 0 : 1 });
       continue;
@@ -43,8 +44,8 @@ export function syncEntities(game, level, { place, pickable, enemies }) {
     obj.rotation.y = crawler && e.z >= level.roadZ - 1e-9 ? Math.sign(p.x - e.x) * 0.9 : 0;
   }
   for (const f of game.flyaways) {
-    const obj = place(`c${f.id}`, () => buildCrow({ seed: f.id }));
-    const k = f.t / level.enemies.crow.leave;
+    const obj = place(`c${f.id}`, () => (f.kind === 'bat' ? buildBat : buildCrow)({ seed: f.id }));
+    const k = f.t / level.enemies[f.kind].leave;
     obj.position.set(f.x + k * 6, 0.5 + k * 9, level.roadZ - k * 14);
     obj.rotation.set(-0.5, Math.PI, 0);
     obj.userData.tick(clock, { diving: 0 });

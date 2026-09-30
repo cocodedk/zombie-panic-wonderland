@@ -80,6 +80,7 @@ export const BURSTS = {
   wolf: { count: 12, life: 1, size: 0.18, colors: ['#6e6e78', '#9a9aa4', '#5a5a64'], puff: '#8a8a94', puffSize: 1 },
   pumpkinMonster: { count: 12, life: 1, size: 0.18, colors: ['#e0762b', '#3f6b2a', '#5f8f3a'], puff: '#e07b24', puffSize: 1 },
   crow: { count: 12, life: 1, size: 0.18, colors: ['#16161c', '#c99a2e'], puff: '#3a3a3a', puffSize: 1 },
+  bat: { count: 10, life: 1, size: 0.14, colors: ['#2b1b3a', '#5a3f6b', '#ff2a1a'], puff: '#3a2a4a', puffSize: 1 },
   zombieKing: { count: 40, life: 1.5, size: 0.35, colors: ['#7d9a6a', '#5a1f3a', '#3d3a35', '#d9a520'], puff: '#9fd18b', puffSize: 3 },
   scarecrowKing: { count: 40, life: 1.5, size: 0.35, colors: ['#9c8456', '#3d2f22', '#3f2a4a', '#d8c070'], puff: '#e07b24', puffSize: 3 },
   pumpkin: { count: 6, life: 0.6, size: 0.14, colors: ['#e07b24'], puff: null },

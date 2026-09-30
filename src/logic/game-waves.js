@@ -1,6 +1,6 @@
 import { CRATES } from './weapons.js';
 import { CANISTER, placeCanisters } from './canisters.js';
-import { due } from './game-shared.js';
+import { due, isFlyer } from './game-shared.js';
 
 export const waves = {
   // --- waves ---
@@ -64,9 +64,9 @@ export const waves = {
     };
     if (kind === 'zombie' || kind === 'spider' || kind === 'wolf') e.strike = enemies[kind].strikeEvery;
     if (kind === 'pumpkinMonster') e.throwTimer = enemies.pumpkinMonster.throwEvery;
-    if (kind === 'crow') {
-      e.z = enemies.crow.z;
-      e.timer = enemies.crow.circle;
+    if (isFlyer(e)) {
+      e.z = enemies[kind].z;
+      e.timer = enemies[kind].circle;
       e.diveX = null; // set when it dives
     }
     this.enemies.push(e);

@@ -1,5 +1,5 @@
 import { stepZombie } from './fences.js';
-import { EPS, due, GROAN, HINT } from './game-shared.js';
+import { EPS, due, GROAN, HINT, isFlyer } from './game-shared.js';
 
 export const enemies = {
   // --- enemies ---
@@ -60,9 +60,9 @@ export const enemies = {
     this.pumpkins.push({ id: this.nextId++, owner: from.id, fromX: from.x, fromZ: from.z, x: this.player.x, t: 0, flight: c.flight, hearts, points, flaming });
   },
 
-  // Circles, then dives at where the player is then, lands on the road and flies away.
+  // A crow or a bat: circles, then dives at where the player is then, lands on the road and flies away.
   crow(e, dt) {
-    const c = this.level.enemies.crow;
+    const c = this.level.enemies[e.kind];
     e.timer -= dt;
     if (!due(e.timer)) return;
     if (e.diveX == null) {
@@ -72,7 +72,7 @@ export const enemies = {
       return;
     }
     this.enemies.splice(this.enemies.indexOf(e), 1);
-    this.flyaways.push({ id: e.id, x: e.diveX, t: 0 });
+    this.flyaways.push({ id: e.id, kind: e.kind, x: e.diveX, t: 0 });
     if (Math.abs(this.player.x - e.diveX) <= c.splash + EPS) this.hurt();
   },
 
@@ -106,7 +106,7 @@ export const enemies = {
         const s = this.spawn(b.summons);
         s.x = e.x + (this.random() * 2 - 1) * b.summonNear;
         s.z = e.z - b.summonBack;
-        if (s.kind === 'crow') s.from = { x: s.x, y: this.centre(e).y, z: s.z };
+        if (isFlyer(s)) s.from = { x: s.x, y: this.centre(e).y, z: s.z };
       }
     }
   },
