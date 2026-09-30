@@ -769,7 +769,7 @@ export class Game {
     this.burst(e);
     if (e.kind === 'boss') {
       this.cue('burst', { boss: true });
-      this.score += this.level.boss.points;
+      this.score += this.effects.award(this.level.boss.points, { x: e.x, y: 0, z: e.z }, 1.5);
       this.bossHealth = 0;
       this.stomps = [];
       this.hint = null;
@@ -787,7 +787,7 @@ export class Game {
     } else {
       this.cue('burst');
       const c = this.level.enemies[e.kind];
-      this.score += e.fast ? c.fast.points : c.points;
+      this.score += this.effects.award(e.fast ? c.fast.points : c.points, this.centre(e), 0.5); // its middle is 1 up
     }
   }
 
@@ -799,8 +799,9 @@ export class Game {
 
   // A pumpkin shot down in the air: its points, and a small burst.
   shootDown(p, points = p.points) {
-    this.score += points;
-    this.effects.burst('pumpkin', pumpkinAt(p, this.level.roadZ));
+    const at = pumpkinAt(p, this.level.roadZ);
+    this.score += this.effects.award(points, at, 1.5);
+    this.effects.burst('pumpkin', at);
   }
 
   // The middle of an enemy, where it bursts: where the stage draws it.

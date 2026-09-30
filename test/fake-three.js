@@ -56,7 +56,37 @@ export class Color {
   }
 }
 
-export const disposed = { geometries: 0, materials: 0 };
+export const disposed = { geometries: 0, materials: 0, textures: 0 };
+export const SRGBColorSpace = 'srgb';
+
+// A canvas that records what is drawn on it, and measures text as 0.6 of its font size a character.
+// Every one made is in `canvases`; `document` is theirs where a test has not set its own.
+export const canvases = [];
+function fakeCanvas() {
+  const ctx = {
+    font: '', fills: [], texts: [], globalAlpha: 1,
+    beginPath() {}, arc() {}, stroke() {},
+    fill() { this.fills.push({ style: this.fillStyle, alpha: this.globalAlpha }); },
+    measureText(text) { return { width: text.length * 0.6 * Number(/(\d+(\.\d+)?)px/.exec(this.font)[1]) }; },
+    fillText(text) { this.texts.push({ text, style: this.fillStyle, font: this.font, width: this.measureText(text).width }); },
+  };
+  const canvas = { width: 0, height: 0, ctx, getContext: () => ctx };
+  canvases.push(canvas);
+  return canvas;
+}
+globalThis.document ??= { createElement: fakeCanvas };
+
+// A texture drawn on a canvas; every one made is in `canvasTextures`.
+export const canvasTextures = [];
+export class CanvasTexture {
+  constructor(canvas) {
+    this.image = canvas;
+    canvasTextures.push(this);
+  }
+  dispose() {
+    disposed.textures += 1;
+  }
+}
 
 export class BufferGeometry {
   constructor(...params) {
@@ -112,6 +142,7 @@ export class Material {
 }
 export class MeshStandardMaterial extends Material {}
 export class MeshBasicMaterial extends Material {}
+export class SpriteMaterial extends Material {}
 
 export class Object3D {
   constructor() {
@@ -155,6 +186,13 @@ export class Mesh extends Object3D {
     super();
     this.geometry = geometry;
     this.material = material;
+  }
+}
+export class Sprite extends Object3D {
+  constructor(material) {
+    super();
+    this.material = material;
+    this.renderOrder = 0;
   }
 }
 export class InstancedMesh extends Mesh {

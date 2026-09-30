@@ -10,6 +10,7 @@ import { CAMERA } from '../logic/camera.js';
 import { crateAt, crateLeaving, shellAt, pelletDirs } from '../logic/weapons.js';
 import { flat } from './models/parts.js';
 import { createWeatherView } from './weather.js';
+import { createBubbleView } from './bubbles.js';
 import { buildPlayer } from './models/player.js';
 import { buildZombie, buildZombieKing } from './models/zombie.js';
 import { buildPumpkin, buildPumpkinMonster, buildFlamingPumpkin, buildLaunchedPumpkin } from './models/pumpkin.js';
@@ -88,6 +89,7 @@ export function createStage(container, firstLevel) {
   let level = firstLevel;
   let backdrop = buildBackdrop(scene, level);
   const weather = createWeatherView(scene);
+  const bubbles = createBubbleView(scene);
 
   const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 400);
   const { position: at, target } = CAMERA;
@@ -157,6 +159,7 @@ export function createStage(container, firstLevel) {
           shown.delete(id);
           dispose(obj, shared);
         }
+        bubbles.clear();
         scene.remove(backdrop);
         dispose(backdrop);
         level = game.level;
@@ -272,6 +275,7 @@ export function createStage(container, firstLevel) {
         obj.position.set(f.x, f.y, f.z);
         obj.traverse((m) => { if (m.material) m.material.opacity = 1 - f.age / f.life; });
       }
+      bubbles.sync(fx.bubbles);
       for (const [id, obj] of shown) {
         if (obj.userData.seen) continue;
         scene.remove(obj);
