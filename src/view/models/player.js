@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { flat, part, group } from './parts.js';
 import { addHeroDetails } from './hero-details.js';
+import { buildGuns } from './guns.js';
 import { bodyPose, MUZZLES, MUZZLE, PIVOT, WAIST } from '../../logic/effects.js';
 
 export function buildPlayer({
@@ -46,34 +47,7 @@ export function buildPlayer({
   rig.add(part(armGeo, hood, at([0.2, 0.86, -0.16]), [-Math.PI / 2 + 0.2, 0, -0.3]));
   rig.add(part(armGeo, hood, at([-0.08, 0.86, -0.18]), [-Math.PI / 2 + 0.2, 0, 0.5]));
   // One gun per weapon; only the one in hand shows. Each muzzle is at MUZZLES in the body.
-  const grip = () => part(new THREE.BoxGeometry(0.07, 0.14, 0.08), '#5a3a22', [0, -0.1, 0.06], [0.3, 0, 0]);
-  const barrel = (r, length, x, z) => part(new THREE.CylinderGeometry(r, r, length, 6), gun, [x, 0.02, z], [Math.PI / 2, 0, 0]);
-  // The Gatling: six barrels in a ring on a spinner that turns about the gun's axis, a brass band
-  // around them and an ammunition box under them.
-  const gatlingMetal = '#3a3a3a';
-  const barrelGeo = new THREE.CylinderGeometry(0.028, 0.028, 0.6, 6);
-  const spinner = group(...Array.from({ length: 6 }, (_, i) => {
-    const a = (i * Math.PI) / 3;
-    return part(barrelGeo, gatlingMetal, [Math.cos(a) * 0.075, Math.sin(a) * 0.075, 0], [Math.PI / 2, 0, 0]);
-  }));
-  spinner.position.set(0, 0.02, -0.36);
-  const gatling = group(
-    part(new THREE.BoxGeometry(0.2, 0.2, 0.14), gatlingMetal, [0, 0.02, 0]),
-    spinner,
-    part(new THREE.CylinderGeometry(0.115, 0.115, 0.06, 8), '#b8860b', [0, 0.02, -0.5], [Math.PI / 2, 0, 0]),
-    part(new THREE.BoxGeometry(0.16, 0.14, 0.2), gatlingMetal, [0, -0.13, -0.05]),
-    grip(),
-  );
-  const guns = {
-    popper: group(part(new THREE.BoxGeometry(0.12, 0.14, 0.26), gun), barrel(0.045, 0.2, 0, -0.2), grip()),
-    scattergun: group(part(new THREE.BoxGeometry(0.16, 0.14, 0.26), gun), barrel(0.035, 0.38, -0.038, -0.31), barrel(0.035, 0.38, 0.038, -0.31), grip()),
-    launcher: group(
-      barrel(0.09, 0.56, 0, -0.18),
-      part(new THREE.TorusGeometry(0.09, 0.028, 4, 10), '#e07b24', [0, 0.02, -0.46]),
-      grip(),
-    ),
-    gatling,
-  };
+  const { guns, spinner } = buildGuns({ gun });
   const gunGroup = group(...Object.values(guns));
   gunGroup.position.set(...at([0.1, 0.88, -0.42]));
   rig.add(gunGroup);
