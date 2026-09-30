@@ -59,7 +59,9 @@ stand, fly and throw exactly as today. A zombie's half-width is 0.3.
 
 To match, the fence stops nothing that flies. A shot's aim, each Scattergun pellet and each Gatling
 round go through fences, and so do their streaks and tracers: they no longer end on a fence when they
-miss. The launcher's shell, thrown pumpkins and crows are as today. The builder does this by making
+miss. The launcher's aim goes through fences too, so its shell lands on what is beyond the fence, not on
+the fence (the one change to where a shell lands: it no longer lands on a fence). Thrown pumpkins and
+crows are as today. The builder does this by making
 the fence's meshes ignore rays (each mesh's `raycast` does nothing), so the stage's aiming does not
 change.
 
