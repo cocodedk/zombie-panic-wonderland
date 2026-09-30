@@ -17,7 +17,8 @@ A new enemy kind, `bat`, with its data in level 3's `enemies`, the same shape as
 - **It behaves like a crow, on its own numbers:** it flies in from the backdrop at `height` 3, circles
   for 1.2 seconds, then dives at the player's x at that moment and reaches the road 0.6 seconds later; it
   costs 1 heart if the player is within `splash` (1) unit of where it lands and is not dodging; after its
-  dive, hit or miss, it flies away, leaves the field in 1.2 seconds and counts as cleared. It falls after 1
+  dive, hit or miss, it is removed from the enemies at its landing (which is when it counts as cleared) and flies
+  away as a drawing for 1.2 seconds, exactly as a crow does. It falls after 1
   hit (75 points).
 - **Sharing the code:** every place that treats a crow specially treats a bat the same way, reading the
   numbers of its own kind: `crow(e, dt)` reads `this.level.enemies[e.kind]`; `crowAt(e, level)` and the
@@ -58,7 +59,10 @@ front view for the shape:
 - Loading, error and title: no bats (the title's scene is level 1's), as no enemy shows there.
 - Intro card: none yet.
 - Play: bats fly in with the wave, circle, dive and leave, as above.
-- The gap between waves: none on the field (a wave is cleared when all its enemies have fallen or left).
+- The gap between waves: no bat is an enemy on the field. A wave is cleared, as with crows today, when its
+  last enemy has fallen or has landed from its dive (an enemy is removed at its landing); the bat that
+  dived then flies away as a `flyaway` for `leave` seconds, a drawing only, and may still be seen leaving
+  as the banner and the gap begin. It does nothing and is not hit.
 - Paused: every bat freezes where it is, drawn behind the paused band, and goes on from there.
 - Victory and defeat: the scene freezes as it is, so a bat in the air stays drawn, frozen, behind the
   card; it does nothing.
@@ -102,8 +106,8 @@ numbers or names. It may also update, in `test/level3.test.js`, the assertion th
    hit or miss, it leaves in 1.2 seconds and counts as cleared.
 2. A bat falls after 1 hit (75 points) and bursts with `BURSTS.bat` at its own height; a crow behaves and
    scores exactly as before (its 2-second circle, 1-second dive, 50 points).
-3. Level 3's waves follow the counts and the order above, one second apart; the wave is cleared only
-   when its bats have left or fallen.
+3. Level 3's waves follow the counts and the order above, one second apart; a wave is cleared when its
+   last bat has fallen or landed, as with crows, and the leaving bat is a drawing only.
 4. The model: the parts, sizes and colours above; the flap follows the formula within ±0.9, mirrored,
    and is the same under reduced motion; the stage builds and removes bats like crows, and a fading
    copy under reduced motion is the same model.
