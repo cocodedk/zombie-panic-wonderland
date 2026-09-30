@@ -18,6 +18,8 @@ export const level2 = {
 
   enemies: {
     ...level1.enemies,
+    // Level 1's zombie, with this level's own fast rule: one line to change if it is too hard.
+    zombie: { ...level1.enemies.zombie, fast: { fromWave: 2, every: 4, speedFactor: 1.6, points: 200 } },
     // Circles `circle` seconds at `height` over z, dives for `dive` seconds, then leaves in `leave`.
     crow: { hits: 1, points: 50, z: -6, height: 4, circle: 2, dive: 1, splash: 1, leave: 1.5 },
   },
