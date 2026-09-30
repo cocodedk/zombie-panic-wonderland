@@ -59,7 +59,7 @@ describe('4. the walk and the others', () => {
     const [a, b] = [level3, noFences(level2)].map(play);
     assert.deepEqual(a, b);
     assert.ok(a.some((s) => s.includes('"crow"')) && a.some((s) => s.includes('"pumpkinMonster"')));
-    assert.equal(sendWave(started(level3), 5).length, 6 + 5 + 2 + 3);
+    assert.equal(sendWave(started(level3), 5).length, 6 + 5 + 2 + 2 + 3);
   });
 
   test('the boss behaves as level 1\'s', () => {

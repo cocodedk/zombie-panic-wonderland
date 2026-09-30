@@ -36,10 +36,10 @@ describe('1. every 3rd spider of a wave from wave 2 is a dropper', () => {
   });
 
   test('wave 1 has none; each later wave has its 3rd spider only, the counts and order unchanged', () => {
-    const expected = [[4, 2, 0, 1], [5, 3, 0, 2], [5, 3, 1, 2], [6, 4, 2, 3], [6, 5, 2, 3]];
-    expected.forEach(([zombie, spider, pumpkinMonster, crow], i) => {
+    const expected = [[4, 2, 0, 0, 1], [5, 3, 0, 0, 2], [5, 3, 1, 1, 2], [6, 4, 2, 2, 3], [6, 5, 2, 2, 3]];
+    expected.forEach(([zombie, spider, wolf, pumpkinMonster, crow], i) => {
       const { wave } = sent(level3.waves, i + 1);
-      const kinds = [['zombie', zombie], ['spider', spider], ['pumpkinMonster', pumpkinMonster], ['crow', crow]].flatMap(([k, n]) => Array(n).fill(k));
+      const kinds = [['zombie', zombie], ['spider', spider], ['wolf', wolf], ['pumpkinMonster', pumpkinMonster], ['crow', crow]].flatMap(([k, n]) => Array(n).fill(k));
       assert.deepEqual(wave.map((e) => e.kind), kinds, `wave ${i + 1}`);
       assert.deepEqual(flags(wave), Array.from({ length: spider }, (_, k) => i >= 1 && k === 2), `wave ${i + 1}`);
       assert.ok(wave.filter((e) => e.kind !== 'spider').every((e) => e.drop === undefined), `wave ${i + 1}`);

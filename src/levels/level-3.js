@@ -1,5 +1,5 @@
 // Level 3: the Spider Wood, a webbed twilight forest after level 2's cornfield. Level 2's enemies plus
-// the spider, and level 1's boss for now; the rest of the wood's creatures and the queen come later.
+// the spider and the wolf, and level 1's boss for now; the rest of the wood's creatures and the queen come later.
 
 import { level1 } from './level-1.js';
 import { level2 } from './level-2.js';
@@ -22,17 +22,19 @@ export const level3 = {
   enemies: {
     ...level2.enemies,
     spider: { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2, drop: { fromWave: 2, every: 3, at: -5, from: 5, time: 1.2 } },
+    // The wolf: a fast, tough runner that hits hard. Held by fences like a zombie, at its own speed.
+    wolf: { hits: 4, points: 200, speed: 3, reach: 1.6, closeIn: 1, strikeEvery: 1.5, hearts: 2 },
   },
 
   timing: level1.timing,
 
-  // Each wave's enemies arrive in this order (zombie, spider, pumpkin monster, crow), `timing.spacing` seconds apart.
+  // Each wave's enemies arrive in this order (zombie, spider, wolf, pumpkin monster, crow), `timing.spacing` seconds apart.
   waves: [
     { zombie: 4, spider: 2, crow: 1 },
     { zombie: 5, spider: 3, crow: 2 },
-    { zombie: 5, spider: 3, pumpkinMonster: 1, crow: 2 },
-    { zombie: 6, spider: 4, pumpkinMonster: 2, crow: 3 },
-    { zombie: 6, spider: 5, pumpkinMonster: 2, crow: 3 },
+    { zombie: 5, spider: 3, wolf: 1, pumpkinMonster: 1, crow: 2 },
+    { zombie: 6, spider: 4, wolf: 2, pumpkinMonster: 2, crow: 3 },
+    { zombie: 6, spider: 5, wolf: 2, pumpkinMonster: 2, crow: 3 },
   ],
 
   boss: { ...level1.boss },

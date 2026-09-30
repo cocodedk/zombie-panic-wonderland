@@ -18,7 +18,7 @@ describe('1. level 3\'s data', () => {
   });
 
   test('five waves, in this order and a second apart', () => {
-    const expected = [[4, 2, 0, 1], [5, 3, 0, 2], [5, 3, 1, 2], [6, 4, 2, 3], [6, 5, 2, 3]];
+    const expected = [[4, 2, 0, 0, 1], [5, 3, 0, 0, 2], [5, 3, 1, 1, 2], [6, 4, 2, 2, 3], [6, 5, 2, 2, 3]];
     assert.equal(level3.waves.length, 5);
     assert.equal(level3.timing.spacing, 1);
     const game = newGame(level3);
@@ -34,16 +34,16 @@ describe('1. level 3\'s data', () => {
       run(game, 0.5);
       for (const e of [...game.enemies]) kill(game, e);
     }
-    expected.forEach(([zombie, spider, pumpkinMonster, crow], i) => {
+    expected.forEach(([zombie, spider, wolf, pumpkinMonster, crow], i) => {
       const wave = log.filter((s) => s.wave === i + 1);
-      const order = [...Array(zombie).fill('zombie'), ...Array(spider).fill('spider'), ...Array(pumpkinMonster).fill('pumpkinMonster'), ...Array(crow).fill('crow')];
+      const order = [...Array(zombie).fill('zombie'), ...Array(spider).fill('spider'), ...Array(wolf).fill('wolf'), ...Array(pumpkinMonster).fill('pumpkinMonster'), ...Array(crow).fill('crow')];
       assert.deepEqual(wave.map((s) => s.kind), order, `wave ${i + 1}`);
       wave.forEach((s, j) => assert.ok(Math.abs(s.t - wave[0].t - j) < 1e-6, `wave ${i + 1} spawn ${j} at ${s.t}`));
     });
   });
 
-  test('level 2\'s enemies plus the spider, level 1\'s boss and shape', () => {
-    const { spider, ...others } = level3.enemies;
+  test('level 2\'s enemies plus the spider and the wolf, level 1\'s boss and shape', () => {
+    const { spider, wolf, ...others } = level3.enemies;
     assert.deepEqual(others, level2.enemies);
     assert.deepEqual(spider, { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2, drop: { fromWave: 2, every: 3, at: -5, from: 5, time: 1.2 } });
     assert.deepEqual(level3.boss, level1.boss);
