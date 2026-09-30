@@ -12,7 +12,7 @@ describe('1. level 3\'s data', () => {
     assert.equal(level3.name, 'The Spider Wood');
     assert.deepEqual(level3.text, {
       intro: 'The wood is silent. Something watches from the webs.',
-      boss: 'The Zombie King rises!',
+      boss: 'The Spider Queen descends!',
       victory: 'You made it through the wood — for now.',
     });
   });
@@ -42,13 +42,12 @@ describe('1. level 3\'s data', () => {
     });
   });
 
-  test('level 2\'s enemies plus the spider, the wolf and the bat, level 1\'s boss and shape', () => {
+  test('level 2\'s enemies plus the spider, the wolf and the bat, the Spider Queen and level 1\'s shape', () => {
     const { spider, wolf, bat, ...others } = level3.enemies;
     assert.deepEqual(others, level2.enemies);
     assert.deepEqual(spider, { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2, drop: { fromWave: 2, every: 3, at: -5, from: 5, time: 1.2 } });
-    assert.deepEqual(level3.boss, level1.boss);
-    assert.equal(level3.boss.name, 'Zombie King');
-    assert.equal(level3.boss.model, 'zombieKing');
+    assert.equal(level3.boss.name, 'Spider Queen');
+    assert.equal(level3.boss.model, 'spiderQueen');
     for (const key of ['player', 'spawn', 'timing']) assert.deepEqual(level3[key], level1[key], key);
     assert.equal(level3.roadZ, 0);
   });

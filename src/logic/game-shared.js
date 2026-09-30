@@ -47,6 +47,10 @@ export function bossWindup(e, boss) {
 // The camera shakes when a stomp's shockwave reaches the road, fading over `time` seconds.
 export const SHAKE = { time: 0.25, size: 0.15 };
 
+// How high a boss's middle is, where it bursts and a blast reaches: 3 for the kings, the Spider Queen's body (3.2 times the
+// spider's 0.3) about 1.
+export const BOSS_CENTRE = { default: 3, spiderQueen: 0.96 };
+
 export const GROAN = 1.5; // seconds: the least time between two zombies' groans
 
 // Shown once per boss fight, at its first wind-up, for `life` seconds.

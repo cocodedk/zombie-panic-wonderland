@@ -43,9 +43,10 @@ function buildLeg(i, mat) {
   return hip;
 }
 
-export function buildSpider({ seed = 0, size = 1 } = {}) {
+// `abdomen` and `mark` colour the abdomen and the hourglass (the Spider Queen's are her own).
+export function buildSpider({ seed = 0, size = 1, abdomen: belly = BODY, mark = HOURGLASS } = {}) {
   const dark = flat(BODY);
-  const abdomen = ignoreRays(part(new THREE.IcosahedronGeometry(0.28, 0), dark, [0, HEIGHT, -0.3]));
+  const abdomen = ignoreRays(part(new THREE.IcosahedronGeometry(0.28, 0), belly === BODY ? dark : belly, [0, HEIGHT, -0.3]));
   abdomen.scale.set(1, 0.8, 1.2);
   abdomen.name = 'abdomen';
   const head = ignoreRays(part(new THREE.IcosahedronGeometry(0.17, 0), HEAD, [0, HEIGHT, 0.1]));
@@ -54,7 +55,7 @@ export function buildSpider({ seed = 0, size = 1 } = {}) {
   // The hourglass on the abdomen's back: two cones, tip to tip.
   const cone = new THREE.ConeGeometry(0.05, 0.1, 4);
   const hourglass = [1, -1].map((k) => {
-    const c = ignoreRays(part(cone, HOURGLASS, [0, 0.5, -0.3 - k * 0.05], [(k * Math.PI) / 2, 0, 0]));
+    const c = ignoreRays(part(cone, mark,[0, 0.5, -0.3 - k * 0.05], [(k * Math.PI) / 2, 0, 0]));
     c.name = 'hourglass';
     return c;
   });

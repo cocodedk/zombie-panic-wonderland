@@ -176,7 +176,7 @@ describe('4. level 3\'s waves gain wolves', () => {
     assert.equal(level3.timing.spacing, 1);
   });
 
-  test('the boss fight has no wolves: the Zombie King summons zombies', () => {
-    assert.equal(level3.boss.summons, 'zombie');
+  test('the boss fight has no wolves: the Spider Queen summons spiders', () => {
+    assert.equal(level3.boss.summons, 'spider');
   });
 });

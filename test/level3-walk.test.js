@@ -62,29 +62,15 @@ describe('4. the walk and the others', () => {
     assert.equal(sendWave(started(level3), 5).length, 6 + 5 + 2 + 2 + 3 + 3);
   });
 
-  test('the boss behaves as level 1\'s', () => {
-    const play = (level) => {
-      const game = started(level, { random: seeded(3) });
-      game.spawnBoss();
-      const seen = [];
-      for (let t = 0; t < 1500; t++) {
-        game.update(0.01);
-        seen.push(JSON.stringify([game.enemies.filter((e) => e.kind === 'boss'), game.shockwaves]));
-      }
-      return seen;
-    };
-    assert.deepEqual(play(level3), play(level1));
-  });
-
-  test('the boss announcement is level 3\'s text and the Zombie King fights on', () => {
+  test('the boss announcement is level 3\'s text and the Spider Queen fights on', () => {
     const game = started(withWaves(level3, [{ zombie: 1 }]));
     clearWave(game);
     run(game, level3.timing.gap);
-    assert.equal(game.banner, 'The Zombie King rises!');
+    assert.equal(game.banner, 'The Spider Queen descends!');
     run(game, level3.timing.bossBanner);
     assert.equal(game.enemies[0].kind, 'boss');
     assert.equal(screenView(game).hud.boss, 1);
-    assert.equal(game.level.boss.name, 'Zombie King');
+    assert.equal(game.level.boss.name, 'Spider Queen');
   });
 });
 

@@ -5,6 +5,7 @@ import { pumpkinAt, crowAt, isFlyer, CROW_CIRCLE, bossWindup, dropHeight } from 
 import { buildThread, placeThread } from './stage-thread.js';
 import { crateAt, crateLeaving, shellAt } from '../logic/weapons.js';
 import { buildPumpkin, buildFlamingPumpkin, buildLaunchedPumpkin } from './models/pumpkin.js';
+import { buildWebBall, buildWebTrail, placeWebTrail } from './models/web-ball.js';
 import { buildCrate } from './models/crate.js';
 import { buildCanister } from './models/canister.js';
 import { buildCrow } from './models/crow.js';
@@ -38,7 +39,8 @@ export function syncEntities(game, level, { place, pickable, enemies }) {
     const walking = e.kind === 'boss' ? e.z < level.boss.standZ : crawler;
     const throwing = e.kind === 'pumpkinMonster' ? Math.max(0, 1 - e.throwTimer / 0.4) : 0;
     const windup = e.kind === 'boss' ? bossWindup(e, level.boss) : 0;
-    const walk = e.drop ? 0 : walking ? 1 : 0.2; // a hanging dropper's legs and body hang still
+    const idle = e.kind === 'boss' && level.boss.model === 'spiderQueen' ? 0 : 0.2; // a standing queen's legs are still
+    const walk = e.drop ? 0 : walking ? 1 : idle; // a hanging dropper's legs and body hang still
     obj.userData.tick(clock, { walk, throwing, windup, twitch: !game.reducedMotion });
     // Face the player once on the road.
     obj.rotation.y = crawler && e.z >= level.roadZ - 1e-9 ? Math.sign(p.x - e.x) * 0.9 : 0;
@@ -51,11 +53,12 @@ export function syncEntities(game, level, { place, pickable, enemies }) {
     obj.userData.tick(clock, { diving: 0 });
   }
   for (const k of game.pumpkins) {
-    const obj = place(k.id, () => (k.flaming ? buildFlamingPumpkin({ size: 0.55 }) : buildPumpkin({ size: 0.45 })));
+    const obj = place(k.id, () => (k.web ? buildWebBall() : k.flaming ? buildFlamingPumpkin({ size: 0.55 }) : buildPumpkin({ size: 0.45 })));
     const at = pumpkinAt(k, level.roadZ);
     obj.position.set(at.x, at.y, at.z);
     obj.rotation.set(clock * 6, clock * 3, 0);
     pickable.push(obj);
+    if (k.web) placeWebTrail(place(`w${k.id}`, buildWebTrail), at, pumpkinAt({ ...k, t: k.t - 0.05 }, level.roadZ)); // not pickable
   }
   // Crates bob and turn slowly; one leaving can no longer be aimed at.
   for (const c of game.crates) {

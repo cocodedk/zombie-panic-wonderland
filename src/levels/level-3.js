@@ -1,5 +1,5 @@
 // Level 3: the Spider Wood, a webbed twilight forest after level 2's cornfield. Level 2's enemies plus
-// the spider and the wolf, and level 1's boss for now; the rest of the wood's creatures and the queen come later.
+// the spider, the wolf and the bat, and the Spider Queen for its boss.
 
 import { level1 } from './level-1.js';
 import { level2 } from './level-2.js';
@@ -9,7 +9,7 @@ export const level3 = {
   number: 3,
   text: {
     intro: 'The wood is silent. Something watches from the webs.',
-    boss: 'The Zombie King rises!',
+    boss: 'The Spider Queen descends!',
     victory: 'You made it through the wood — for now.',
   },
 
@@ -39,7 +39,25 @@ export const level3 = {
     { zombie: 6, spider: 5, wolf: 2, pumpkinMonster: 2, crow: 3, bat: 3 },
   ],
 
-  boss: { ...level1.boss },
+  // The Spider Queen: she stands behind the road and, in turn, spits a web ball (1 heart, and webs the player: `slow`
+  // times the speed and no dodging for `slowTime` seconds) or summons spiders. Unlike the kings she does not stomp.
+  boss: {
+    name: 'Spider Queen',
+    model: 'spiderQueen',
+    hits: 260,
+    points: 4000,
+    speed: 1.2,
+    standZ: -3.5, // 3.5 units behind the road
+    firstAction: 2, // seconds after she appears, walking or standing
+    actionEvery: 3,
+    windup: 0.6, // she winds up this long before each action
+    actions: ['spit', 'summon'], // in turn
+    spit: { hearts: 1, points: 25, flight: 1.2, splash: 1, slow: 0.5, slowTime: 2 },
+    summon: 3,
+    summons: 'spider',
+    summonNear: 2, // summons appear within this many units of her x, `summonBack` behind her z
+    summonBack: 2,
+  },
 
   music: {
     key: 'E minor',

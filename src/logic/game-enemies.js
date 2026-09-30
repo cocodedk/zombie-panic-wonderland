@@ -1,5 +1,5 @@
 import { stepZombie } from './fences.js';
-import { EPS, due, GROAN, HINT, isFlyer } from './game-shared.js';
+import { EPS, due, GROAN, HINT } from './game-shared.js';
 
 export const enemies = {
   // --- enemies ---
@@ -53,11 +53,11 @@ export const enemies = {
     this.throwPumpkin(e, { hearts: 1, points: c.pumpkinPoints });
   },
 
-  // A pumpkin flies from `from` to where the player stands now; the boss's burns.
-  throwPumpkin(from, { hearts, points, flaming = false }) {
-    const c = this.level.enemies.pumpkinMonster;
+  // A pumpkin flies from `from` to where the player stands now; the boss's burns, or is a web ball (`web`).
+  throwPumpkin(from, { hearts, points, flaming = false, web = false, flight, splash }) {
+    const c = this.level.enemies.pumpkinMonster; // the flight and splash of a pumpkin, unless the thrower has its own
     this.cue('throw');
-    this.pumpkins.push({ id: this.nextId++, owner: from.id, fromX: from.x, fromZ: from.z, x: this.player.x, t: 0, flight: c.flight, hearts, points, flaming });
+    this.pumpkins.push({ id: this.nextId++, owner: from.id, fromX: from.x, fromZ: from.z, x: this.player.x, t: 0, flight: flight ?? c.flight, splash: splash ?? c.splash, hearts, points, flaming, web });
   },
 
   // A crow or a bat: circles, then dives at where the player is then, lands on the road and flies away.
@@ -101,13 +101,10 @@ export const enemies = {
       this.stomps.push({ id: this.nextId++, t: b.stompDelay, x: e.x });
     } else if (action === 'throw') {
       this.throwPumpkin(e, { ...b.flamingPumpkin, flaming: true });
+    } else if (action === 'spit') {
+      this.throwPumpkin(e, { ...b.spit, web: true });
     } else {
-      for (let i = 0; i < b.summon; i++) {
-        const s = this.spawn(b.summons);
-        s.x = e.x + (this.random() * 2 - 1) * b.summonNear;
-        s.z = e.z - b.summonBack;
-        if (isFlyer(s)) s.from = { x: s.x, y: this.centre(e).y, z: s.z };
-      }
+      this.summon(e, b);
     }
   },
 };
