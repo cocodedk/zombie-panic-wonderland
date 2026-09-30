@@ -24,15 +24,17 @@ seconds at an even speed. Then it is an ordinary spider (spec 29) and walks from
 
 ## What the player sees
 
-The reference is spec 29's spider. A dropper is that spider model, plus a **thread**: a thin box 0.012
-across, `#d8e0ea` at 0.7 opacity, unlit, from the spider's back straight up to a height of `from` above
-the ground, so it stays fixed at the top as the spider lowers and shortens as it lands, and goes when the
-spider has landed (it is removed when the height is 0). The thread ignores rays. Nothing else about the
-picture changes. No new text, no new sound.
+The reference is spec 29's spider. A dropper is that spider model, plus a **thread**: a thin box 0.012 across, `#d8e0ea` at 0.7 opacity,
+unlit, from the spider's back (0.5 above its root) straight up to a **fixed top** at `from + 0.5` (5.5)
+above the ground. The spider hangs from that point: at the start of the drop the thread is as short as
+the spider's back is close to the top (its length is 0) and it lengthens as the spider lowers, to 5 at
+the ground, where the thread is removed as the spider lands and walks. The thread ignores rays. Nothing
+else about the picture changes. No new text, no new sound.
 
 ## Every screen
 
-As spec 29: the droppers show and act in play, the gaps between waves and nowhere else; paused freezes
+As spec 29: the droppers show and act in play and nowhere else (the gap between waves has none: a wave
+is cleared when all its enemies have fallen); paused freezes
 them mid-drop and they go on from there; victory and defeat freeze the scene; each level start, Try
 again, Play again, Next level and Back to title start fresh, with the count of spiders starting again
 each wave.
@@ -48,7 +50,7 @@ droppers), `llms.txt` (unchanged).
   lines longer than today); `src/logic/game-time.js` or `game-enemies.js`: lowers them (at most 10
   lines longer). An enemy gets a `drop` field, the seconds it still has to lower (`time` at first,
   absent once landed).
-- `src/view/stage-entities.js`: the height of a dropper is `from × (drop / time)` above the ground and
+- `src/view/stage-entities.js`: the height of a dropper's root is `from × (drop / time)` above the ground and
   the thread with it; at most 12 lines longer, or a new file `src/view/stage-thread.js` under 200 lines.
 - `src/levels/level-3.js`: the `drop` data.
 
@@ -56,7 +58,8 @@ droppers), `llms.txt` (unchanged).
 
 The builder may run the suite and node, but not a web server or a browser: a picture of a spider on its
 thread is the supervisor's step. The builder may add and edit test files. It changes no earlier test
-except where one asserts the exact fields of a spawned spider (a new optional `drop` field), and only that. It may also update, in `test/level3.test.js`, the assertion that level 3's `enemies` equal the earlier level's plus the kinds already added (they now include this spec's), and only that assertion.
+except where one asserts the exact fields of a spawned spider or the exact data of level 3's spider (a new
+`drop` field, as `test/spiders.test.js` does), and only that. It may also update, in `test/level3.test.js`, the assertion that level 3's `enemies` equal the earlier level's plus the kinds already added (they now include this spec's), and only that assertion.
 
 ## Done when
 
@@ -70,7 +73,8 @@ except where one asserts the exact fields of a spawned spider (a new optional `d
    after it lands).
 3. A dropper can be hit and felled while hanging (2 hits, 150 points), with its thread; a landed one is
    an ordinary spider.
-4. The stage: a dropper's height and thread follow `drop`; the thread is 0.012 across, ignores rays, is
-   removed on landing and when the spider falls; nothing is left after a level change.
+4. The stage: a dropper's height follows `drop`; its thread runs from the spider's back to the fixed top
+   at 5.5, is 0 long at the start and 5 long at the ground, is 0.012 across, ignores rays, and is removed
+   on landing and when the spider falls; nothing is left after a level change.
 5. Paused, a dropper hangs still and goes on; a fading copy under reduced motion has no thread.
 6. Files within the limits; any new file under 200 lines.
