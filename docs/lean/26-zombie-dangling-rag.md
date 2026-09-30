@@ -1,0 +1,67 @@
+# 26: zombie dangling rag
+
+Run this after spec 25 is merged.
+
+## What the owner wants
+
+A small refinement of the zombies, one of five small bits made one after another (specs 22 to 26):
+a rag that dangles from the shirt. The owner asked on 30 September 2026 and left the details to us; these are the defaults we
+propose. It is small: nothing else about the zombie changes.
+
+## The bit
+
+The reference is today's zombie (`buildZombie` in `src/view/models/zombie.js`, with the small parts
+in `src/view/models/zombie-details.js`).
+
+**A dangling rag.** A strip of torn cloth hangs from the shirt's hem on the zombie's right: a flat box
+0.05 × 0.16 × 0.012 in the shirt's own material (so the same colour and tint), hung from a pivot on
+the torso at [0.2, −0.02, 0.13] with the strip's top at the pivot, so its centre is 0.08 below it. It
+sways: `pivot.rotation.z = 0.15 × sin(s × 1.3 + 1)`, where `s` is the walk's own `t × 3.2 + seed`
+(the same `s` `tick` already uses). With reduced motion (`twitch` false) it hangs still, at
+rotation 0. The flag is `rag`, on in `ZOMBIE_EXTRAS`.
+
+It applies to ordinary and fast zombies, and not to the Zombie King. The stage passes the flags in
+`ZOMBIE_EXTRAS` (in `zombie-details.js`) to zombies only; `buildZombie` takes them as `extras` and
+defaults every flag to off, so a model built without `extras` is exactly today's, and so is every
+earlier test. A fading copy under reduced motion is built the same way as its zombie, so it has the
+bit too.
+
+## What does not change
+
+The zombie's size, proportions, colours, tint, walk, arm swing, head twitch, jaw, eyes, halos, claws,
+sockets and stain (unless named above); its speed, points, hits and the way it is picked and hit; the
+burst chunks; the Zombie King, every other model, every rule, sound and screen text; `get_state`
+and `llms.txt`.
+
+## Every screen
+
+The zombies show where they do today, and nowhere else: loading, error, title and the intro card show
+none; play, the gaps between waves and the boss fight show them; paused freezes them, and anything that
+moves goes on from where it was; victory and defeat freeze the scene as it is. No new text, no HUD
+change and no new sound. Each level start, **Try again**, **Play again**, **Next level** and **Back to
+title** start fresh, as today.
+
+## Files
+
+- `src/view/models/zombie-details.js`: the flag and the rag.
+- `src/view/models/zombie.js`: `tick` sways it; at most 6 lines longer than today.
+
+New files stay under 200 lines. `zombie.js` (174 lines) stays under 200: put the bit's code in
+`zombie-details.js` and call it. The Pages workflow copies `src` whole, so it needs no change.
+
+## The tests
+
+The builder may run the suite and node, but not a web server or a browser: a picture of the zombie is
+the supervisor's step. The builder may add and edit test files. It changes no earlier test, except
+that a test asserting the exact list of a zombie's parts (a count of meshes) may be updated to count
+the parts named here, and only that number. 
+
+## Done when
+
+`node --test` passes, and its tests prove:
+
+1. With `rag` off there is no rag; with it on, the torso has one rag with the size, place and material above (its colour is the shirt's).
+2. Its pivot's rotation follows `0.15 × sin(s × 1.3 + 1)`, with `s = t × 3.2 + seed`, and stays within ±0.15; with reduced motion (`twitch` false) it is 0 at every `t`.
+3. The stage builds every ordinary and fast zombie with the rag on; the King has none.
+4. The rag is part of the torso, so it leans and sways with it; the zombie's other parts and `tick` values are as before.
+5. `zombie.js` stays under 200 lines and any new file is under 200 lines.
