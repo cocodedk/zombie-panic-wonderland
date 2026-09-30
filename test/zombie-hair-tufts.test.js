@@ -45,8 +45,8 @@ const stageFor = (game) => {
 const shownAs = (scene, e) => scene.children.find((c) => c.userData.entityId === e.id);
 
 describe('1. the tufts on the model', () => {
-  test('ZOMBIE_EXTRAS is an object of flags, on for tufts, limp and flicker', () => {
-    assert.deepEqual(ZOMBIE_EXTRAS, { tufts: true, limp: true, flicker: true });
+  test('ZOMBIE_EXTRAS is an object of flags, on for tufts, limp, flicker and bareFoot', () => {
+    assert.deepEqual(ZOMBIE_EXTRAS, { tufts: true, limp: true, flicker: true, bareFoot: true });
   });
 
   for (const fast of [false, true]) {
@@ -141,7 +141,7 @@ describe('4. nothing else changed', () => {
   for (const fast of [false, true]) {
     test(`${fast ? 'fast' : 'ordinary'}: the same rotations from tick, and the same shapes and colours but the tufts`, () => {
       const plain = buildZombie({ fast, seed: 3, tint: 0.04 });
-      const tufted = buildZombie({ fast, seed: 3, tint: 0.04, extras: { ...ZOMBIE_EXTRAS, limp: false } });
+      const tufted = buildZombie({ fast, seed: 3, tint: 0.04, extras: { ...ZOMBIE_EXTRAS, limp: false, bareFoot: false } });
       for (const [t, pose] of [[0, {}], [0.7, { walk: 0 }], [3.1, { windup: 0.6 }], [9.4, { twitch: false }]]) {
         plain.userData.tick(t, pose);
         tufted.userData.tick(t, pose);
