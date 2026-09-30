@@ -35,6 +35,16 @@ points, then the victory card comes.
   of her x, `summonBack` (2) behind her z, and walk in as spiders do.
 - **She falls after 260 hits** (4000 points). The boss health bar reads `Spider Queen`.
 
+## The web shell
+
+While `player.webbed` is above 0 the stage draws a shell around the player: an icosahedron of radius 0.55
+(detail 1) centred 0.6 above the player's feet, `#d8e0ea`, unlit, transparent at opacity 0.35, not writing
+depth, its rays ignored. It follows the player's x. In the last 0.5 seconds of the web it blinks between
+opacity 0.35 and 0.15 six times a second, so the player can see that dodging is about to come back; when
+`webbed` reaches 0 the shell is removed in the same update. With reduced motion it does not blink (it stays at
+0.35 until it goes). It is drawn in a new file `src/view/web-shell.js` (under 200 lines), which the stage calls
+once a frame; the shell is made once and shown or hidden, and disposed with the scene.
+
 ## The model
 
 The reference is spec 29's spider (`buildSpider`) for the shape and the style (flat-shaded, low-poly, no
@@ -73,12 +83,11 @@ size: 0.16, colors: ['#d8e0ea'], puff: '#d8e0ea', puffSize: 1 }` at a web ball's
 - Defeat: the scene freezes as it is, so the queen (if she stands), a web ball in the air and the spiders
   stay drawn, frozen, behind the card.
 - Each level start, Try again, Play again, Next level and Back to title start fresh, with none and the web
-  cleared. The dodge hint is unchanged: `Space: dodge — or step aside!` shows once, at the first wind-up of
-  the fight as it does today, before any web ball has flown, and does not come back, so it is never on
-  screen while the player is webbed. The new texts are `The Spider Queen descends!` and the bar's label `Spider Queen`; no new
-  sound (the throw reuses the pumpkin throw's cue, the wind-up its cue), no HUD change: being webbed
-  shows nothing beyond the web ball's burst (the effect is felt in the slower steps and the refused
-  dodge).
+  cleared. The dodge hint is unchanged: `Space: dodge — or step aside!` shows once, at the first wind-up of the fight, as it
+  does today, and is not shown again; it may still be up for about 0.2 seconds after the first web ball
+  lands, and nothing takes it down early. The new texts are `The Spider Queen descends!` and the bar's label `Spider Queen`; no new
+  sound (the throw reuses the pumpkin throw's cue, the wind-up its cue), no HUD change. Being webbed is shown on the player itself: a **web shell** (below) that stays exactly while
+  the web lasts and goes when dodging and full speed come back.
 
 ## Nothing else changes
 
@@ -94,7 +103,8 @@ Spider Queen, who throws webs that slow the player, and summons spiders).
   ball's landing), `game-journey.js` (`dodge` refuses while webbed), `game-time.js` (`movePlayer`
   slows and counts down the web), `game.js` or `reset()` (the field): each at most 14 lines longer than
   today.
-- `src/view/stage.js` (the `BOSSES` entry) and the pumpkin drawing (the web ball): a few lines each;
+- `src/view/web-shell.js` (new) and `src/view/stage.js` (the `BOSSES` entry, the shell's call) and the
+  pumpkin drawing (the web ball): a few lines each;
   `src/logic/effects.js` or `bursts.js` (`BURSTS.spiderQueen`, `BURSTS.web`).
 - `src/levels/level-3.js`: the boss data and text. `llms.txt`: one sentence.
 
@@ -129,5 +139,8 @@ asserts level 3's boss (spec 28's test says the Zombie King), and only that. It 
    the front legs and abdomen follow `windup`; the stage builds her through `BOSSES`, the web ball as
    described, and `BURSTS.spiderQueen` and `BURSTS.web` exist.
 6. The Zombie King's and the Scarecrow King's fights are unchanged (their stomp, throw and summon).
-7. The balance bounds above hold in the data.
-8. Files within the limits; any new file under 200 lines.
+7. The web shell: shown exactly while `webbed` is above 0 (nothing before, nothing after), with the size,
+   colour and opacity above, at the player's x; blinking between 0.35 and 0.15 six times a second in the last
+   0.5 seconds and steady with reduced motion; frozen while paused; cleared by a level start; ignores rays.
+8. The balance bounds above hold in the data.
+9. Files within the limits; any new file under 200 lines.
