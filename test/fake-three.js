@@ -218,8 +218,9 @@ export class WebGLRenderer {
   }
 }
 
-// Hits the first mesh of each object it is given, in order, whatever the ray. `sets` records
-// each ray set by origin and direction. Every raycaster made is in `raycasters`.
+// Hits the first mesh of each object it is given, in order, whatever the ray, but not a mesh that
+// ignores rays (one with a `raycast` of its own). `sets` records each ray set by origin and
+// direction. Every raycaster made is in `raycasters`.
 export const raycasters = [];
 export class Raycaster {
   ray = { origin: new Vector3(0, 0, 0), direction: new Vector3(0, 0, -1), at: (distance, v) => v.set(0, 0, -distance) };
@@ -235,7 +236,7 @@ export class Raycaster {
     const hits = [];
     for (const o of objects) {
       let mesh = null;
-      o.traverse((m) => { if (!mesh && m instanceof Mesh) mesh = m; });
+      o.traverse((m) => { if (!mesh && m instanceof Mesh && !Object.hasOwn(m, 'raycast')) mesh = m; });
       if (mesh) hits.push({ object: mesh });
     }
     return hits;

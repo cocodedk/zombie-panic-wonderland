@@ -6,6 +6,7 @@ import { Effects, BURSTS, TRACER, muzzleAt } from './effects.js';
 import { WEAPONS, ORDER, CRATES, CRATE, NOTICE_LIFE, crateAt, crateLeaving } from './weapons.js';
 import { CANISTER, placeCanisters, canisterAt } from './canisters.js';
 import { Weather, ownRandom } from './weather.js';
+import { stepZombie } from './fences.js';
 
 const EPS = 1e-9;
 const due = (t) => t <= EPS;
@@ -653,7 +654,7 @@ export class Game {
     const c = this.level.enemies.zombie;
     const road = this.level.roadZ;
     if (e.z < road - EPS) {
-      e.z = Math.min(road, e.z + c.speed * dt);
+      stepZombie(e, this.level, c.speed, dt); // led to a gap in the fences, then straight to the road
       if (e.z >= road - EPS) this.groan();
       return;
     }
