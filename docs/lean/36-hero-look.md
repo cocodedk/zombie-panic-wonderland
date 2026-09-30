@@ -19,7 +19,7 @@ tunic, a belt, two boots and two arms holding the gun. This sketch shows the bac
 
 ```
         (+ pompom)              a pompom on the hood's tip
-        /\  hood  + seam        a seam ridge down the hood's back; hair peeks out below it
+        /\  hood  + seam        a seam ridge along the top edge of the hood's point
    + ---||--- shoulder caps     two caps where the arms begin
      /  cape  \\  + strap       a leather strap across the cape
     / +satchel  \\              a satchel on the right hip
@@ -43,11 +43,14 @@ rest.
    squeezed to 0.7 in z) at the hem, centred (0, 0.255, 0.08).
 3. **A cape collar.** A short stand-up collar at the neck: a cone (radius 0.2, length 0.14, open at the
    base, 7 sides) in `#7a1219`, at (0, 1.02, 0.04), double-sided.
-4. **A hood seam and pompom.** A ridge down the back of the hood: a box 0.03 × 0.3 × 0.03 in `#8f1820`
-   at (0, 1.25, 0.26) leaning back 0.5 radians; and a pompom, an icosahedron of radius 0.05 (detail 0) in
-   `#f2e3b8`, at the tip of the hood's existing cone.
-5. **Hair at the nape.** Three small boxes, 0.05 × 0.07 × 0.04, in `#6b3f22`, at (−0.07, 0.99, 0.1),
-   (0, 0.97, 0.12) and (0.07, 0.99, 0.1), each tilted a little (z rotations 0.2, 0, −0.2).
+4. **A hood seam and pompom.** A ridge along the top edge of the hood's point: a box 0.03 wide, 0.03
+   thick and as long as the distance between its ends, in `#8f1820`, laid (with the same between-two-points
+   helper as the strap's) from **A = (0, 1.365, 0.17)** to **B = (0, 1.12, 0.43)**, which run along the
+   point's top edge (the point is the hood's existing cone, at (0, 1.18, 0.28) tilted back, whose tip is at
+   about (0, 1.11, 0.44)); and a pompom, an icosahedron of radius 0.05 (detail 0) in `#f2e3b8`, at that tip,
+   (0, 1.11, 0.44).
+5. **No hair.** Dropped from this spec: at the nape the hood, the tunic and the collar cover any place a
+   hair box could take, so none is added (the sketch's hair line is not built).
 6. **Shoulder caps.** Two icosahedrons of radius 0.09 (detail 0) in the `hood` colour (`#b3202a` by default), at
    (±0.22, 0.98, −0.02), where the arms begin.
 7. **A satchel.** A leather satchel on the right hip, on the outside of the cape: a box 0.22 × 0.26 × 0.1
@@ -105,8 +108,9 @@ its meshes), and only that number.
 
 1. The cape hem: 7 points at the positions in change 1, with the size, sides and colour; the trim ring,
    its size and colour; the collar.
-2. The hood seam and the pompom (at the tip of the hood's cone), the three hair boxes, and the two shoulder
-   caps, each with the sizes, places and colours above (the caps in the `hood` colour parameter).
+2. The hood seam, its two ends within 0.02 of A = (0, 1.365, 0.17) and B = (0, 1.12, 0.43), its size and
+   colour; the pompom at (0, 1.11, 0.44); there is no hair; and the two shoulder caps, each with the
+   sizes, places and colours above (the caps in the `hood` colour parameter).
 3. The satchel, its flap and its strap, with the sizes, places and colours; the strap's two ends within 0.02
    of A = (−0.15, 0.93, 0.16) and B = (0.2, 0.47, 0.28) and its middle outside the cape's cone by between
    −0.01 and 0.04; and the boots' cuffs (at y 0.16, below the hem), feet (0.2 × 0.06 × 0.3, reaching 0.06
