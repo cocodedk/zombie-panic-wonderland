@@ -83,6 +83,8 @@ export const BURSTS = {
   bat: { count: 10, life: 1, size: 0.14, colors: ['#2b1b3a', '#5a3f6b', '#ff2a1a'], puff: '#3a2a4a', puffSize: 1 },
   zombieKing: { count: 40, life: 1.5, size: 0.35, colors: ['#7d9a6a', '#5a1f3a', '#3d3a35', '#d9a520'], puff: '#9fd18b', puffSize: 3 },
   scarecrowKing: { count: 40, life: 1.5, size: 0.35, colors: ['#9c8456', '#3d2f22', '#3f2a4a', '#d8c070'], puff: '#e07b24', puffSize: 3 },
+  spiderQueen: { count: 40, life: 1.5, size: 0.35, colors: ['#5a1f3a', '#2a1f2e', '#d8e0ea', '#d9a520'], puff: '#3a2c3f', puffSize: 3 },
+  web: { count: 10, life: 0.8, size: 0.16, colors: ['#d8e0ea'], puff: '#d8e0ea', puffSize: 1 }, // a web ball landing or shot down
   pumpkin: { count: 6, life: 0.6, size: 0.14, colors: ['#e07b24'], puff: null },
   explosion: { count: 16, life: 0.6, size: 0.2, colors: ['#e07b24', '#ff9a3c', '#ffd35a'], puff: '#ff9a3c', puffSize: 2, puffLife: 0.6 },
   gas: { count: 20, life: 0.7, size: 0.22, colors: ['#ff8c1a', '#9acd32'], puff: '#9acd32', puffSize: 3, puffLife: 0.7 }, // a gas canister's fireball

@@ -1,5 +1,5 @@
 import { BURSTS } from './effects.js';
-import { pumpkinAt, crowAt, dropHeight, isFlyer } from './game-shared.js';
+import { EPS, BOSS_CENTRE, pumpkinAt, crowAt, dropHeight, isFlyer } from './game-shared.js';
 
 export const outcome = {
   // When the boss falls, everything else on the field bursts with it, for no points, and the
@@ -43,14 +43,23 @@ export const outcome = {
   shootDown(p, points = p.points) {
     const at = pumpkinAt(p, this.level.roadZ);
     this.score += this.effects.award(points, at, 1.5);
-    this.effects.burst('pumpkin', at);
+    this.effects.burst(p.web ? 'web' : 'pumpkin', at);
+  },
+
+  // A pumpkin lands: within its splash it hurts, unless the player dodges; a web ball that hurts also webs the player,
+  // for `slowTime` seconds afresh (never more).
+  land(p) {
+    if (p.web) this.effects.burst('web', pumpkinAt(p, this.level.roadZ));
+    const splash = p.splash ?? this.level.enemies.pumpkinMonster.splash;
+    if (Math.abs(this.player.x - p.x) > splash + EPS || !this.hurt(p.hearts)) return;
+    if (p.web) this.player.webbed = this.level.boss.spit.slowTime;
   },
 
   // The middle of an enemy, where it bursts: where the stage draws it.
   centre(e) {
     if (isFlyer(e)) return crowAt(e, this.level);
     if (e.kind === 'spider') return { x: e.x, y: 0.3 + dropHeight(e, this.level.enemies.spider.drop), z: e.z }; // its body stands 0.3 above its root
-    return { x: e.x, y: e.kind === 'boss' ? 3 : 1, z: e.z };
+    return { x: e.x, y: e.kind === 'boss' ? BOSS_CENTRE[this.level.boss.model] ?? BOSS_CENTRE.default : 1, z: e.z };
   },
 
   hurt(hearts = 1) {

@@ -122,7 +122,7 @@ export const journey = {
 
   dodge() {
     const p = this.player;
-    if (!this.live || this.dodging || !due(p.cooldown)) return false;
+    if (!this.live || this.dodging || p.webbed > 0 || !due(p.cooldown)) return false;
     p.dodging = this.level.player.dodgeTime;
     p.dir = this.move || p.lastDir;
     this.cue('dodge');

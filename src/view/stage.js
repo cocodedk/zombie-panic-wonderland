@@ -21,6 +21,8 @@ import { buildPumpkinMonster } from './models/pumpkin.js';
 import { buildCrow } from './models/crow.js';
 import { buildBat } from './models/bat.js';
 import { buildSpider } from './models/spider.js';
+import { buildSpiderQueen } from './models/spider-queen.js';
+import { createWebShell } from './web-shell.js';
 import { buildWolf } from './models/wolf.js';
 import { buildScarecrow, buildScarecrowKing } from './models/scarecrow.js';
 import { buildSky, buildGround, buildRoad, buildTree, buildMushroom, buildCrypt, buildClockTower, buildHedge, buildFence } from './models/scenery.js';
@@ -33,7 +35,7 @@ const SCENERY = {
   cornRows: buildCornRows, scarecrow: buildScarecrow, farmhouse: buildFarmhouse, emeraldCity: buildEmeraldCity, moon: buildMoon, web: buildWeb,
 };
 
-const BOSSES = { zombieKing: buildZombieKing, scarecrowKing: buildScarecrowKing };
+const BOSSES = { zombieKing: buildZombieKing, scarecrowKing: buildScarecrowKing, spiderQueen: buildSpiderQueen };
 // A fading copy carries the fallen enemy's own id, so it keeps that enemy's look.
 const idOf = (e) => e.enemyId ?? e.id;
 const ENEMIES = {
@@ -55,6 +57,7 @@ export function createStage(container, firstLevel) {
   const weather = createWeatherView(scene);
   const sky = createSkyView();
   const bubbles = createBubbleView(scene);
+  const webShell = createWebShell(scene);
 
   const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 400);
   const { position: at, target } = CAMERA;
@@ -89,15 +92,12 @@ export function createStage(container, firstLevel) {
   }
 
   const effects = createEffectsView(place, ENEMIES), { shared } = effects;
+  const drop = (id, obj) => { scene.remove(obj); shown.delete(id); dispose(obj, shared); };
 
   return {
     sync(game, dt) {
       if (game.level !== level) {
-        for (const [id, obj] of shown) {
-          scene.remove(obj);
-          shown.delete(id);
-          dispose(obj, shared);
-        }
+        for (const [id, obj] of shown) drop(id, obj);
         bubbles.clear();
         scene.remove(backdrop);
         dispose(backdrop);
@@ -122,12 +122,8 @@ export function createStage(container, firstLevel) {
       const fx = game.effects;
       effects.sync(fx, level);
       bubbles.sync(fx.bubbles);
-      for (const [id, obj] of shown) {
-        if (obj.userData.seen) continue;
-        scene.remove(obj);
-        shown.delete(id);
-        dispose(obj, shared);
-      }
+      for (const [id, obj] of shown) if (!obj.userData.seen) drop(id, obj);
+      webShell.sync(game);
       // The stomp's shake: a random offset each frame, fading to nothing; held still while paused.
       const shake = game.screen === 'play' ? (SHAKE.size * game.shake) / SHAKE.time : 0;
       const jolt = () => (Math.random() * 2 - 1) * shake;

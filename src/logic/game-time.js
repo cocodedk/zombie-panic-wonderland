@@ -8,9 +8,8 @@ export const timeMixin = {
     this.clock += dt;
     for (const _ of this.weather.update(dt)) this.cue('thunder'); // one for each strike
     this.effects.update(dt);
-    this.shake = Math.max(0, this.shake - dt);
-    this.groanWait = Math.max(0, this.groanWait - dt);
     this.movePlayer(dt);
+    this.countDown(dt);
     if (this.screen === 'intro') {
       if (this.press === 'intro' && !this.firing) {
         this.pressTime += dt;
@@ -41,7 +40,7 @@ export const timeMixin = {
       p.t += dt;
       if (p.t < p.flight - EPS) continue;
       this.pumpkins.splice(this.pumpkins.indexOf(p), 1);
-      if (Math.abs(this.player.x - p.x) <= this.level.enemies.pumpkinMonster.splash + EPS) this.hurt(p.hearts);
+      this.land(p);
       if (this.screen !== 'play') return;
     }
     for (const s of [...this.stomps]) {
@@ -75,7 +74,7 @@ export const timeMixin = {
     } else {
       p.cooldown = Math.max(0, p.cooldown - dt);
       if (this.move) {
-        p.x += this.move * c.speed * dt;
+        p.x += this.move * c.speed * (p.webbed > 0 ? this.level.boss.spit.slow : 1) * dt; // a web slows the step
         p.lastDir = this.move;
       }
     }

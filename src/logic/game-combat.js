@@ -34,6 +34,14 @@ export const combat = {
     }
   },
 
+  // The timers that only run down, while the game runs: the camera shake, the wait between groans, the web.
+  countDown(dt) {
+    this.shake = Math.max(0, this.shake - dt);
+    this.groanWait = Math.max(0, this.groanWait - dt);
+    const web = this.player.webbed - dt;
+    this.player.webbed = web > EPS ? web : 0;
+  },
+
   // A hit on the first thing on a shot's line: a pumpkin, a crate, a canister or an enemy, which takes `hits`.
   hit(id, hits = 1) {
     if (id == null) return;

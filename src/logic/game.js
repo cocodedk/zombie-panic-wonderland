@@ -11,6 +11,7 @@ import { weaponsMixin } from './game-weapons.js';
 import { timeMixin } from './game-time.js';
 import { waves } from './game-waves.js';
 import { enemies } from './game-enemies.js';
+import { bossActions } from './game-boss.js';
 import { outcome } from './game-outcome.js';
 
 export { SCREENS, pumpkinAt, CROW_CIRCLE, crowAt, isFlyer, dropHeight, bossWindup, SHAKE, GROAN, HINT } from './game-shared.js';
@@ -34,7 +35,7 @@ export class Game {
 
   reset() {
     const { player, timing } = this.level;
-    this.player = { x: 0, hearts: player.hearts, dodging: 0, cooldown: 0, dir: 1, lastDir: 1 };
+    this.player = { x: 0, hearts: player.hearts, dodging: 0, cooldown: 0, dir: 1, lastDir: 1, webbed: 0 };
     this.move = 0;
     this.aim = null;
     this.aimPoint = null; // where the crosshair's ray lands, for the bullet's streak
@@ -118,6 +119,6 @@ export class Game {
 }
 
 // The rest of the class lives in the game-*.js files, as plain objects of methods and getters.
-for (const mixin of [journey, combat, weaponsMixin, timeMixin, waves, enemies, outcome]) {
+for (const mixin of [journey, combat, weaponsMixin, timeMixin, waves, enemies, bossActions, outcome]) {
   Object.defineProperties(Game.prototype, Object.getOwnPropertyDescriptors(mixin));
 }
