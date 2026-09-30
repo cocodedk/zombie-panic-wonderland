@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { flat, glow, glowing, part, group, seeded } from './parts.js';
 import { FAST_ZOMBIE } from '../../logic/effects.js';
-import { addDetails, flickering, footColor, legSwing, tinted, NO_EXTRAS } from './zombie-details.js';
+import { addDetails, flickering, footColor, legSwing, ragSway, tinted, NO_EXTRAS } from './zombie-details.js';
 
 const TEETH = '#e8e0c8';
 
@@ -102,7 +102,7 @@ export function buildZombie({
     return shoulder;
   });
 
-  addDetails({ head, arms, torso }, [-0.07, 0.07], flags);
+  const dangle = addDetails({ head, arms, torso, shirtMat }, [-0.07, 0.07], flags); // the rag's pivot, if any
   const swing = legSwing(seed, flags.limp); // how far each leg swings: a limp is one leg less
   const flicker = flags.flicker ? flickering(eyeMats, seed) : null; // the eyes' glow breathes
 
@@ -142,6 +142,7 @@ export function buildZombie({
       head.rotation.z = 0.35 + Math.sin(s * 0.5) * 0.1;
       head.rotation.y = twitch ? twitchAt(t) : 0;
       flicker?.(t, !twitch);
+      if (dangle) dangle.rotation.z = ragSway(s, !twitch);
     },
   };
   return root;
