@@ -25,7 +25,7 @@ export const BUBBLE = {
 const GOLDEN = 2.399963; // radians: each bubble's sway starts at its own phase, from its id, never from `random`
 
 // How across a bubble is by its points, and the colour of its number.
-export const bubbleSize = (points) => (points >= 1000 ? 0.9 : points >= 200 ? 0.65 : 0.5);
+export const bubbleSize = (points) => (points >= 1000 ? 1.4 : points >= 200 ? 1 : 0.8);
 export const bubbleColor = (points) => (points === BUBBLE.fastPoints ? BUBBLE.fastColor : BUBBLE.color);
 
 // How a bubble looks at `age`: its `scale` (of its size), how far it has risen and drifted from where it

@@ -31,6 +31,10 @@ function drawBubble(points) {
   g.font = `bold ${size}px ${FONT}`;
   g.textAlign = 'center';
   g.textBaseline = 'middle';
+  g.lineJoin = 'round';
+  g.lineWidth = size * 0.16; // a dark outline, so the number reads on any sky
+  g.strokeStyle = 'rgba(20, 10, 30, 0.9)';
+  g.strokeText(text, r, r);
   g.fillStyle = bubbleColor(points);
   g.fillText(text, r, r);
   return canvas;

@@ -65,7 +65,7 @@ export const canvases = [];
 function fakeCanvas() {
   const ctx = {
     font: '', fills: [], texts: [], globalAlpha: 1,
-    beginPath() {}, arc() {}, stroke() {},
+    beginPath() {}, arc() {}, stroke() {}, strokeText() {},
     fill() { this.fills.push({ style: this.fillStyle, alpha: this.globalAlpha }); },
     measureText(text) { return { width: text.length * 0.6 * Number(/(\d+(\.\d+)?)px/.exec(this.font)[1]) }; },
     fillText(text) { this.texts.push({ text, style: this.fillStyle, font: this.font, width: this.measureText(text).width }); },

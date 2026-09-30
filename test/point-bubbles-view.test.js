@@ -62,9 +62,9 @@ test('6. it is drawn over the scene: translucent, no depth test, unaffected by f
   assert.ok(renderOrder > 0);
 });
 
-test('6. its size is 0.5, 0.65 or 0.9 across by its points, and it starts at 60% and moves', () => {
+test('6. its size is 0.8, 1 or 1.4 across by its points, and it starts at 60% and moves', () => {
   const { game, sprites } = setUp();
-  const sizes = { 1: 0.5, 25: 0.5, 100: 0.5, 199: 0.5, 200: 0.65, 250: 0.65, 999: 0.65, 1000: 0.9, 2000: 0.9, 3000: 0.9 };
+  const sizes = { 1: 0.8, 25: 0.8, 100: 0.8, 199: 0.8, 200: 1, 250: 1, 999: 1, 1000: 1.4, 2000: 1.4, 3000: 1.4 };
   for (const p of Object.keys(sizes)) game.effects.bubble(Number(p), AT);
   game.effects.bubbles.forEach((b) => { b.age = 0.5; });
   for (const [i, sprite] of sprites().entries()) {
@@ -75,7 +75,7 @@ test('6. its size is 0.5, 0.65 or 0.9 across by its points, and it starts at 60%
   const fresh = setUp();
   fresh.game.effects.bubble(100, AT);
   const [start] = fresh.sprites();
-  near(start.scale.x, 0.5 * 0.6);
+  near(start.scale.x, 0.8 * 0.6);
   near(start.position.y, 1.5);
   near(start.position.z, -10);
   near(start.position.x, 1, 1e-12, 'at first exactly over where it fell');
@@ -91,11 +91,11 @@ test('6. with reduced motion it appears full size and stays where it is', () => 
   const at = (s) => [s.position.x, s.position.y, s.position.z];
   const before = at(sprite);
   assert.deepEqual(before, [AT.x, AT.y, AT.z]);
-  near(sprite.scale.x, 0.5);
+  near(sprite.scale.x, 0.8);
   game.update(0.4);
   const [again] = sprites();
   assert.deepEqual(at(again), before);
-  near(again.scale.x, 0.5);
+  near(again.scale.x, 0.8);
   near(again.material.opacity, 0.5, 1e-9);
 });
 
