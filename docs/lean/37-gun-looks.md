@@ -42,9 +42,11 @@ tip** (z −0.34 for the Popper, −0.50 for the Scattergun, −0.46 for the lau
 **The Scattergun** (body 0.16 × 0.14 × 0.26, two barrels of radius 0.035 at x ±0.038 from z −0.5 to −0.12):
 
 1. A rib joining the barrels: a box 0.014 × 0.014 × 0.36 in `#55555f` at (0, 0.058, −0.31).
-2. A brass bead sight: an icosahedron of radius 0.012 (detail 0) in `#b8860b` at (0, 0.068, −0.49).
+2. A brass bead sight: an icosahedron of radius 0.012 (detail 0) in `#b8860b` at (0, 0.068, −0.47) (its
+   front, z −0.482, is behind the tip).
 3. A wooden forend under the barrels: a box 0.1 × 0.06 × 0.16 in `#7a5230` at (0, −0.045, −0.3).
-4. A wooden stock behind the body: a box 0.09 × 0.11 × 0.3 in `#7a5230` at (0, −0.02, 0.27).
+4. A short wooden stock behind the body: a box 0.09 × 0.11 × 0.12 in `#7a5230` at (0, −0.02, 0.18) (from
+   z 0.12 to 0.24, which ends about where the hero's tunic begins, so none of it is sunk into the chest).
 5. Two brass side plates: boxes 0.005 × 0.08 × 0.1 in `#b8860b` at (±0.0825, 0, −0.02).
 
 **The launcher** (a tube of radius 0.09 from z −0.46 to 0.1 at y 0.02, an orange ring at its mouth):
@@ -53,6 +55,9 @@ tip** (z −0.34 for the Popper, −0.50 for the Scattergun, −0.46 for the lau
    along z, centred at (0, 0.02, −0.42), the wide end forward.
 2. A flared rear: an open cylinder of radius 0.09 at the front and 0.12 at the back, length 0.08 in `#3b3b44`,
    its axis along z, centred at (0, 0.02, 0.14).
+
+Both flares are open cylinders, so their material is **double-sided** (`side: THREE.DoubleSide`, as the cape's
+and collar's are): from the camera behind and above, the rear flare's inside faces it.
 3. A sight rail on top: a box 0.03 × 0.03 × 0.3 in `#55555f` at (0, 0.125, −0.15).
 4. A pumpkin-stem sight: a cone of radius 0.015 and length 0.05 (5 sides) in `#3f6b2a` at (0, 0.16, −0.27).
 
@@ -103,8 +108,10 @@ and only that number.
 
 1. The Popper's five additions, the Scattergun's five, the launcher's four and the Gatling's four (with its
    half-torus `arc` of π), each with the shape, size, place and colour above.
-2. No new part reaches in front of its gun's muzzle tip (the frontmost point of every part of each gun is at
-   least the tip's z), and every existing part is as before.
+2. No **new** part reaches in front of its gun's muzzle tip (the frontmost point of each new part, with its
+   own size, is at or behind the tip's z); the existing parts are exactly as before (the launcher's orange
+   ring, which already reaches to z −0.488, stays as it is and is not part of this check); both launcher
+   flares are double-sided.
 3. `buildGuns({ gun })` returns the four groups by weapon and the spinner; the `gun` parameter still colours the
    bodies and barrels; only the weapon in hand is visible.
 4. The Gatling's spin turns only the spinner's own parts; the new Gatling parts stay still.
