@@ -183,5 +183,6 @@ export function buildFence({ color = '#d8d0c0', length = 6, height = 1, missing 
     picket.rotation.z = (rand() - 0.5) * 0.25;
     fence.add(picket);
   }
+  fence.traverse((m) => { if (m.geometry) m.raycast = () => {}; }); // shots and aim pass through
   return fence;
 }

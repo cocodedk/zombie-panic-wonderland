@@ -193,7 +193,7 @@ describe('3. dodge', () => {
     run(game, 1.5);
     game.setMove(0);
     assert.equal(game.player.x, 8);
-    run(game, 10 - 1.5 + 1.2); // on the road at 10 s, strike due at 11.5 s
+    run(game, 10 - 1.5 + 1.2); // on the road at 10.05 s (led to the gap at 6.9 first), strike due at 11.55 s
     assert.ok(game.dodge());
     run(game, 0.4);
     assert.ok(game.dodging);

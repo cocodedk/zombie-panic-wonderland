@@ -82,8 +82,11 @@ export const level1 = {
     { model: 'sky', top: '#2b1d3f', horizon: '#c46a3b' },
     { model: 'ground', color: '#2d3526' },
     { model: 'road', color: '#b89a4e', length: 26, width: 2.6 },
-    { model: 'fence', x: -6, z: -2.2, length: 7 },
-    { model: 'fence', x: 6.5, z: -2.2, length: 6, seed: 4 },
+    // Fences with gaps between them, which the zombies are led to (src/logic/fences.js).
+    { model: 'fence', x: -8.25, z: -2.2, length: 2.5 },
+    { model: 'fence', x: -3.95, z: -2.2, length: 2.9 },
+    { model: 'fence', x: 4.55, z: -2.2, length: 2.1, seed: 4 },
+    { model: 'fence', x: 8.35, z: -2.2, length: 2.3, seed: 4 },
     { model: 'hedge', x: -9, z: 2.6, length: 5 },
     { model: 'hedge', x: 9.5, z: 2.6, length: 5, seed: 2 },
     { model: 'hedge', x: -12, z: -5, length: 4, turn: 0.6, seed: 5 },
