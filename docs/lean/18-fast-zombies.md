@@ -16,7 +16,7 @@ apart from the fast zombies themselves:
 - From wave 2 on, in every wave, **every 4th zombie** in the order the wave sends them (the 4th, the 8th)
   is fast. Wave 1 has none.
 - Zombies a boss summons are ordinary. Pumpkin monsters and crows are not zombies and are not counted.
-- The rule is data in each level's zombie entry, `fast: { fromWave: 2, every: 4, speedFactor: 1.6, points: 150 }`,
+- The rule is data in each level's zombie entry, `fast: { fromWave: 2, every: 4, speedFactor: 1.6, points: 200 }`,
   in both levels.
 
 With today's waves that is one fast zombie in level 1's waves 2, 3 and 4, and two in its wave 5 (8
@@ -29,7 +29,7 @@ zombies); the level 2 waves follow the same rule from their own counts.
   spawns in a gap reaches the road in 6.25 seconds, against 10.
 - **Everything else is a zombie's:** 3 hits, `reach`, `closeIn`, `strikeEvery`, damage, the groan on
   reaching the road, falling and bursting, the explosions and the crosshair.
-- **Points:** 150 instead of 100, when it falls to the player's shots. Nothing else about scoring
+- **Points:** double, 200 instead of 100, when it falls to the player's shots. Nothing else about scoring
   changes.
 
 ## What the player sees and hears
@@ -92,7 +92,7 @@ those numbers; it changes nothing else in them.
    is not called for it (a game with a counting `random` calls it the same number of times as before).
 3. A fast zombie that spawns free (x 0.5) reaches the road in 6.25 seconds (±0.05) where an ordinary
    one takes 10; one that must shift to a gap moves at 1.92 along its line.
-4. A fast zombie falls to 3 hits, is worth 150 points, and strikes with an ordinary zombie's reach
+4. A fast zombie falls to 3 hits, is worth 200 points, double, and strikes with an ordinary zombie's reach
    and rhythm; an ordinary zombie is worth 100.
 5. The model (with the fake three.js): a fast zombie's skin, shirt, pants and eye colours are the
    darker ones, its eyes are 1.8 times larger, and it has two additive halos that are not written to
