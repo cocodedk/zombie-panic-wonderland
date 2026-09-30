@@ -18,7 +18,7 @@ export const FAST_EYES = { color: '#ff2a1a', scale: 1.8, halo: { size: 0.16, col
 function halo(x) {
   const { size, color, opacity, z } = FAST_EYES.halo;
   const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
-  const mesh = ignoreRays(part(new THREE.PlaneGeometry(size, size), mat, [x, 0.03, 0.18 + z])); // shots and aim pass through
+  const mesh = ignoreRays(part(new THREE.PlaneGeometry(size, size), mat, [x, 0.03, 0.18 + z]));
   mesh.name = 'halo';
   return mesh;
 }

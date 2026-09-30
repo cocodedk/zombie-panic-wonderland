@@ -7,9 +7,8 @@
 import * as THREE from 'three';
 import { LIGHTNING, SWAY, LEAVES } from '../logic/weather.js';
 import { flat, ignoreRays, seeded } from './models/parts.js';
-import { lerp } from '../logic/game-shared.js';
+import { lerp, WEATHER_SCREENS } from '../logic/game-shared.js';
 
-export const SHOWN = new Set(['intro', 'play', 'paused', 'victory', 'defeat']); // no weather on loading, error, title
 const SWAYS = new Set(['tree', 'cornRows', 'hedge', 'scarecrow']);
 const CHANNELS = ['r', 'g', 'b'];
 const TWO_PI = Math.PI * 2;
@@ -128,7 +127,7 @@ export function createWeatherView(scene) {
         rig = capture(scene, backdrop);
       }
       const w = game.weather;
-      const on = SHOWN.has(game.screen);
+      const on = WEATHER_SCREENS.has(game.screen);
       const motion = on && !game.reducedMotion;
       light(w, on);
       drawBolt(w, on);

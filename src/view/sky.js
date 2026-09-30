@@ -5,8 +5,7 @@
 import * as THREE from 'three';
 import { seeded } from './models/parts.js';
 import { buildCloud, buildCrescent, CLOUD } from './models/sky-details.js';
-import { lerp } from '../logic/game-shared.js';
-import { SHOWN } from './weather.js'; // the screens where the weather runs; the rest are still, at clock 0
+import { lerp, WEATHER_SCREENS } from '../logic/game-shared.js';
 
 const COUNT = 21;
 const WRAP = 75; // a cloud leaving at x 75 comes back in at x -75
@@ -67,7 +66,7 @@ export function createSkyView() {
       current = sky;
       if (!sky) return;
       const w = game.weather;
-      const moving = SHOWN.has(game.screen) && !game.reducedMotion;
+      const moving = WEATHER_SCREENS.has(game.screen) && !game.reducedMotion;
       const fresh = !moving || seen?.w !== w || w.clock < seen.clock; // a new weather starts the clouds over
       const dt = !moving ? 0 : w.clock - (fresh ? 0 : seen.clock);
       const speedUp = 1 + WIND * w.wind;

@@ -38,9 +38,10 @@ export const FLICKER = { period: 1.7, low: 0.85, phase: 2.3 };
 export const flickerK = (t, seed = 0) =>
   FLICKER.low + (1 - FLICKER.low) * (0.5 + 0.5 * Math.sin((2 * Math.PI * t) / FLICKER.period + seed * FLICKER.phase));
 
+const BLACK = new THREE.Color('#000000');
+
 // Returns `(t, steady)` that sets each of `materials` to its colour now times flickerK, or exactly
 // to that colour when `steady` (reduced motion).
-const BLACK = new THREE.Color('#000000');
 export function flickering(materials, seed) {
   const base = materials.map((m) => m.color.clone());
   return (t, steady) => {
@@ -71,11 +72,9 @@ export function addDetails({ head, arms, torso, shirtMat }, eyeXs, extras = NO_E
   torso.add(part(new THREE.BoxGeometry(...STAIN.size), STAIN.color, STAIN.at, [0, 0, STAIN.turn]));
   if (extras.tufts) {
     const tuft = new THREE.ConeGeometry(TUFTS.radius, TUFTS.height, TUFTS.sides);
-    // shots and aim pass through: the zombie is picked as today
     head.add(...TUFTS.at.map((at, i) => ignoreRays(part(tuft, TUFTS.color, at, [0, 0, TUFTS.lean[i]]))));
   }
   if (!extras.rag) return null;
-  // shots and aim pass through: the zombie is picked as today
   const strip = ignoreRays(part(new THREE.BoxGeometry(...RAG.size), shirtMat, [0, -RAG.size[1] / 2, 0]));
   const pivot = group(strip);
   pivot.position.set(...RAG.pivot);

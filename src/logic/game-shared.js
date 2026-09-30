@@ -2,6 +2,8 @@ export const EPS = 1e-9;
 export const due = (t) => t <= EPS;
 export const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 export const lerp = (a, b, k) => a + (b - a) * k;
+// The screens where the weather and the sky move; the rest are still, at clock 0 (loading, error, title).
+export const WEATHER_SCREENS = new Set(['intro', 'play', 'paused', 'victory', 'defeat']);
 export const CLICK = 0.25; // seconds: a shorter press is a click
 
 export const SCREENS = ['loading', 'error', 'title', 'intro', 'play', 'paused', 'victory', 'defeat'];
