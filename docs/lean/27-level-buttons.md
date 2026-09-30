@@ -75,7 +75,7 @@ band's exact data is asserted (which now also carries `levels`), and only that a
 1. On the title, `screenView(game).band.levels` is `[{ text: 'Level 1', index: 0 }, { text: 'Level 2',
    index: 1 }]` for the two levels, and no other screen's band has `levels`; the band's title and lines
    are today's.
-2. `game.startAt(1)` on the title begins level 2: screen `intro`, `game.level` level 2, score 0, three
+2. `game.startAt(1)` on the title begins level 2: screen `intro`, `game.level` level 2, score 0, five
    hearts, only the Popper owned, wave 1 next; `startAt(0)` begins level 1 as the title click does.
 3. `startAt` does nothing off the title (intro, play, paused, victory, defeat, loading, error) and for
    `-1`, `2`, `1.5`, `'1'`, `null` and `undefined` on the title.
