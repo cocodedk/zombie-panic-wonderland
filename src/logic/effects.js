@@ -16,6 +16,33 @@ export const SPARK = { color: '#fff3b0', life: 0.15, size: 0.12 };
 export const PUFF_LIFE = 0.3;
 export const FADE_LIFE = 0.3;
 
+// A point bubble floats up from where something fell and fades in the air, showing the points it gave.
+// `still` is when it starts to fade; with reduced motion it only fades, over `reducedLife` seconds.
+export const BUBBLE = {
+  life: 1.2, still: 0.8, reducedLife: 0.8, grow: 0.15, from: 0.6, rise: 1.6, sway: 0.15, max: 12,
+  fill: '#cfe8ff', fillOpacity: 0.35, color: '#ffd24a', fastColor: '#ff9a2a', fastPoints: 200, text: 0.7,
+};
+const GOLDEN = 2.399963; // radians: each bubble's sway starts at its own phase, from its id, never from `random`
+
+// How across a bubble is by its points, and the colour of its number.
+export const bubbleSize = (points) => (points >= 1000 ? 0.9 : points >= 200 ? 0.65 : 0.5);
+export const bubbleColor = (points) => (points === BUBBLE.fastPoints ? BUBBLE.fastColor : BUBBLE.color);
+
+// How a bubble looks at `age`: its `scale` (of its size), how far it has risen and drifted from where it
+// began, and its opacity.
+export function bubbleLook(b, age = b.age) {
+  const gone = age >= b.life - EPS;
+  if (b.reduced) return { scale: 1, rise: 0, drift: 0, opacity: gone ? 0 : 1 - age / b.life };
+  const k = Math.min(1, age / b.life);
+  const fade = (b.life - age) / (b.life - BUBBLE.still);
+  return {
+    scale: BUBBLE.from + (1 - BUBBLE.from) * Math.min(1, age / BUBBLE.grow),
+    rise: BUBBLE.rise * k,
+    drift: (BUBBLE.sway / 2) * (Math.sin(b.phase + k * Math.PI * 2) - Math.sin(b.phase)), // one swing, from where it began
+    opacity: gone ? 0 : age <= BUBBLE.still ? 1 : fade,
+  };
+}
+
 // The gun's muzzle in the player model's body, from its waist pivot (0.6 up); the longer guns
 // reach further forward.
 export const MUZZLE = { x: 0.1, y: 0.3, z: -0.76 };
@@ -73,6 +100,7 @@ export class Effects {
     this.puffs = [];
     this.fades = [];
     this.sparks = [];
+    this.bubbles = [];
     this.flash = 0; // seconds of muzzle flash left
     this.flashSize = 1;
   }
@@ -91,6 +119,20 @@ export class Effects {
       if (hit) this.sparks.push({ id: this.nextId++, pos: { ...to }, age: 0, life: SPARK.life });
     }
     this.flashSize = 2;
+  }
+
+  // A bubble showing `points`, starting at `at`; over BUBBLE.max, the oldest goes.
+  bubble(points, at, reduced = this.reducedMotion) {
+    const id = this.nextId++;
+    const life = reduced ? BUBBLE.reducedLife : BUBBLE.life;
+    this.bubbles.push({ id, points, pos: { ...at }, phase: (id * GOLDEN) % (Math.PI * 2), reduced, age: 0, life });
+    if (this.bubbles.length > BUBBLE.max) this.bubbles.shift();
+  }
+
+  // The points of an award, for the score to take, and a bubble showing them `lift` above `at`; none for no points.
+  award(points, at, lift) {
+    if (points > 0) this.bubble(points, { x: at.x, y: at.y + lift, z: at.z });
+    return points;
   }
 
   // The launcher's pumpkin exploding, or a gas canister (`kind` 'gas'); with reduced motion, only a flash of its puff.
@@ -143,5 +185,6 @@ export class Effects {
     this.puffs = this.puffs.filter(alive);
     this.fades = this.fades.filter(alive);
     this.sparks = this.sparks.filter(alive);
+    this.bubbles = this.bubbles.filter(alive);
   }
 }
