@@ -53,7 +53,7 @@ export const timeMixin = {
       if (this.screen !== 'play') return;
     }
     for (const e of [...this.enemies]) {
-      if (e.kind === 'zombie') this.zombie(e, dt);
+      if (e.kind === 'zombie' || e.kind === 'spider') this.walker(e, dt);
       else if (e.kind === 'pumpkinMonster') this.pumpkinMonster(e, dt);
       else if (e.kind === 'crow') this.crow(e, dt);
       else this.boss(e, dt);

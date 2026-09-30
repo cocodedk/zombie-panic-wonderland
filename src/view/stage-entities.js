@@ -30,12 +30,13 @@ export function syncEntities(game, level, { place, pickable, enemies }) {
       continue;
     }
     obj.position.set(e.x, 0, e.z);
-    const walking = e.kind === 'boss' ? e.z < level.boss.standZ : e.kind === 'zombie';
+    const crawler = e.kind === 'zombie' || e.kind === 'spider'; // walks in, then turns toward the player
+    const walking = e.kind === 'boss' ? e.z < level.boss.standZ : crawler;
     const throwing = e.kind === 'pumpkinMonster' ? Math.max(0, 1 - e.throwTimer / 0.4) : 0;
     const windup = e.kind === 'boss' ? bossWindup(e, level.boss) : 0;
     obj.userData.tick(clock, { walk: walking ? 1 : 0.2, throwing, windup, twitch: !game.reducedMotion });
     // Face the player once on the road.
-    obj.rotation.y = e.kind === 'zombie' && e.z >= level.roadZ ? Math.sign(p.x - e.x) * 0.9 : 0;
+    obj.rotation.y = crawler && e.z >= level.roadZ ? Math.sign(p.x - e.x) * 0.9 : 0;
   }
   for (const f of game.flyaways) {
     const obj = place(`c${f.id}`, () => buildCrow({ seed: f.id }));

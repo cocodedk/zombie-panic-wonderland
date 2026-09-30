@@ -48,7 +48,7 @@ export const outcome = {
   // The middle of an enemy, where it bursts: where the stage draws it.
   centre(e) {
     if (e.kind === 'crow') return crowAt(e, this.level);
-    return { x: e.x, y: e.kind === 'boss' ? 3 : 1, z: e.z };
+    return { x: e.x, y: e.kind === 'boss' ? 3 : e.kind === 'spider' ? 0.3 : 1, z: e.z }; // a spider's body stands 0.3 high
   },
 
   hurt(hearts = 1) {

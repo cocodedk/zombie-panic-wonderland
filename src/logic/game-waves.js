@@ -51,7 +51,7 @@ export const waves = {
       z: spawn.z,
       health: enemies[kind].hits,
     };
-    if (kind === 'zombie') e.strike = enemies.zombie.strikeEvery;
+    if (kind === 'zombie' || kind === 'spider') e.strike = enemies[kind].strikeEvery;
     if (kind === 'pumpkinMonster') e.throwTimer = enemies.pumpkinMonster.throwEvery;
     if (kind === 'crow') {
       e.z = enemies.crow.z;
