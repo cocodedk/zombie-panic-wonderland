@@ -34,6 +34,17 @@ A new enemy kind, `spider`, with its data in level 3's `enemies`:
 
 ## The model
 
+The reference is the zombie's own look (`buildZombie` and its flat-shaded, low-poly parts, no textures)
+for the style, and this sketch, seen from above, for the shape:
+
+```
+      \\ \\  ()()  // //          eight legs, four a side,
+       \\ \\ (  ) // //           each bent at a knee
+   ---- ===[ ()()() ]=== ----      cephalothorax with eight red eyes,
+       // //  \\  \\ \\           abdomen behind it with a red hourglass
+      // //  (####)  \\ \\
+```
+
 `buildSpider({ seed = 0, size = 1 })` in a new file `src/view/models/spider.js`, made in code, flat-lit,
 facing +z, the way `buildZombie` is:
 
@@ -64,9 +75,16 @@ as the others' do; `get_state`'s `enemies` counts spiders.
 
 ## Every screen
 
-The spiders show and act where zombies do (play, the gaps between waves, the boss fight's summons are
-still zombies) and nowhere else; paused freezes them, victory and defeat freeze the scene; a level
-start, Try again, Play again, Next level and Back to title start fresh. No new sound (a spider makes no
+- Loading, error and title: no spiders (the title's scene is level 1's), as today.
+- Intro card: none yet, as with every enemy.
+- Play: spiders walk in with the wave, as above; the boss fight in this spec has none (the Zombie King's
+  summons are zombies).
+- The gap between waves: none on the field (a wave is cleared when all its enemies have fallen).
+- Paused: every spider on the field freezes where it is, still drawn behind the paused band, and goes
+  on from there.
+- Victory and defeat: the scene freezes as it is, so a spider on the field stays drawn, frozen, behind
+  the card; it does nothing.
+- A level start, Try again, Play again, Next level and Back to title start fresh, with no spiders. No new sound (a spider makes no
 groan), no new text, no HUD change.
 
 ## Nothing else changes
@@ -88,8 +106,9 @@ weather, `get_state`, `llms.txt` (it gains one clause: level 3 has spiders).
 
 The builder may run the suite and node, but not a web server or a browser: a picture of a spider is
 the supervisor's step. The builder may add and edit test files. It may change an earlier test only where
-that test asserts level 3's waves or counts its enemies, or calls `zombie(e, dt)` by that name, and only
-those numbers or that name.
+that test asserts level 3's waves or counts its enemies, or calls `zombie(e, dt)` by that name, or (in
+`test/level3.test.js`) asserts that level 3's `enemies` equal level 2's exactly (they are now level 2's
+plus the spider), and only those numbers, that name and that one assertion.
 
 ## Done when
 

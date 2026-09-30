@@ -74,7 +74,7 @@ level 3 has wolves).
 
 The builder may run the suite and node, but not a web server or a browser: a picture of a wolf is the
 supervisor's step. The builder may add and edit test files. It may change an earlier test only where it
-asserts level 3's waves or counts its enemies, or the exact list of a level's enemy kinds, and only those.
+asserts level 3's waves or counts its enemies, or the exact list of a level's enemy kinds, and only those. It may also update, in `test/level3.test.js`, the assertion that level 3's `enemies` equal the earlier level's plus the kinds already added (they now include this spec's), and only that assertion.
 
 ## Done when
 

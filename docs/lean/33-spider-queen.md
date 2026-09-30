@@ -79,7 +79,7 @@ Spider Queen, who throws webs that slow the player, and summons spiders).
 
 The builder may run the suite and node, but not a web server or a browser: a picture of the queen is the
 supervisor's step. The builder may add and edit test files. It may change an earlier test only where it
-asserts level 3's boss (spec 28's test says the Zombie King), and only that.
+asserts level 3's boss (spec 28's test says the Zombie King), and only that. It may also update, in `test/level3.test.js`, the assertion that level 3's `enemies` equal the earlier level's plus the kinds already added (they now include this spec's), and only that assertion.
 
 ## Done when
 

@@ -56,7 +56,7 @@ droppers), `llms.txt` (unchanged).
 
 The builder may run the suite and node, but not a web server or a browser: a picture of a spider on its
 thread is the supervisor's step. The builder may add and edit test files. It changes no earlier test
-except where one asserts the exact fields of a spawned spider (a new optional `drop` field), and only that.
+except where one asserts the exact fields of a spawned spider (a new optional `drop` field), and only that. It may also update, in `test/level3.test.js`, the assertion that level 3's `enemies` equal the earlier level's plus the kinds already added (they now include this spec's), and only that assertion.
 
 ## Done when
 
