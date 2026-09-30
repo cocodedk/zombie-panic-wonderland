@@ -21,7 +21,7 @@ tunic, a belt, two boots and two arms holding the gun. This sketch shows the bac
         (+ pompom)              a pompom on the hood's tip
         /\  hood  + seam        a seam ridge along the top edge of the hood's point
    + ---||--- shoulder caps     two caps where the arms begin
-     /  cape  \\  + strap       a leather strap across the cape
+     /  cape  \\                the cape, with a gold-trimmed scalloped hem
     / +satchel  \\              a satchel on the right hip
    /_/\\_/\\_/\\_/\\_ + trim      a scalloped hem with a gold trim
        |boot|  |boot|  + cuffs  cuffs below the hem, and broad feet with heels that show
@@ -44,8 +44,9 @@ rest.
 3. **A cape collar.** A short stand-up collar at the neck: a cone (radius 0.2, length 0.14, open at the
    base, 7 sides) in `#7a1219`, at (0, 1.02, 0.04), double-sided.
 4. **A hood seam and pompom.** A ridge along the top edge of the hood's point: a box 0.03 wide, 0.03
-   thick and as long as the distance between its ends, in `#8f1820`, laid (with the same between-two-points
-   helper as the strap's) from **A = (0, 1.365, 0.17)** to **B = (0, 1.12, 0.43)**, which run along the
+   thick and as long as the distance between its ends, in `#8f1820`, laid (with the stage's helper that lays
+   a unit-long object between two points, `span` in `stage-helpers.js`; move it to `parts.js` if it is
+   needed, and keep it importable from where it is) from **A = (0, 1.365, 0.17)** to **B = (0, 1.12, 0.43)**, which run along the
    point's top edge (the point is the hood's existing cone, at (0, 1.18, 0.28) tilted back, whose tip is at
    about (0, 1.11, 0.44)); and a pompom, an icosahedron of radius 0.05 (detail 0) in `#f2e3b8`, at that tip,
    (0, 1.11, 0.44).
@@ -53,17 +54,12 @@ rest.
    hair box could take, so none is added (the sketch's hair line is not built).
 6. **Shoulder caps.** Two icosahedrons of radius 0.09 (detail 0) in the `hood` colour (`#b3202a` by default), at
    (±0.22, 0.98, −0.02), where the arms begin.
-7. **A satchel.** A leather satchel on the right hip, on the outside of the cape: a box 0.22 × 0.26 × 0.1
-   in `#6b4a2b` at (0.22, 0.45, 0.3), a flap (a box 0.22 × 0.1 × 0.11 in `#8a5d33`) on its top at (0.22, 0.55,
-   0.3), and a strap across the cape's back: a box 0.03 wide, 0.02 thick and as long as the distance between
-   its two ends, laid from its **upper end A = (−0.15, 0.93, 0.16)** to its **lower end B = (0.2, 0.47,
-   0.28)** (the stage already has a helper that lays a unit-long object between two points, `span` in
-   `stage-helpers.js`; move it to the new file or `parts.js` if it is needed, and keep it importable from where
-   it is). A is on the tunic's back at the hero's left shoulder, where the tunic is wider than the cape; B is
-   on the cape's back beside the satchel on the right hip (the hero faces −z, so its right is +x, the
-   viewer's right). The strap lies on the surfaces: at its middle it is outside the cape's cone by at most
-   0.04 (the cone's back surface at height y is at z `0.08 + 0.294 f √(1 − (x / (0.42 f))²)` with
-   `f = (1.105 − y) / 0.85`).
+7. **A satchel.** A leather satchel on the right hip, on the outside of the cape (the hero faces −z, so
+   its right is +x, the viewer's right): a box 0.22 × 0.26 × 0.1 in `#6b4a2b` at (0.22, 0.45, 0.37), and a
+   flap (a box 0.22 × 0.1 × 0.11 in `#8a5d33`) on its top at (0.22, 0.55, 0.37). It sits at z 0.37 so that
+   its inner face (z 0.32) is clear of the cape, which flares out to about z 0.31 at the satchel's lower
+   inner corner. There is **no strap**: a strap across the cape would have to lie on the cape and on the
+   tunic's back corner at once, and is left out.
 8. **Boots.** What the camera sees of the hero's legs, from behind and above, is the part below the cape's
    hem (y under 0.255) and the heel and sole. A cuff on each boot: a torus of radius 0.095 and tube 0.02
    in `#4a3a30` at (±0.12, 0.16, 0) (below the hem, so it shows); and a foot under each: a box 0.2 × 0.06 ×
@@ -111,9 +107,7 @@ its meshes), and only that number.
 2. The hood seam, its two ends within 0.02 of A = (0, 1.365, 0.17) and B = (0, 1.12, 0.43), its size and
    colour; the pompom at (0, 1.11, 0.44); there is no hair; and the two shoulder caps, each with the
    sizes, places and colours above (the caps in the `hood` colour parameter).
-3. The satchel, its flap and its strap, with the sizes, places and colours; the strap's two ends within 0.02
-   of A = (−0.15, 0.93, 0.16) and B = (0.2, 0.47, 0.28) and its middle outside the cape's cone by between
-   −0.01 and 0.04; and the boots' cuffs (at y 0.16, below the hem), feet (0.2 × 0.06 × 0.3, reaching 0.06
+3. The satchel and its flap, with the sizes, places (z 0.37) and colours, and no strap; and the boots' cuffs (at y 0.16, below the hem), feet (0.2 × 0.06 × 0.3, reaching 0.06
    behind the leg) and soles, with the sizes and
    colours above (the feet in the `boots` colour parameter), as children of the two leg meshes at the places
    given in the legs' own frame, so that a leg's swing in the walk moves its cuff, foot and sole.
