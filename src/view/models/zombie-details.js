@@ -8,15 +8,29 @@ export const SOCKET = { size: [0.11, 0.075, 0.03], color: '#1a1512', y: 0.03, z:
 export const CLAW = { radius: 0.015, length: 0.09, sides: 3, color: '#2a2622', xs: [-0.035, 0, 0.035], y: -1.005, z: 0.02 };
 export const STAIN = { size: [0.16, 0.14, 0.02], color: '#4a1f24', at: [-0.08, 0.2, 0.151], turn: 0.3 };
 export const TINT_LIMIT = 0.06;
+export const TUFTS = { radius: 0.03, height: 0.12, sides: 4, color: '#2a241c', at: [[-0.07, 0.2, 0.0], [0.0, 0.22, -0.04], [0.08, 0.19, 0.02]], lean: [0.35, 0, -0.4] };
+
+// The optional bits, one flag each. The stage builds zombies (and their fading copies) with these;
+// `buildZombie` defaults every flag to off, so a model built without `extras` is the plain zombie.
+export const ZOMBIE_EXTRAS = { tufts: true };
+export const NO_EXTRAS = { tufts: false };
 
 // Adds the sockets to the head (behind the eyes at `eyeXs`), the claws to each arm (they swing with
-// it) and the stain to the torso.
-export function addDetails({ head, arms, torso }, eyeXs) {
+// it) and the stain to the torso; then whatever `extras` switches on (hair tufts on the head).
+export function addDetails({ head, arms, torso }, eyeXs, extras = NO_EXTRAS) {
   const socket = new THREE.BoxGeometry(...SOCKET.size);
   head.add(...eyeXs.map((x) => part(socket, SOCKET.color, [x, SOCKET.y, SOCKET.z])));
   const claw = new THREE.ConeGeometry(CLAW.radius, CLAW.length, CLAW.sides);
   for (const arm of arms) arm.add(...CLAW.xs.map((x) => part(claw, CLAW.color, [x, CLAW.y, CLAW.z], [Math.PI, 0, 0])));
   torso.add(part(new THREE.BoxGeometry(...STAIN.size), STAIN.color, STAIN.at, [0, 0, STAIN.turn]));
+  if (extras.tufts) {
+    const tuft = new THREE.ConeGeometry(TUFTS.radius, TUFTS.height, TUFTS.sides);
+    head.add(...TUFTS.at.map((at, i) => {
+      const mesh = part(tuft, TUFTS.color, at, [0, 0, TUFTS.lean[i]]);
+      mesh.raycast = () => {}; // shots and aim pass through: the zombie is picked as today
+      return mesh;
+    }));
+  }
 }
 
 // `color` (a '#rrggbb' string) lighter (positive) or darker (negative) by `tint`, a fraction of its

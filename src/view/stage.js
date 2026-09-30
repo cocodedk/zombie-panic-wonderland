@@ -14,7 +14,7 @@ import { createBubbleView } from './bubbles.js';
 import { createSkyView } from './sky.js';
 import { buildPlayer } from './models/player.js';
 import { buildZombie, buildZombieKing } from './models/zombie.js';
-import { zombieTint } from './models/zombie-details.js';
+import { zombieTint, ZOMBIE_EXTRAS } from './models/zombie-details.js';
 import { buildPumpkin, buildPumpkinMonster, buildFlamingPumpkin, buildLaunchedPumpkin } from './models/pumpkin.js';
 import { buildCrate } from './models/crate.js';
 import { buildCanister } from './models/canister.js';
@@ -33,7 +33,7 @@ const BOSSES = { zombieKing: buildZombieKing, scarecrowKing: buildScarecrowKing 
 
 const ENEMIES = {
   // A fading copy carries the fallen enemy's own id as `enemyId`, so it has the same tint.
-  zombie: (e) => buildZombie({ seed: e.id * 1.7, fast: e.fast, tint: zombieTint(e.enemyId ?? e.id) }),
+  zombie: (e) => buildZombie({ seed: e.id * 1.7, fast: e.fast, tint: zombieTint(e.enemyId ?? e.id), extras: ZOMBIE_EXTRAS }),
   pumpkinMonster: () => buildPumpkinMonster(),
   crow: (e) => buildCrow({ seed: e.id }),
   boss: (e, level) => BOSSES[level.boss.model]({ tint: zombieTint(e.enemyId ?? e.id) }), // the scarecrow king ignores it
