@@ -40,8 +40,10 @@ stand, fly and throw exactly as today. A zombie's half-width is 0.3.
   below −2.6 (further from the road); one that has reached or passed it is not held, whatever its x.
 - A zombie that is before the stop line and behind a fence walks in a straight line, at the level's
   zombie speed (the total speed along the line, not per axis), toward the **entry point**: the
-  nearest x that is free (the nearest usable-gap edge, by distance in x), at the stop line. When it
-  gets there it is free.
+  nearest usable-gap edge, by distance in x, at the stop line. Only the gaps between two fences are
+  routes: no zombie walks around the outside end of the outermost fences, even when that is nearer
+  (level 2's zombie at x 8 goes to the gap at 5.4 to 6.4, not round the end at 8.8). When it gets
+  there it is free.
 - A free zombie before the stop line walks straight toward the road, as today. Everything on and
   after the road (the groan, closing in, reaching, striking) is as today. Zombies keep today's
   rotation; they do not turn to face the diagonal.
