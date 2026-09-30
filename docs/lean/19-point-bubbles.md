@@ -20,12 +20,24 @@ fall for no points, such as everything that bursts when the boss falls, show no 
 
 ## What a bubble is
 
-Made in code, no image files. The reference is the game's own effects (spec 06's bursts, and
-`effects.js`): plain data in the game, drawn by the stage.
+Made in code, no image files. There is no bubble in the game today, so this description is the whole design; nothing on an
+existing screen is to be matched. Its number is set in the HUD's own font (the page's bold
+sans-serif, as the score is). It lives in the game's effects (`effects.js`) as plain data, drawn by
+the stage.
 
-- **Its look:** a round bubble 0.5 across (0.65 for the 200-point bubble), translucent white-blue
+```
+      ( +100 )        a translucent bubble, the points in gold in its middle
+       .--.
+      /    \
+      \    /
+       '--'
+```
+
+- **Its look:** a round bubble, translucent white-blue
   (`#cfe8ff` at 0.35 opacity) with a thin lighter rim, and the points in the middle in gold
-  (`#ffd24a`) in a bold sans font. The 200-point bubble's number is orange (`#ff9a2a`), so the fast
+  (`#ffd24a`) in a bold sans font. Its **size** goes with the points: 0.5 across for 1 to 199 points, 0.65 for
+  200 to 999, and 0.9 for 1000 and more (the boss's 2000 and 3000), and the number is always drawn
+  to fill 70% of the bubble's width, so it stays legible at any size. The 200-point bubble's number is orange (`#ff9a2a`), so the fast
   zombie's reward stands out.
 - **Where it starts:** 1.5 units above where the enemy fell (a flying crow at its own height plus
   0.5), at its x and z.
@@ -33,8 +45,9 @@ Made in code, no image files. The reference is the game's own effects (spec 06's
   units, drifts sideways in a slow wave (0.15 units either way, one swing over its life, its own
   phase so two bubbles do not move together), stays whole until 0.8 seconds, then fades to nothing by
   1.2 seconds. It fades away in the air: it does not pop, land or leave anything behind.
-- **Reduced motion** (`game.reducedMotion`): it does not rise, drift or grow: it stays where it
-  appeared and fades out over 0.8 seconds.
+- **Reduced motion** (`game.reducedMotion`): it does not rise, drift or grow: it appears at full size
+  (100%, not the 60% the normal bubble starts at), stays where it appeared and fades out over 0.8
+  seconds.
 - **At most 12 bubbles** at once; when a 13th comes, the oldest goes.
 - **It only shows:** it is never a target, never blocks a shot or a pick (its `raycast` does
   nothing), gives no points, and is drawn over the scene (no depth test, so a fence or a crowd does
@@ -45,7 +58,10 @@ Made in code, no image files. The reference is the game's own effects (spec 06's
 - Loading, error, title and the intro card: no bubbles, as no points can be won.
 - Play, the gaps between waves and the boss fight: as above.
 - Paused: every bubble freezes where it is, as it was, and goes on from there.
-- Victory and defeat: the scene freezes as it is, bubbles included; they do not go on fading.
+- Victory and defeat: the scene freezes as it is, bubbles included; they do not go on fading. The
+  boss's own bubble is not affected: the victory card comes 1.5 seconds after the boss falls and the
+  bubble lasts 1.2 seconds, so it is gone before the card. Any other bubble still on its way when
+  the victory or defeat card appears stays frozen where it is until the next start.
 - Each level start, **Try again**, **Play again**, **Next level** and **Back to title** clear them
   all.
 
@@ -91,8 +107,8 @@ no earlier test except by adding what those need.
 5. They stand still while paused and go on from the same age; they stand still on victory and
    defeat; a level start, Try again, Play again, Next level and Back to title clear them.
 6. The stage (with the fake three.js) makes a bubble for each in the list and removes it when it is
-   gone; a bubble ignores rays and is not in what a shot can hit; the 200-point bubble is larger and
-   has its own number colour; the textures are made once per value; nothing is left in the scene
+   gone; a bubble ignores rays and is not in what a shot can hit; a bubble's size is 0.5, 0.65 or 0.9 across by its
+   points as above, and the 200-point bubble has its own number colour; the textures are made once per value; nothing is left in the scene
    after a level change.
 7. Nothing about the score changes: the same game with and without the bubbles ends with the same
    score, and the game's `random` is not called for them.
