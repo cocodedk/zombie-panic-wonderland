@@ -12,8 +12,15 @@ export const TUFTS = { radius: 0.03, height: 0.12, sides: 4, color: '#2a241c', a
 
 // The optional bits, one flag each. The stage builds zombies (and their fading copies) with these;
 // `buildZombie` defaults every flag to off, so a model built without `extras` is the plain zombie.
-export const ZOMBIE_EXTRAS = { tufts: true, limp: true, flicker: true };
-export const NO_EXTRAS = { tufts: false, limp: false, flicker: false };
+export const ZOMBIE_EXTRAS = { tufts: true, limp: true, flicker: true, bareFoot: true };
+export const NO_EXTRAS = { tufts: false, limp: false, flicker: false, bareFoot: false };
+
+// The zombie's limping side, from its seed: 0 the left leg, 1 the right (even ids left, odd right).
+export const limpSide = (seed) => Math.abs(Math.round(seed / 1.7) % 2);
+
+// The bare foot: the limping side's foot has no shoe, so its box takes the skin's material.
+export const SHOE = '#2a2622';
+export const footColor = (leg, seed, bareFoot, skinMat) => (bareFoot && leg === limpSide(seed) ? skinMat : SHOE);
 
 // The eye flicker: the eyes' glow breathes between `low` and 1 of their base colour, once every
 // `period` seconds, shifted by the zombie's seed so a crowd does not flicker in step.
@@ -41,7 +48,7 @@ export const LIMP = 0.6;
 // zombie's own leg (`Math.round(seed / 1.7) % 2`, so even ids left, odd ids right) swings less.
 export function legSwing(seed, limp) {
   const swing = [1, 1];
-  if (limp) swing[Math.abs(Math.round(seed / 1.7) % 2)] = LIMP;
+  if (limp) swing[limpSide(seed)] = LIMP;
   return swing;
 }
 
