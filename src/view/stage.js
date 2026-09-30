@@ -22,11 +22,12 @@ import { buildCrow } from './models/crow.js';
 import { buildScarecrow, buildScarecrowKing } from './models/scarecrow.js';
 import { buildSky, buildGround, buildRoad, buildTree, buildMushroom, buildCrypt, buildClockTower, buildHedge, buildFence } from './models/scenery.js';
 import { buildCornRows, buildFarmhouse, buildEmeraldCity, buildMoon } from './models/farm.js';
+import { buildWeb } from './models/webs.js';
 
 const SCENERY = {
   sky: buildSky, ground: buildGround, road: buildRoad, tree: buildTree, mushroom: buildMushroom,
   crypt: buildCrypt, clockTower: buildClockTower, hedge: buildHedge, fence: buildFence,
-  cornRows: buildCornRows, scarecrow: buildScarecrow, farmhouse: buildFarmhouse, emeraldCity: buildEmeraldCity, moon: buildMoon,
+  cornRows: buildCornRows, scarecrow: buildScarecrow, farmhouse: buildFarmhouse, emeraldCity: buildEmeraldCity, moon: buildMoon, web: buildWeb,
 };
 
 const BOSSES = { zombieKing: buildZombieKing, scarecrowKing: buildScarecrowKing };
