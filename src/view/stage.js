@@ -4,20 +4,20 @@
 // effects (streaks, chunks, puffs and fades) are drawn here too.
 
 import * as THREE from 'three';
-import { pumpkinAt, crowAt, CROW_CIRCLE, bossWindup, SHAKE } from '../logic/game.js';
-import { STREAK, TRACER, SPARK } from '../logic/effects.js';
+import { SHAKE } from '../logic/game.js';
 import { CAMERA } from '../logic/camera.js';
-import { crateAt, crateLeaving, shellAt, pelletDirs } from '../logic/weapons.js';
-import { flat } from './models/parts.js';
+import { pelletDirs } from '../logic/weapons.js';
+import { dispose } from './stage-helpers.js';
+import { buildBackdrop } from './stage-backdrop.js';
+import { syncEntities } from './stage-entities.js';
+import { createEffectsView } from './stage-effects.js';
 import { createWeatherView } from './weather.js';
 import { createBubbleView } from './bubbles.js';
 import { createSkyView } from './sky.js';
 import { buildPlayer } from './models/player.js';
 import { buildZombie, buildZombieKing } from './models/zombie.js';
 import { zombieTint, ZOMBIE_EXTRAS } from './models/zombie-details.js';
-import { buildPumpkin, buildPumpkinMonster, buildFlamingPumpkin, buildLaunchedPumpkin } from './models/pumpkin.js';
-import { buildCrate } from './models/crate.js';
-import { buildCanister } from './models/canister.js';
+import { buildPumpkinMonster } from './models/pumpkin.js';
 import { buildCrow } from './models/crow.js';
 import { buildScarecrow, buildScarecrowKing } from './models/scarecrow.js';
 import { buildSky, buildGround, buildRoad, buildTree, buildMushroom, buildCrypt, buildClockTower, buildHedge, buildFence } from './models/scenery.js';
@@ -39,50 +39,6 @@ const ENEMIES = {
   boss: (e, level) => BOSSES[level.boss.model]({ tint: zombieTint(e.enemyId ?? e.id) }), // the scarecrow king ignores it
 };
 
-// Level 1's dusk; a level may set its own.
-const LIGHT = { fog: '#5a3148', fogFar: 70, sky: '#8a6fb0', ground: '#3a2a1a', key: '#ffb070', keyAt: [-8, 6, -20], fill: '#c9b8ff' };
-
-function buildBackdrop(scene, level) {
-  const light = { ...LIGHT, ...level.light };
-  scene.fog = new THREE.Fog(light.fog, 22, light.fogFar);
-  const backdrop = new THREE.Group();
-  backdrop.name = 'backdrop';
-  backdrop.add(new THREE.HemisphereLight(light.sky, light.ground, 1.2));
-  const key = new THREE.DirectionalLight(light.key, 2.2);
-  key.position.set(...light.keyAt);
-  backdrop.add(key);
-  const fill = new THREE.DirectionalLight(light.fill, 0.8);
-  fill.position.set(4, 10, 12);
-  backdrop.add(fill);
-  for (const { model, x = 0, z = 0, turn = 0, ...params } of level.scenery) {
-    const obj = SCENERY[model](params);
-    obj.name = model;
-    obj.position.x = x;
-    obj.position.z = z;
-    obj.rotation.y = turn;
-    backdrop.add(obj);
-  }
-  scene.add(backdrop);
-  return backdrop;
-}
-
-function dispose(obj, keep = new Set()) {
-  obj.traverse((m) => {
-    if (m.geometry && !keep.has(m.geometry)) m.geometry.dispose();
-    if (m.material && !keep.has(m.material)) m.material.dispose();
-  });
-}
-
-// Points `obj`, a unit length along z, from `a` to `b`.
-function span(obj, a, b) {
-  const d = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z };
-  const len = Math.hypot(d.x, d.y, d.z);
-  obj.position.set((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
-  obj.rotation.order = 'YXZ';
-  obj.rotation.set(-Math.atan2(d.y, Math.hypot(d.x, d.z)), Math.atan2(d.x, d.z), 0);
-  obj.scale.set(1, 1, len);
-}
-
 export function createStage(container, firstLevel) {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
@@ -90,7 +46,7 @@ export function createStage(container, firstLevel) {
 
   const scene = new THREE.Scene();
   let level = firstLevel;
-  let backdrop = buildBackdrop(scene, level);
+  let backdrop = buildBackdrop(scene, level, SCENERY);
   const weather = createWeatherView(scene);
   const sky = createSkyView();
   const bubbles = createBubbleView(scene);
@@ -112,24 +68,6 @@ export function createStage(container, firstLevel) {
   player.position.z = level.roadZ;
   scene.add(player);
 
-  const shockGeo = new THREE.TorusGeometry(1, 0.08, 3, 24);
-  const shockMat = new THREE.MeshBasicMaterial({ color: '#f0b25a', transparent: true, opacity: 0.8 });
-  const streakGeo = new THREE.BoxGeometry(0.035, 0.035, 1);
-  const streakMat = new THREE.MeshBasicMaterial({ color: STREAK.color });
-  const tracerMat = new THREE.MeshBasicMaterial({ color: TRACER.color });
-  const sparkMat = new THREE.MeshBasicMaterial({ color: SPARK.color });
-  const chunkGeo = new THREE.IcosahedronGeometry(1, 0);
-  const puffGeo = new THREE.IcosahedronGeometry(1, 1);
-  const chunkMats = new Map(); // colour -> material, shared by every chunk
-  const shared = new Set([shockGeo, shockMat, streakGeo, streakMat, tracerMat, sparkMat, chunkGeo, puffGeo]);
-  const chunkMat = (color) => {
-    if (!chunkMats.has(color)) {
-      chunkMats.set(color, flat(color));
-      shared.add(chunkMats.get(color));
-    }
-    return chunkMats.get(color);
-  };
-
   const shown = new Map(); // id -> object, for enemies, pumpkins, shockwaves, leaving crows and effects
   const pickable = [];
   const raycaster = new THREE.Raycaster();
@@ -146,14 +84,8 @@ export function createStage(container, firstLevel) {
     return obj;
   }
 
-  // A crow flies in and circles facing along its circle, then dives facing the road.
-  function placeCrow(e, obj) {
-    const c = level.enemies.crow;
-    const at = crowAt(e, level);
-    obj.position.set(at.x, at.y, at.z);
-    if (e.diveX == null) obj.rotation.set(0, -((c.circle - e.timer) * (Math.PI * 2)) / c.circle, 0.4);
-    else obj.rotation.set(0.8, Math.atan2(e.diveX - e.x - CROW_CIRCLE, level.roadZ - e.z), 0);
-  }
+  const effects = createEffectsView(place, ENEMIES);
+  const { shared } = effects;
 
   return {
     sync(game, dt) {
@@ -167,11 +99,10 @@ export function createStage(container, firstLevel) {
         scene.remove(backdrop);
         dispose(backdrop);
         level = game.level;
-        backdrop = buildBackdrop(scene, level);
+        backdrop = buildBackdrop(scene, level, SCENERY);
       }
       weather.sync(game, backdrop);
       sky.sync(game, backdrop);
-      const clock = game.clock; // the game's, so the drawn gun is where its shots start
       const p = game.player;
       const pose = game.pose();
       player.position.x = p.x;
@@ -183,103 +114,10 @@ export function createStage(container, firstLevel) {
       for (const obj of shown.values()) obj.userData.seen = false;
       pickable.length = 0;
 
-      for (const e of game.enemies) {
-        const obj = place(e.id, () => ENEMIES[e.kind](e, level));
-        pickable.push(obj);
-        if (e.kind === 'crow') {
-          placeCrow(e, obj);
-          obj.userData.tick(clock, { diving: e.diveX == null ? 0 : 1 });
-          continue;
-        }
-        obj.position.set(e.x, 0, e.z);
-        const walking = e.kind === 'boss' ? e.z < level.boss.standZ : e.kind === 'zombie';
-        const throwing = e.kind === 'pumpkinMonster' ? Math.max(0, 1 - e.throwTimer / 0.4) : 0;
-        const windup = e.kind === 'boss' ? bossWindup(e, level.boss) : 0;
-        obj.userData.tick(clock, { walk: walking ? 1 : 0.2, throwing, windup, twitch: !game.reducedMotion });
-        // Face the player once on the road.
-        obj.rotation.y = e.kind === 'zombie' && e.z >= level.roadZ ? Math.sign(p.x - e.x) * 0.9 : 0;
-      }
-      for (const f of game.flyaways) {
-        const obj = place(`c${f.id}`, () => buildCrow({ seed: f.id }));
-        const k = f.t / level.enemies.crow.leave;
-        obj.position.set(f.x + k * 6, 0.5 + k * 9, level.roadZ - k * 14);
-        obj.rotation.set(-0.5, Math.PI, 0);
-        obj.userData.tick(clock, { diving: 0 });
-      }
-      for (const k of game.pumpkins) {
-        const obj = place(k.id, () => (k.flaming ? buildFlamingPumpkin({ size: 0.55 }) : buildPumpkin({ size: 0.45 })));
-        const at = pumpkinAt(k, level.roadZ);
-        obj.position.set(at.x, at.y, at.z);
-        obj.rotation.set(clock * 6, clock * 3, 0);
-        pickable.push(obj);
-      }
-      // Crates bob and turn slowly; one leaving can no longer be aimed at.
-      for (const c of game.crates) {
-        const obj = place(c.id, () => buildCrate({ weapon: c.weapon }));
-        const at = crateAt(c);
-        obj.position.set(at.x, at.y, at.z);
-        obj.rotation.y = c.t * 0.6;
-        obj.userData.tick(clock, { flash: c.flash > 0 ? 1 : 0 });
-        if (!crateLeaving(c)) pickable.push(obj);
-      }
-      for (const c of game.canisters) {
-        const obj = place(c.id, () => buildCanister());
-        obj.position.set(c.x, 0, c.z);
-        obj.userData.tick(clock, { flash: c.flash > 0 ? 1 : 0 });
-        pickable.push(obj);
-      }
-      for (const s of game.shells) {
-        const obj = place(s.id, () => buildLaunchedPumpkin());
-        const at = shellAt(s);
-        obj.position.set(at.x, at.y, at.z);
-        obj.rotation.set(clock * 8, clock * 4, 0);
-      }
-      // The shockwave spreads from where the boss stomped, only as wide as the road it reaches.
-      const boss = game.enemies.find((e) => e.kind === 'boss');
-      for (const s of game.stomps) {
-        const obj = place(`s${s.id}`, () => new THREE.Mesh(shockGeo, shockMat));
-        const f = 1 - s.t / level.boss.stompDelay;
-        obj.rotation.x = Math.PI / 2;
-        const z = boss ? boss.z : level.boss.standZ;
-        obj.position.set(s.x, 0.1, z + (level.roadZ - z) * f);
-        const r = Math.min(2 + f * 12, level.boss.stompReach);
-        obj.scale.set(r, r, 1);
-      }
+      syncEntities(game, level, { place, pickable, enemies: ENEMIES });
+      effects.stomps(game, level);
       const fx = game.effects;
-      const mesh = (name, geometry, material) => () => Object.assign(new THREE.Mesh(geometry, material), { name });
-      for (const s of fx.streaks) {
-        const obj = place(`x${s.id}`, mesh('streak', streakGeo, s.color === TRACER.color ? tracerMat : streakMat));
-        span(obj, s.from, s.to);
-        obj.scale.set(s.width, s.width, obj.scale.z);
-      }
-      for (const k of fx.sparks) {
-        const obj = place(`x${k.id}`, mesh('spark', chunkGeo, sparkMat));
-        obj.position.set(k.pos.x, k.pos.y, k.pos.z);
-        obj.scale.setScalar(SPARK.size);
-      }
-      for (const c of fx.chunks) {
-        const obj = place(`x${c.id}`, mesh('chunk', chunkGeo, chunkMat(c.color)));
-        obj.position.set(c.pos.x, c.pos.y, c.pos.z);
-        obj.rotation.set(c.rot.x, c.rot.y, c.rot.z);
-        obj.scale.setScalar(c.size * (1 - c.age / c.life));
-      }
-      for (const p of fx.puffs) {
-        const obj = place(`x${p.id}`, () => mesh('puff', puffGeo, flat(p.color, { transparent: true }))());
-        const k = p.age / p.life;
-        obj.position.set(p.pos.x, p.pos.y, p.pos.z);
-        obj.scale.setScalar(p.size * (0.3 + 0.7 * k));
-        obj.material.opacity = 0.85 * (1 - k);
-      }
-      for (const f of fx.fades) {
-        const obj = place(`x${f.id}`, () => {
-          const model = ENEMIES[f.kind](f, level);
-          model.name = 'fade';
-          model.traverse((m) => { if (m.material) m.material.transparent = true; });
-          return model;
-        });
-        obj.position.set(f.x, f.y, f.z);
-        obj.traverse((m) => { if (m.material) m.material.opacity = 1 - f.age / f.life; });
-      }
+      effects.sync(fx, level);
       bubbles.sync(fx.bubbles);
       for (const [id, obj] of shown) {
         if (obj.userData.seen) continue;
