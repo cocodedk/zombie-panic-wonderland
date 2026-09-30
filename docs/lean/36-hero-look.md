@@ -1,3 +1,12 @@
+---
+lean_status: questions
+lean_rounds: 1
+lean_asked: 'Change 7 says the boot cuffs show below the hem, but from the fixed play camera at (0, 3.6,
+  9) the hem and gold trim hide almost all of each cuff: a line of sight to a cuff''s back (y 0.14–0.18,
+  z about 0.1) crosses the hem (z about 0.33) at y 0.23–0.27, so only the lowest 0.015 or so shows (1–2
+  px), just as they already hide the boots. Should the cuffs stay as specified, move lower or further
+  out, or be dropped?'
+---
 # 36: the hero's look
 
 The second of three specs on the hero and the guns (spec 35 made the guns point at the aim; spec 37
