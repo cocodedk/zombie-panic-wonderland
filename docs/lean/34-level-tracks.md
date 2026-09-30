@@ -2,7 +2,7 @@
 
 ## What the owner wants
 
-Faster, more energetic music in the style of "Tricky Two" by Röyksopp, one separate track for each
+High-pace, energetic music (132 to 152 beats a minute) in the style of "Tricky Two" by Röyksopp, one separate track for each
 level, made by code: no wave, mp3, ogg or any other audio file. The owner asked on 30 September 2026
 and left the details to us; these are the defaults we propose. "In the style of" means the feel:
 upbeat synth-pop electronica, a four-on-the-floor kick, off-beat hi-hats, a pulsing saw bass, a plucked
@@ -46,7 +46,7 @@ old tune format and its scheduler are removed.
 | | level 1 | level 2 | level 3 |
 |---|---|---|---|
 | name | `Dusk run` | `Moonlit rows` | `Spider wood` |
-| bpm | 124 | 116 | 132 |
+| bpm | 140 | 132 | 152 |
 | swing | 0 | 0.08 | 0 |
 | root | 57 (A) | 50 (D) | 52 (E) |
 | progression | 0, 8, 3, 10 | 0, 8, 3, 10 | 0, 8, 10, 7 |
@@ -54,7 +54,7 @@ old tune format and its scheduler are removed.
 | kick | 0, 4, 8, 12 | 0, 4, 8, 12 | 0, 4, 8, 10, 12 |
 | snare | 4, 12 | 4, 12 | 4, 12 |
 | hat | 2, 6, 10, 14 | 2, 6, 10, 14 | 0, 2, 4, 6, 8, 10, 12, 14 |
-| hatSoft | (none) | 3, 7, 11, 15 | 1, 3, 5, 7, 9, 11, 13, 15 |
+| hatSoft | 3, 7, 11, 15 | 3, 7, 11, 15 | 1, 3, 5, 7, 9, 11, 13, 15 |
 | openHat | 14 | (none) | 6, 14 |
 | pad | cutoff 900, level 0.05 | cutoff 800, level 0.06 | cutoff 700, level 0.05 |
 
@@ -70,7 +70,8 @@ The arp patterns:
 - Level 2: `0 2 1 3 0 2 1 3 2 1 3 1 2 1 0 1`
 - Level 3: `0 1 2 3 0 1 2 3 0 2 1 3 2 1 0 1`
 
-Level 1 is the brightest, level 2 the most relaxed and swung, level 3 the fastest and darkest.
+Level 1 is the brightest, level 2 the most relaxed and swung (still 132 bpm), level 3 the fastest (152 bpm)
+and darkest.
 
 ## The sounds
 
@@ -147,7 +148,7 @@ only those.
 
 1. The three tracks have the data in the tables above (bpm, swing, root, progression, qualities, every
    drum list, the bass and arp patterns, the pad), 128 steps, and each level's `music` is its own track.
-2. `stepSeconds` is `60 / bpm / 4` (124 bpm is 0.1210 s within 0.0001), `stepTime` delays odd steps by
+2. `stepSeconds` is `60 / bpm / 4` (140 bpm is 0.1071 s within 0.0001), `stepTime` delays odd steps by
    `swing` of a step and leaves even ones, and the loop wraps at step 128.
 3. `eventsAt` for level 1, step 0, gives a kick, the bass at MIDI 57 + 0 + 0 − 24 = 33, the arp at 57 + 0 + 0 +
    12 = 69 and the pad's three tones (57, 60, 64 an octave up: 69, 72, 76); at step 4 a kick and a snare; at
