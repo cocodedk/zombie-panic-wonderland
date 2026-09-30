@@ -13,7 +13,7 @@ import { waves } from './game-waves.js';
 import { enemies } from './game-enemies.js';
 import { outcome } from './game-outcome.js';
 
-export { SCREENS, pumpkinAt, CROW_CIRCLE, crowAt, bossWindup, SHAKE, GROAN, HINT } from './game-shared.js';
+export { SCREENS, pumpkinAt, CROW_CIRCLE, crowAt, dropHeight, bossWindup, SHAKE, GROAN, HINT } from './game-shared.js';
 
 export class Game {
   // `levels` is the order they are played in; `level` is the one on show.
@@ -44,6 +44,7 @@ export class Game {
     this.timer = timing.intro;
     this.queue = [];
     this.sent = 0; // zombies the wave has sent so far, for its fast ones
+    this.sentSpiders = 0; // spiders the wave has sent so far, for its droppers
     this.spawnTimer = 0;
     this.enemies = [];
     this.pumpkins = [];

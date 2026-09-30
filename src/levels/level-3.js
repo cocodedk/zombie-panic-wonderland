@@ -17,8 +17,12 @@ export const level3 = {
   roadZ: 0,
   spawn: level1.spawn,
 
-  // Level 2's enemies, and the spider: quick and low, it crawls under and over fences.
-  enemies: { ...level2.enemies, spider: { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2 } },
+  // Level 2's enemies, and the spider: quick and low, it crawls under and over fences. From wave `fromWave`,
+  // every `every`th spider a wave sends drops at z `at`, `from` up on a thread, lowering over `time` seconds.
+  enemies: {
+    ...level2.enemies,
+    spider: { hits: 2, points: 150, speed: 2.2, reach: 1.2, closeIn: 0.8, strikeEvery: 1.2, drop: { fromWave: 2, every: 3, at: -5, from: 5, time: 1.2 } },
+  },
 
   timing: level1.timing,
 
