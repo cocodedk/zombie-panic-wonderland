@@ -43,8 +43,10 @@ change. Only these parts do, for a fast zombie:
   place of `#ff3b30`, and each has a soft halo: a small flat square, 0.16 across, additive blending
   in `#ff3b30` at 0.55 opacity, that does not write depth and ignores rays, just in front of the eye
   and facing the camera. An ordinary zombie's eyes are as today, with no halo.
-- **When it falls or bursts:** the look it had is kept (the fall, the burst and the fade draw the
-  same model).
+- **When it falls:** with normal motion it bursts into today's chunks and puffs, the chunks in the
+  darker skin, shirt and pants colours instead of an ordinary zombie's; the burst has no model and
+  no eyes. With reduced motion it fades out as a copy of its model, so that copy is the dark model
+  with its larger eyes (no halos are needed on the fading copy).
 
 There is no new sound, no new text and no HUD change. The fast zombie is picked, hit and hurt like
 any zombie.
@@ -71,7 +73,7 @@ one) and `llms.txt` stay as they are.
 - `src/logic/game.js`: marks the fast zombies when a wave's queue is spawned, and reads its speed and
   points; at most 25 lines longer than today.
 - `src/view/models/zombie.js` and `src/view/stage.js`: the fast look, passed from the enemy's `fast`
-  flag (including for the falling and fading copies); `stage.js` at most 10 lines longer than today.
+  flag (including for the fading copy and the burst chunks' colours); `stage.js` at most 10 lines longer than today.
 
 New files stay under 200 lines; `game.js` and `stage.js` are not split.
 
@@ -97,7 +99,8 @@ those numbers; it changes nothing else in them.
 5. The model (with the fake three.js): a fast zombie's skin, shirt, pants and eye colours are the
    darker ones, its eyes are 1.8 times larger, and it has two additive halos that are not written to
    depth and ignore rays; an ordinary zombie has none of those, and its model is exactly as before;
-   the fade and burst copies of a fast zombie keep the look.
+   the fading copy of a fast zombie (reduced motion) is the dark model, and its burst chunks (normal
+   motion) use the darker colours, while an ordinary zombie's chunks are as before.
 6. Paused, a fast zombie stands still and goes on from the same place; a level start, Try again,
    Play again, Next level and Back to title start fresh.
 7. Any new file is under 200 lines, and `game.js` and `stage.js` are no longer than the limits above.
