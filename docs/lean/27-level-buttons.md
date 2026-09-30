@@ -15,7 +15,7 @@ changes nothing about how a level plays.
   buttons, one for each level in the game (today 2; a level added later gets its button with no other
   change). Each is labelled `Level N`, N being the level's `number`.
 - **Clicking a level's button** starts that level, the way a click on the title starts level 1 today:
-  its intro card, then wave 1, with score 0, three hearts, the Popper only, no crates yet, the weather
+  its intro card, then wave 1, with score 0, five hearts, the Popper only, no crates yet, the weather
   and sky from the start. Nothing is unlocked and no wave is skipped.
 - **A click anywhere else** on the title still starts level 1, as today; `Click to start` stays.
 - The buttons show **only on the title**. On every other screen they are hidden.
