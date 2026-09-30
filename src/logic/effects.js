@@ -77,6 +77,7 @@ export const BURSTS = {
   zombie: { count: 12, life: 1, size: 0.18, colors: ['#7d9a6a', '#5b5270', '#3d3a35'], puff: '#9fd18b', puffSize: 1 },
   fastZombie: { count: 12, life: 1, size: 0.18, colors: [FAST_ZOMBIE.skin, FAST_ZOMBIE.shirt, FAST_ZOMBIE.pants], puff: '#9fd18b', puffSize: 1 },
   spider: { count: 10, life: 1, size: 0.14, colors: ['#2a1f2e', '#3a2c3f', '#c0182b'], puff: '#3a2c3f', puffSize: 1 },
+  wolf: { count: 12, life: 1, size: 0.18, colors: ['#6e6e78', '#9a9aa4', '#5a5a64'], puff: '#8a8a94', puffSize: 1 },
   pumpkinMonster: { count: 12, life: 1, size: 0.18, colors: ['#e0762b', '#3f6b2a', '#5f8f3a'], puff: '#e07b24', puffSize: 1 },
   crow: { count: 12, life: 1, size: 0.18, colors: ['#16161c', '#c99a2e'], puff: '#3a3a3a', puffSize: 1 },
   zombieKing: { count: 40, life: 1.5, size: 0.35, colors: ['#7d9a6a', '#5a1f3a', '#3d3a35', '#d9a520'], puff: '#9fd18b', puffSize: 3 },
