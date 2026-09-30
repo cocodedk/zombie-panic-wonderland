@@ -7,7 +7,7 @@ export function createHud(doc, game) {
   const el = {
     plain: $('#plain'), hud: $('#hud'), hearts: $('#hearts'), score: $('#score'), wave: $('#wave'),
     bossbar: $('#bossbar'), bossfill: $('#bossbar i'), band: $('#band'), title: $('#band h1'),
-    lines: $('#band .lines'), button: $('#band button'), second: $('#band button + button'),
+    lines: $('#band .lines'), levels: $('#band .levels'), button: $('#band button'), second: $('#band button + button'),
     bossname: $('#bossbar span'), sound: $('#sound'), crosshair: $('#crosshair'), stage: $('#stage'),
     notice: $('#notice'), hint: $('#hint'), weapons: ['popper', 'scattergun', 'launcher', 'gatling'].map((w) => $(`#weapon-${w}`)),
   };
@@ -15,6 +15,19 @@ export function createHud(doc, game) {
   el.second.addEventListener('click', () => (game.next ? game.nextLevel() : game.toTitle()));
 
   const text = (node, value) => { if (node.textContent !== value) node.textContent = value; };
+
+  // One button per level, made again only when the list changes.
+  let built = '';
+  const levelButtons = (levels) => {
+    el.levels.hidden = !levels;
+    if (!levels || JSON.stringify(levels) === built) return;
+    built = JSON.stringify(levels);
+    el.levels.replaceChildren(...levels.map(({ text: label, index }) => {
+      const b = Object.assign(doc.createElement('button'), { type: 'button', textContent: label });
+      b.addEventListener('click', () => game.startAt(index));
+      return b;
+    }));
+  };
 
   return {
     crosshairAt(x, y) {
@@ -28,6 +41,7 @@ export function createHud(doc, game) {
       el.stage.hidden = !!v.plain;
 
       el.band.hidden = !v.band;
+      levelButtons(v.band?.levels);
       if (v.band) {
         el.title.hidden = !v.band.title;
         text(el.title, v.band.title ?? '');
