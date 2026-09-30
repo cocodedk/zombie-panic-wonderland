@@ -97,7 +97,8 @@ each note scheduled on the audio clock:
   seconds, peak 0.16, lasting 1.5 steps, sent also to an **echo**: a delay of 3 steps with feedback 0.35, the
   loop filtered by a lowpass at 2500 Hz, wet 0.3.
 - **Pad:** for each chord, at its first step, two sawtooths detuned by +8 and -8 cents and a triangle for each
-  of the chord's three tones an octave above the `root` register (MIDI `root + chord + interval`), through a
+  of the chord's three tones an octave above the `root` register (MIDI `root + chord + interval + 12`: for
+  level 1's first chord 69, 72 and 76), through a
   lowpass at the track's `pad.cutoff`, attack 0.4 seconds, release 0.4 seconds, each voice at `pad.level`,
   lasting the 2 bars.
 
