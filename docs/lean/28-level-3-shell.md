@@ -88,6 +88,10 @@ crates. Crates, canisters and the fast zombies work in level 3 as in the others.
 - `src/main.js`: the import and the list, at most 3 lines longer.
 - `src/view/stage.js`: registers `web` in the scenery table, at most 2 lines longer.
 - `llms.txt`: one sentence for level 3 and `level` is `1`, `2` or `3`.
+- `src/logic/webmcp.js`: the tool descriptions: `get_state`'s says `level` is 1, 2 or 3, and `describe`'s
+  sentence no longer presents level 2 as the end of the game (it mentions the Spider Wood as the third
+  level); at most 4 lines changed. The tests that assert those exact texts (`test/webmcp.test.js`, and
+  any that read them) may be updated to the new words, and only those texts.
 
 `game.js` and the others are not otherwise touched. The Pages workflow copies `src` whole.
 
