@@ -166,7 +166,8 @@ only those.
    step 128 (pass 1) a kick, a closed hat, the arp at 57 + 0 + 0 + 12 = 69 and no pad; at step 132 also a
    snare and the arp at 57 + 0 + 7 + 12 = 76; at step 258 (pass 2) an open hat, and at step 256 the pad's
    three tones 69, 72 and 76; at step 384 (pass 3, the breakdown) no kick, no bass and no snare, and the
-   pad, the arp and the hats present; the bass and arp notes follow the chord's root and quality for every
+   pad, the arp and the closed hat present (the patterns change nothing: the soft hat is due at step 385
+   and the open hat at step 386, both present in this pass); the bass and arp notes follow the chord's root and quality for every
    step of every track.
 4. The same track and step always give the same events (no randomness), a layer outside the pass's list
    gives none, and no event's gain exceeds its peak above (kick 0.9, snare 0.5, hat 0.22, bass 0.55, arp
