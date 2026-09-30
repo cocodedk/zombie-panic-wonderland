@@ -54,7 +54,7 @@ New files stay under 200 lines. `zombie.js` (174 lines) stays under 200: put the
 The builder may run the suite and node, but not a web server or a browser: a picture of the zombie is
 the supervisor's step. The builder may add and edit test files. It changes no earlier test, except
 that a test asserting the exact list of a zombie's parts (a count of meshes) may be updated to count
-the parts named here, and only that number. 
+the parts named here, and only that number. It may also update the earlier zombie tests' exact assertions that this bit makes fail: the exact `ZOMBIE_EXTRAS` object, and the assertions that a zombie's `tick` gives today's exact rotations or colours when built with the stage's extras (`test/zombie-hair-tufts.test.js` and the other zombie model tests). It changes only those flags and numbers, and nothing else in them. 
 
 ## Done when
 

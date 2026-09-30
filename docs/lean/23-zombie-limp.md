@@ -1,3 +1,11 @@
+---
+lean_status: questions
+lean_rounds: 1
+lean_asked: May the builder update the exact `ZOMBIE_EXTRAS` and unchanged-rotation assertions in `test/zombie-hair-tufts.test.js`,
+  which the new limp makes fail but the spec’s earlier-test exception does not permit?; May the builder
+  edit `src/view/stage.js` to seed a reduced-motion fading copy from `enemyId`, so it keeps the fallen
+  zombie’s fixed limping side despite the spec listing only two model files?
+---
 # 23: zombie limp
 
 Run this after spec 22 is merged.
@@ -46,6 +54,7 @@ title** start fresh, as today.
 
 - `src/view/models/zombie-details.js`: the flag, and the function that says which leg limps.
 - `src/view/models/zombie.js`: `tick` uses it; at most 6 lines longer than today.
+- `src/view/stage.js`: a zombie's fading copy under reduced motion is seeded from the fallen zombie's own id (`enemyId`, which the fade data carries since spec 20) and not from the fade's effect id, so its limping side (and every later bit that depends on `seed`) is the zombie's; at most 3 lines longer than today.
 
 New files stay under 200 lines. `zombie.js` (174 lines) stays under 200: put the bit's code in
 `zombie-details.js` and call it. The Pages workflow copies `src` whole, so it needs no change.
@@ -55,7 +64,7 @@ New files stay under 200 lines. `zombie.js` (174 lines) stays under 200: put the
 The builder may run the suite and node, but not a web server or a browser: a picture of the zombie is
 the supervisor's step. The builder may add and edit test files. It changes no earlier test, except
 that a test asserting the exact list of a zombie's parts (a count of meshes) may be updated to count
-the parts named here, and only that number. 
+the parts named here, and only that number. It may also update the earlier zombie tests' exact assertions that this bit makes fail: the exact `ZOMBIE_EXTRAS` object, and the assertions that a zombie's `tick` gives today's exact rotations or colours when built with the stage's extras (`test/zombie-hair-tufts.test.js` and the other zombie model tests). It changes only those flags and numbers, and nothing else in them. 
 
 ## Done when
 
