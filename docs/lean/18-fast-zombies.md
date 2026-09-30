@@ -103,10 +103,9 @@ those numbers; it changes nothing else in them.
    motion) use the darker colours, while an ordinary zombie's chunks are as before.
 6. Paused, a fast zombie stands still and goes on from the same place; a level start, Try again,
    Play again, Next level and Back to title start fresh.
-7. Balance: a bot written in the test (each frame it fires the weapon in hand at the nearest zombie's
-   id, and does not dodge) plays each level's waves with seeds 1 to 20. The builder first measures, on
-   `main` before this change, how many of the 20 runs of each level the player survives through the
-   last wave, and writes those numbers into the test; the test asserts that with fast zombies the
-   bot survives at least that many minus 3 in each level, so the faster zombies cannot make a level
-   unwinnable. The bot ignores the boss fight.
+7. Balance is bounded by the data, not by a bot: no wave has more than 2 fast zombies (a quarter of its
+   zombies, rounded down), no wave has more zombies than today, and a fast zombie's speed is at
+   most 1.6 times the ordinary one. There is no bot play-test for this spec: how it feels to play is
+   the supervisor's step, made by hand after the pull request is open, and the rule is one line of
+   data per level to change if it is too hard.
 8. Any new file is under 200 lines, and `game.js` and `stage.js` are no longer than the limits above.
