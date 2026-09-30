@@ -20,7 +20,7 @@ tunic, a belt, two boots and two arms holding the gun. This sketch shows the bac
 ```
         (+ pompom)              a pompom on the hood's tip
         /\  hood  + seam        a seam ridge along the top edge of the hood's point
-   + ---||--- shoulder caps     two caps where the arms begin
+   + ---||--- shoulder caps     two caps on the tunic's shoulders
      /  cape  \\                the cape
     / +satchel  \\              a satchel on the right hip
    /_/\\_/\\_/\\_/\\_ + trim      a scalloped hem with a gold trim
@@ -37,8 +37,12 @@ The hero stands at y 0 on the road, whose bricks top out at y 0.13, so nothing n
    colour `#6f1219`, pointing down, at the seven hem vertices of the cape's cone, which has its base at
    y 0.255, radius 0.42, squeezed to 0.7 in z around z 0.08: the point `i` (0 to 6) at x `0.42 sin(2πi/7)`,
    y 0.2, z `0.08 + 0.294 cos(2πi/7)`.
-2. **A gold hem trim.** A thin ring (a torus of radius 0.42 and tube 0.012, colour `#d9a520`, lying flat,
-   squeezed to 0.7 in z) at the hem, centred (0, 0.255, 0.08).
+2. **A gold hem trim.** A thin ring that follows the hem's seven straight edges: a torus of radius 0.42
+   with **7 tubular segments** (so its corners are seven points) and a tube of radius 0.012 with 4 radial
+   segments, colour `#d9a520`, lying flat, turned about the vertical axis so that its seven corners are on the
+   seven hem vertices of change 1 (within 0.02 of them). The ring is squeezed to 0.7 in z by the scale of a
+   parent group (`group.scale.z = 0.7`, in the body's frame), not by squeezing the torus itself, whose own z
+   is its thickness. The group is centred at (0, 0.255, 0.08).
 3. **A cape collar.** A short stand-up collar at the neck: a cone (radius 0.2, length 0.14, open at the
    base, 7 sides) in `#7a1219`, at (0, 1.02, 0.04), double-sided.
 4. **A hood seam and pompom.** A ridge along the top edge of the hood's point: a box 0.03 wide, 0.03 thick
@@ -49,7 +53,8 @@ The hero stands at y 0 on the road, whose bricks top out at y 0.13, so nothing n
    back, whose tip is at about (0, 1.11, 0.44)); and a pompom, an icosahedron of radius 0.05 (detail 0) in
    `#f2e3b8`, at that tip, (0, 1.11, 0.44).
 5. **Shoulder caps.** Two icosahedrons of radius 0.09 (detail 0) in the `hood` colour (`#b3202a` by
-   default), at (±0.22, 0.98, −0.02), where the arms begin.
+   default), at (±0.22, 0.98, −0.02), on the tunic's shoulders (the arms are in the aim rig and turn
+   separately, so the caps are not joined to them).
 6. **A satchel.** A leather satchel on the right hip, on the outside of the cape (the hero faces −z, so its
    right is +x, the viewer's right): a box 0.22 × 0.26 × 0.1 in `#6b4a2b` at (0.22, 0.45, 0.37), and a flap
    (a box 0.22 × 0.1 × 0.11 in `#8a5d33`) on its top at (0.22, 0.55, 0.37). It sits at z 0.37 so that its inner
@@ -91,8 +96,9 @@ meshes), and only that number.
 
 `node --test` passes, and its tests prove:
 
-1. The cape hem: 7 points at the positions in change 1, with the size, sides and colour; the trim ring, its
-   size and colour; the collar.
+1. The cape hem: 7 points at the positions in change 1, with the size, sides and colour; the trim ring with 7
+   tubular segments, its radius, tube and colour, its corners within 0.02 of the seven hem vertices, squeezed by
+   its parent group's `scale.z` of 0.7 and not by its own scale; the collar.
 2. The hood seam, its two ends within 0.02 of A = (0, 1.365, 0.17) and B = (0, 1.12, 0.43), its size and
    colour; the pompom at (0, 1.11, 0.44); and the two shoulder caps, with the sizes, places and colours above
    (the caps in the `hood` colour parameter).
