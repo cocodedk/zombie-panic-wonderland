@@ -25,7 +25,8 @@ export const level1 = {
   spawn: { minX: -8, maxX: 8, z: -12 }, // the backdrop, where enemies appear
 
   enemies: {
-    zombie: { hits: 3, points: 100, speed: 1.2, reach: 1.5, closeIn: 1, strikeEvery: 1.5 },
+    // From wave `fromWave` on, every `every`th zombie a wave sends is fast: `speedFactor` times the speed, worth `points`.
+    zombie: { hits: 3, points: 100, speed: 1.2, reach: 1.5, closeIn: 1, strikeEvery: 1.5, fast: { fromWave: 2, every: 4, speedFactor: 1.6, points: 200 } },
     pumpkinMonster: { hits: 5, points: 250, throwEvery: 2.5, flight: 1.2, splash: 1, pumpkinPoints: 25 },
   },
 

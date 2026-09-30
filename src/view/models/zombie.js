@@ -3,6 +3,7 @@
 
 import * as THREE from 'three';
 import { flat, glow, glowing, part, group, seeded } from './parts.js';
+import { FAST_ZOMBIE } from '../../logic/effects.js';
 
 const TEETH = '#e8e0c8';
 
@@ -10,11 +11,24 @@ const TEETH = '#e8e0c8';
 // every `every` seconds at random.
 export const TWITCH = { every: [2, 4], angle: (20 * Math.PI) / 180, time: 0.15 };
 
+// A fast zombie's eyes: larger, a redder glow, and a soft halo (a flat square) in front of each.
+export const FAST_EYES = { color: '#ff2a1a', scale: 1.8, halo: { size: 0.16, color: '#ff3b30', opacity: 0.55, z: 0.03 } };
+
+function halo(x) {
+  const { size, color, opacity, z } = FAST_EYES.halo;
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
+  const mesh = part(new THREE.PlaneGeometry(size, size), mat, [x, 0.03, 0.18 + z]);
+  mesh.name = 'halo';
+  mesh.raycast = () => {}; // shots and aim pass through
+  return mesh;
+}
+
 export function buildZombie({
-  skin = '#7d9a6a',
-  shirt = '#5b5270',
-  pants = '#3d3a35',
-  eyes = '#ff3b30',
+  fast = false, // darker, with larger, brighter eyes and their halos
+  skin = fast ? FAST_ZOMBIE.skin : '#7d9a6a',
+  shirt = fast ? FAST_ZOMBIE.shirt : '#5b5270',
+  pants = fast ? FAST_ZOMBIE.pants : '#3d3a35',
+  eyes = fast ? FAST_EYES.color : '#ff3b30',
   size = 1,
   seed = 0, // shifts the shamble so a crowd does not move in step
 } = {}) {
@@ -56,12 +70,13 @@ export function buildZombie({
   jaw.rotation.x = 0.55;
 
   // A tilted head with glowing eyes and the jaw.
-  const head = group(
-    part(new THREE.IcosahedronGeometry(0.2, 0), skinMat),
-    part(new THREE.BoxGeometry(0.06, 0.04, 0.02), glow(eyes), [-0.07, 0.03, 0.18]),
-    part(new THREE.BoxGeometry(0.06, 0.04, 0.02), glow(eyes), [0.07, 0.03, 0.18]),
-    jaw,
-  );
+  const eye = (x) => {
+    const mesh = part(new THREE.BoxGeometry(0.06, 0.04, 0.02), glow(eyes), [x, 0.03, 0.18]);
+    if (fast) mesh.scale.setScalar(FAST_EYES.scale);
+    return mesh;
+  };
+  const head = group(part(new THREE.IcosahedronGeometry(0.2, 0), skinMat), eye(-0.07), eye(0.07), jaw);
+  if (fast) head.add(halo(-0.07), halo(0.07));
   head.position.set(0.03, 0.76, 0.06);
   head.rotation.z = 0.35;
   torso.add(head);

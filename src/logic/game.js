@@ -81,6 +81,7 @@ export class Game {
     this.phase = 'intro'; // then 'wave', 'cleared', 'announce', 'boss'
     this.timer = timing.intro;
     this.queue = [];
+    this.sent = 0; // zombies the wave has sent so far, for its fast ones
     this.spawnTimer = 0;
     this.enemies = [];
     this.pumpkins = [];
@@ -609,6 +610,7 @@ export class Game {
     this.phase = 'wave';
     this.queue = Object.entries(this.level.waves[n - 1]).flatMap(([kind, count]) => Array(count).fill(kind));
     this.spawnTimer = 0;
+    this.sent = 0;
     this.spawnDue();
     for (const c of CRATES) if (c.wave === n) this.cratesDue.push({ weapon: c.weapon, t: c.delay });
     if (CANISTER.waves.includes(n)) for (const at of placeCanisters(this.random)) this.canisters.push({ id: this.nextId++, ...at, hits: 0, flash: 0 });
@@ -616,9 +618,23 @@ export class Game {
 
   spawnDue() {
     while (this.queue.length && due(this.spawnTimer)) {
-      this.spawn(this.queue.shift());
+      const e = this.spawn(this.queue.shift());
+      if (e.kind === 'zombie') this.markFast(e);
       this.spawnTimer += this.level.timing.spacing;
     }
+  }
+
+  // A fixed rule, never chance: from `fromWave` on, every `every`th zombie the wave sends is fast.
+  markFast(e) {
+    const rule = this.level.enemies.zombie.fast;
+    this.sent += 1;
+    if (rule && this.wave >= rule.fromWave && this.sent % rule.every === 0) e.fast = true;
+  }
+
+  // A zombie's speed: its own, `speedFactor` times the level's when it is fast.
+  speedOf(e) {
+    const c = this.level.enemies.zombie;
+    return e.fast ? c.speed * c.fast.speedFactor : c.speed;
   }
 
   spawn(kind) {
@@ -653,13 +669,14 @@ export class Game {
   zombie(e, dt) {
     const c = this.level.enemies.zombie;
     const road = this.level.roadZ;
+    const speed = this.speedOf(e);
     if (e.z < road - EPS) {
-      stepZombie(e, this.level, c.speed, dt); // led to a gap in the fences, then straight to the road
+      stepZombie(e, this.level, speed, dt); // led to a gap in the fences, then straight to the road
       if (e.z >= road - EPS) this.groan();
       return;
     }
     const dx = this.player.x - e.x;
-    if (Math.abs(dx) > c.closeIn) e.x += Math.sign(dx) * Math.min(c.speed * dt, Math.abs(dx) - c.closeIn);
+    if (Math.abs(dx) > c.closeIn) e.x += Math.sign(dx) * Math.min(speed * dt, Math.abs(dx) - c.closeIn);
     if (Math.abs(this.player.x - e.x) > c.reach + EPS) {
       e.strike = c.strikeEvery;
       return;
@@ -769,14 +786,15 @@ export class Game {
       this.winTimer = BURSTS[this.level.boss.model].life;
     } else {
       this.cue('burst');
-      this.score += this.level.enemies[e.kind].points;
+      const c = this.level.enemies[e.kind];
+      this.score += e.fast ? c.fast.points : c.points;
     }
   }
 
   burst(e) {
-    const kind = e.kind === 'boss' ? this.level.boss.model : e.kind;
+    const kind = e.kind === 'boss' ? this.level.boss.model : e.fast ? 'fastZombie' : e.kind;
     const at = this.centre(e);
-    this.effects.burst(kind, at, { kind: e.kind, x: at.x, y: e.kind === 'crow' ? at.y : 0, z: at.z });
+    this.effects.burst(kind, at, { kind: e.kind, fast: e.fast, x: at.x, y: e.kind === 'crow' ? at.y : 0, z: at.z });
   }
 
   // A pumpkin shot down in the air: its points, and a small burst.

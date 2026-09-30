@@ -42,9 +42,13 @@ export function muzzleAt(x, roadZ, pose = {}) {
   };
 }
 
+// A fast zombie's darker skin, shirt and pants: its model and its chunks.
+export const FAST_ZOMBIE = { skin: '#4a5c40', shirt: '#2e2a3a', pants: '#22201d' };
+
 // What each thing bursts into: chunks in its model's colours, and a puff (or none).
 export const BURSTS = {
   zombie: { count: 12, life: 1, size: 0.18, colors: ['#7d9a6a', '#5b5270', '#3d3a35'], puff: '#9fd18b', puffSize: 1 },
+  fastZombie: { count: 12, life: 1, size: 0.18, colors: [FAST_ZOMBIE.skin, FAST_ZOMBIE.shirt, FAST_ZOMBIE.pants], puff: '#9fd18b', puffSize: 1 },
   pumpkinMonster: { count: 12, life: 1, size: 0.18, colors: ['#e0762b', '#3f6b2a', '#5f8f3a'], puff: '#e07b24', puffSize: 1 },
   crow: { count: 12, life: 1, size: 0.18, colors: ['#16161c', '#c99a2e'], puff: '#3a3a3a', puffSize: 1 },
   zombieKing: { count: 40, life: 1.5, size: 0.35, colors: ['#7d9a6a', '#5a1f3a', '#3d3a35', '#d9a520'], puff: '#9fd18b', puffSize: 3 },

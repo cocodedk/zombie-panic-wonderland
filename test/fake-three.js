@@ -3,6 +3,7 @@
 
 export const BackSide = 1;
 export const DoubleSide = 2;
+export const AdditiveBlending = 2;
 
 export class Vector3 {
   constructor(x = 0, y = 0, z = 0) {

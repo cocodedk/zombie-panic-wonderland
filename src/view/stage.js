@@ -29,7 +29,7 @@ const SCENERY = {
 const BOSSES = { zombieKing: buildZombieKing, scarecrowKing: buildScarecrowKing };
 
 const ENEMIES = {
-  zombie: (e) => buildZombie({ seed: e.id * 1.7 }),
+  zombie: (e) => buildZombie({ seed: e.id * 1.7, fast: e.fast }),
   pumpkinMonster: () => buildPumpkinMonster(),
   crow: (e) => buildCrow({ seed: e.id }),
   boss: (e, level) => BOSSES[level.boss.model](),
