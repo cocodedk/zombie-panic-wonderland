@@ -32,7 +32,8 @@ and to the Zombie King, which is the same figure made bigger.
 
 ## What does not change
 
-The zombie's size, proportions, silhouette, walk, arm swing, head twitch and jaw; the base colours,
+The zombie's size, proportions, silhouette (except that the claws reach 0.09 past each fist, the one
+change to the outline), walk, arm swing, head twitch and jaw; the base colours,
 including the fast zombie's darker ones and its eyes, halos and speed; how a zombie is picked and hit
 (a zombie's parts are parts of the zombie, so a shot at a claw is a shot at the zombie); the burst
 chunks and their colours; the fading copy under reduced motion, which is the same refined model with
@@ -51,12 +52,19 @@ and defeat freeze the scene as it is. There is no new text, no HUD change and no
 - `src/view/models/zombie.js`: calls it; it stays under 200 lines (it is 171 today).
 - `src/view/stage.js`: passes each zombie's tint (drawn from its id) with the other model parameters,
   at most 5 lines longer than today.
+- `src/logic/game.js`: a fading copy gets a new effect id, so the fade data also carries the fallen
+  zombie's own id (`enemyId`), from which the stage draws the same tint; at most 5 lines longer than
+  today. `src/logic/effects.js` may carry the field through, at most 3 lines.
 
 ## The tests
 
 The builder may run the suite and node, but not a web server or a browser: a picture of the refined
-zombie is the supervisor's step. The builder may add and edit test files. It changes no earlier test:
-`tint` defaults to 0, so every colour an earlier test asserts is unchanged.
+zombie is the supervisor's step. The builder may add and edit test files. `tint` defaults to
+0, so a colour an earlier test reads from the model itself is unchanged. The stage's zombies get a
+nonzero tint, so the builder **may update the exact colour assertions** that read a zombie's colours
+from the stage or from a fading copy (`test/fast-zombies-view.test.js` has them) to allow for the tint
+(for example by asserting the colour with `tint` 0, or within ±6% of the base). It changes only those
+colour assertions, and nothing else in any earlier test.
 
 ## Done when
 
