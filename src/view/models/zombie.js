@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { flat, glow, glowing, part, group, seeded } from './parts.js';
 import { FAST_ZOMBIE } from '../../logic/effects.js';
+import { addDetails, tinted } from './zombie-details.js';
 
 const TEETH = '#e8e0c8';
 
@@ -31,10 +32,11 @@ export function buildZombie({
   eyes = fast ? FAST_EYES.color : '#ff3b30',
   size = 1,
   seed = 0, // shifts the shamble so a crowd does not move in step
+  tint = 0, // -0.06 to 0.06: darkens or lightens the skin and shirt by that fraction of their lightness
 } = {}) {
   const root = group();
-  const shirtMat = flat(shirt);
-  const skinMat = flat(skin);
+  const shirtMat = flat(tinted(shirt, tint));
+  const skinMat = flat(tinted(skin, tint));
 
   // Legs pivot at the hips.
   const legGeo = new THREE.CylinderGeometry(0.1, 0.08, 0.8, 5);
@@ -94,6 +96,8 @@ export function buildZombie({
     torso.add(shoulder);
     return shoulder;
   });
+
+  addDetails({ head, arms, torso }, [-0.07, 0.07]);
 
   // The head's twitch: the next one's start, side and angle, drawn from a seeded random.
   const random = seeded(Math.round(seed * 1000) + 1);

@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { register } from 'node:module';
 import { BURSTS, FAST_ZOMBIE } from '../src/logic/effects.js';
 import { kill } from './helpers.js';
-import { LEVELS, fastAmongFour } from './fast-helpers.js';
+import { LEVELS, closeTo, fastAmongFour } from './fast-helpers.js';
 
 register('./three-hooks.js', import.meta.url);
 globalThis.window ??= { devicePixelRatio: 1, innerWidth: 800, innerHeight: 600, addEventListener() {} };
@@ -133,10 +133,10 @@ describe('5. on the stage', () => {
       const { game, zombies, fast } = fastAmongFour(level, () => 0.5);
       const scene = stageFor(game)();
       const model = shownAs(scene, fast);
-      assert.deepEqual(colours(model), DARK);
+      closeTo(colours(model), DARK);
       assert.equal(halosOf(model).length, 2);
       for (const e of zombies.slice(0, 3)) {
-        assert.deepEqual(colours(shownAs(scene, e)), PLAIN);
+        closeTo(colours(shownAs(scene, e)), PLAIN);
         assert.equal(halosOf(shownAs(scene, e)).length, 0);
       }
     });
@@ -175,7 +175,7 @@ describe('5. on the stage', () => {
       const [fade] = named(scene, 'fade');
       assert.ok(fade, 'a fading copy');
       assert.equal(named(scene, 'chunk').length, 0);
-      assert.deepEqual(colours(fade), DARK);
+      closeTo(colours(fade), DARK);
       assert.equal(eyesOf(fade).length, 2);
       for (const eye of eyesOf(fade)) {
         assert.equal(hex(eye.material.color), '#ff2a1a');
@@ -189,7 +189,7 @@ describe('5. on the stage', () => {
       draw();
       kill(game, zombies[0]);
       const [fade] = named(draw(), 'fade');
-      assert.deepEqual(colours(fade), PLAIN);
+      closeTo(colours(fade), PLAIN);
       for (const eye of eyesOf(fade)) assert.equal(hex(eye.material.color), '#ff3b30');
       assert.equal(halosOf(fade).length, 0);
     });

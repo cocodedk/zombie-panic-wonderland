@@ -794,7 +794,7 @@ export class Game {
   burst(e) {
     const kind = e.kind === 'boss' ? this.level.boss.model : e.fast ? 'fastZombie' : e.kind;
     const at = this.centre(e);
-    this.effects.burst(kind, at, { kind: e.kind, fast: e.fast, x: at.x, y: e.kind === 'crow' ? at.y : 0, z: at.z });
+    this.effects.burst(kind, at, { kind: e.kind, enemyId: e.id, fast: e.fast, x: at.x, y: e.kind === 'crow' ? at.y : 0, z: at.z });
   }
 
   // A pumpkin shot down in the air: its points, and a small burst.

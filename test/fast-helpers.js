@@ -1,5 +1,6 @@
 // What spec 18's tests share: games of the real levels (without weather) and waves sent whole.
 
+import assert from 'node:assert/strict';
 import { Game } from '../src/logic/game.js';
 import { level2 } from '../src/levels/level-2.js';
 import { calm, click, level1 } from './helpers.js';
@@ -8,6 +9,13 @@ export const LEVELS = [level1, level2];
 export const near = (a, b, tol = 1e-9, msg = '') => {
   if (!(Math.abs(a - b) <= tol)) throw new Error(`${msg} ${a} ≈ ${b}`);
 };
+// The stage tints skin and shirt by up to 6% of their lightness (spec 20): `actual` [skin, shirt, pants]
+// is close to `base`, the pants exact.
+const channels = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+export const closeTo = (actual, base) => actual.forEach((c, i) => {
+  if (i === 2) return assert.equal(c, base[i]);
+  channels(c).forEach((v, k) => assert.ok(Math.abs(v - channels(base[i])[k]) <= 20, `${c} is not within the tint of ${base[i]}`));
+});
 // The level's zombies with no fast rule: the game as it played before this spec.
 export const ordinary = (level) => ({ ...level, enemies: { ...level.enemies, zombie: { ...level.enemies.zombie, fast: undefined } } });
 
