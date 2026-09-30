@@ -7,7 +7,7 @@ import { short1, short2, journey, win } from './journey.js';
 
 const SELECTORS = [
   '#plain', '#hud', '#hearts', '#score', '#wave', '#bossbar', '#bossbar i', '#bossbar span', '#band', '#band h1',
-  '#band .lines', '#band button', '#band button + button', '#sound', '#crosshair', '#stage',
+  '#band .lines', '#band .levels', '#band button', '#band button + button', '#sound', '#crosshair', '#stage',
   '#notice', '#hint', '#weapon-popper', '#weapon-scattergun', '#weapon-launcher', '#weapon-gatling',
 ];
 
@@ -16,6 +16,10 @@ class FakeElement extends EventTarget {
   textContent = '';
   style = {};
   classList = { toggle() {} };
+  children = [];
+  replaceChildren(...nodes) {
+    this.children = nodes;
+  }
   click() {
     this.dispatchEvent(new Event('click'));
   }
@@ -24,7 +28,7 @@ class FakeElement extends EventTarget {
 // The page's elements, one per selector the HUD asks for.
 function page(game) {
   const els = Object.fromEntries(SELECTORS.map((s) => [s, new FakeElement()]));
-  const doc = { querySelector: (s) => els[s] ?? null, body: new FakeElement() };
+  const doc = { querySelector: (s) => els[s] ?? null, body: new FakeElement(), createElement: () => new FakeElement() };
   const hud = createHud(doc, game);
   const first = els['#band button'];
   const second = els['#band button + button'];

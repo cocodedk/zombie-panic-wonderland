@@ -46,7 +46,10 @@ export function screenView(game) {
   const view = { plain: null, band: null, hud: null, pointer: true };
   if (s === 'loading') view.plain = TEXT.loading;
   else if (s === 'error') view.plain = TEXT[game.error] ?? TEXT.network;
-  else if (s === 'title') view.band = { title: TEXT.title, lines: [TEXT.start, `${TEXT.controls} · M sound: ${sound(game)}`] };
+  else if (s === 'title') {
+    const levels = game.levels.map((l, index) => ({ text: `Level ${l.number}`, index }));
+    view.band = { title: TEXT.title, lines: [TEXT.start, `${TEXT.controls} · M sound: ${sound(game)}`], levels };
+  }
   else if (s === 'intro') view.band = { lines: [text.intro] };
   else if (s === 'play' && game.banner) view.band = { lines: [game.banner] };
   else if (s === 'paused') view.band = { lines: [TEXT.paused] };

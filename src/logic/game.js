@@ -217,6 +217,7 @@ export class Game {
     this.reset();
     this.screen = 'title';
   }
+  startAt(index) { if (this.screen === 'title' && Number.isInteger(index) && this.levels[index]) this.begin(this.levels[index], 0); } // a level's button on the title
 
   begin(level, score) {
     this.level = level;
