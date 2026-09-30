@@ -34,15 +34,16 @@ have; ours would be 300 to 500).
 
 ## Spec breakdown (each small enough for the loop)
 
-1. **28: level 3 shell:** a third level in the game (data, title/next-level flow, `webs` scenery,
-   light and fog), with the zombies and crows only.
-2. **29: spiders:** the spider model in code (8 legs with a scuttling gait, red eyes, hourglass), and a
-   ground spider enemy.
-3. **30: dropping spiders:** spiders that lower from above on a thread.
-4. **31: wolves:** a low fast runner and its model.
-   **31b: bats:** a flapping flyer and its model, in code like the crow.
-5. **32: the Spider Queen:** the boss, web spit and spiderlings.
-6. **33: level 3 waves and tuning.**
+1. **28: level 3 shell:** the third level in the game (data, title/next-level flow, a `web` scenery
+   model, light, fog, weather and sky), with the zombies and crows; the boss is the Zombie King for now.
+2. **29: spiders:** a ground spider enemy and its model in code.
+3. **30: dropping spiders:** every third spider comes down on a thread.
+4. **31: wolves:** a fast, tough runner that takes 2 hearts a strike, and its model.
+5. **32: bats:** a flyer like the crow, quicker, and its model.
+6. **33: the Spider Queen:** the boss, web balls that slow the player, and spiders she summons.
+
+Decided defaults: everything built in code (no `.glb`), the wolf a fast runner, bats in, the Spider Queen
+as the boss.
 
 ## Questions for the owner
 
