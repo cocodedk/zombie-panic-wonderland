@@ -1,3 +1,7 @@
+---
+lean_status: pr_open
+lean_pr: https://github.com/cocodedk/zombie-panic-wonderland/pull/16
+---
 # 16: storm and wind
 
 ## What the owner wants

@@ -1,3 +1,7 @@
+---
+lean_status: pr_open
+lean_pr: https://github.com/cocodedk/zombie-panic-wonderland/pull/19
+---
 # 19: point bubbles
 
 Run this after spec 18 is merged: it shows 18's double points for the fast zombies, and 17's walk is

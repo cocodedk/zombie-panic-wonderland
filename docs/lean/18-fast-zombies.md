@@ -1,3 +1,7 @@
+---
+lean_status: pr_open
+lean_pr: https://github.com/cocodedk/zombie-panic-wonderland/pull/18
+---
 # 18: fast zombies
 
 Run this after spec 17 is merged: it builds on 17's zombie walk (the fences and the gaps).

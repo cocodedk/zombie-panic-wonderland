@@ -1,3 +1,7 @@
+---
+lean_status: pr_open
+lean_pr: https://github.com/cocodedk/zombie-panic-wonderland/pull/22
+---
 # 22: zombie hair tufts
 
 Run this after spec 21 is merged.

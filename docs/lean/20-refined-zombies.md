@@ -1,3 +1,7 @@
+---
+lean_status: pr_open
+lean_pr: https://github.com/cocodedk/zombie-panic-wonderland/pull/20
+---
 # 20: refined zombies
 
 Run this after spec 19 is merged.

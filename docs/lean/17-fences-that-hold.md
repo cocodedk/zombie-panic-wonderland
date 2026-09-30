@@ -1,3 +1,7 @@
+---
+lean_status: pr_open
+lean_pr: https://github.com/cocodedk/zombie-panic-wonderland/pull/17
+---
 # 17: fences that hold
 
 ## What the owner wants

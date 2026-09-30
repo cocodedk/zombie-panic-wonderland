@@ -1,8 +1,6 @@
 ---
-lean_status: questions
-lean_rounds: 1
-lean_asked: The specified bite crosses the outer disc (0.45r + 0.85r > r), so it cannot be a valid interior
-  hole; should the crescent and its test instead use a single outline formed from the intersecting arcs?
+lean_status: pr_open
+lean_pr: https://github.com/cocodedk/zombie-panic-wonderland/pull/21
 ---
 # 21: clouds and a crescent moon
 
