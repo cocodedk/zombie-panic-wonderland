@@ -18,6 +18,10 @@ seconds at an even speed. Then it is an ordinary spider (spec 29) and walks from
 
 - **While it lowers** it does not walk and does not strike; it can be hit (2 hits, 150 points) as
   any spider can, by aiming at it in the air; if it falls while hanging its thread goes with it.
+- **Where it is hit:** a hanging dropper's centre is its body's, at the height of its root plus 0.3
+  (`from × (drop / time) + 0.3`), so a launcher's blast, a gas canister's fireball, the burst, the score
+  bubble and a reduced-motion fade all use that airborne place; a landed one is at 0.3, as any spider.
+  (`centre(e)` in `game-outcome.js` reads the dropper's `drop`.)
 - **The rest is a spider's:** its speed, reach, strike, points and burst. From z −5 it needs about 2.3
   seconds to reach the road (5 / 2.2) once landed.
 - **Wave counts do not change:** a dropper is one of the wave's spiders, not an extra one.
@@ -28,16 +32,22 @@ The reference is spec 29's spider. A dropper is that spider model, plus a **thre
 unlit, from the spider's back (0.5 above its root) straight up to a **fixed top** at `from + 0.5` (5.5)
 above the ground. The spider hangs from that point: at the start of the drop the thread is as short as
 the spider's back is close to the top (its length is 0) and it lengthens as the spider lowers, to 5 at
-the ground, where the thread is removed as the spider lands and walks. The thread ignores rays. Nothing
+the ground, where the thread is removed in the same update as the spider lands (its `drop` becomes absent), so no
+frame is ever drawn with a full-length thread and a landed spider. The thread ignores rays. Nothing
 else about the picture changes. No new text, no new sound.
 
 ## Every screen
 
-As spec 29: the droppers show and act in play and nowhere else (the gap between waves has none: a wave
-is cleared when all its enemies have fallen); paused freezes
-them mid-drop and they go on from there; victory and defeat freeze the scene; each level start, Try
-again, Play again, Next level and Back to title start fresh, with the count of spiders starting again
-each wave.
+- Loading, error and title: no droppers or threads, as no enemy shows there.
+- Intro card: none yet.
+- Play: droppers and their threads show, lower and then walk, as above.
+- The gap between waves: none (a wave is cleared when all its enemies have fallen).
+- Paused: a hanging dropper and its thread freeze where they are, drawn behind the paused band, and go on
+  from there.
+- Victory and defeat: the scene freezes as it is, so a hanging dropper and its thread stay drawn,
+  frozen, behind the card, and do nothing.
+- Each level start, Try again, Play again, Next level and Back to title start fresh, with none, and the
+  count of spiders starting again each wave.
 
 ## Nothing else changes
 
@@ -71,8 +81,9 @@ except where one asserts the exact fields of a spawned spider or the exact data 
 2. A dropper appears at z −5 at height 5, lowers evenly to 0 in 1.2 seconds, is not walking or
    striking while it lowers, and then walks as a spider from z −5 (reaching the road about 2.3 seconds
    after it lands).
-3. A dropper can be hit and felled while hanging (2 hits, 150 points), with its thread; a landed one is
-   an ordinary spider.
+3. A dropper can be hit and felled while hanging (2 hits, 150 points), with its thread; its centre, so
+   the launcher's blast, the burst, the score bubble and the reduced-motion fade, is at its airborne
+   height plus 0.3; a landed one is an ordinary spider at 0.3.
 4. The stage: a dropper's height follows `drop`; its thread runs from the spider's back to the fixed top
    at 5.5, is 0 long at the start and 5 long at the ground, is 0.012 across, ignores rays, and is removed
    on landing and when the spider falls; nothing is left after a level change.
