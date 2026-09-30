@@ -31,7 +31,8 @@ tunic, a belt, two boots and two arms holding the gun. This sketch shows the bac
 
 All are made in code in a new file `src/view/models/hero-details.js`, which `buildPlayer` calls once. Places
 are in the body's own frame, the one `player.js` uses before its waist shift (for example the hood at y
-1.15); every part is a child of the `body` group, so they turn with a dodge. Colours are flat, like the
+1.15); every part is a child of the `body` group (the boots' cuffs, feet and soles, of the legs, which are
+children of it), so they turn with a dodge. Colours are flat, like the
 rest.
 
 1. **A scalloped cape hem.** Seven small points along the hem: cones (radius 0.07, length 0.12, 3 sides),
@@ -52,11 +53,16 @@ rest.
 7. **A satchel.** A leather satchel on the right hip, on the outside of the cape: a box 0.22 × 0.26 × 0.1
    in `#6b4a2b` at (0.22, 0.45, 0.3), a flap (a box 0.22 × 0.1 × 0.11 in `#8a5d33`) on its top at (0.22, 0.55,
    0.3), and a strap across the cape's back: a box 0.03 × 0.6 × 0.02 in `#4a3420` at (0.05, 0.72, 0.27),
-   leaning by −0.6 radians about z.
+   leaning by **+0.6** radians about z: its top toward the hero's left shoulder and its lower end toward the
+   satchel on the right hip (the hero faces −z, so its right is +x, the viewer's right).
 8. **Boots.** A cuff on each boot: a torus of radius 0.095 and tube 0.02 in `#4a3a30` at (±0.12, 0.42, 0), and
    a foot under each: a box 0.14 × 0.06 × 0.26 in the `boots` colour (`#2e2420` by default) at (±0.12, 0.03, −0.05) (pointing forward, so the
    toes show past the legs from the camera's low view) with a sole, a box 0.15 × 0.02 × 0.27 in `#1c1512`
-   under it at (±0.12, 0.0, −0.05).
+   under it at (±0.12, 0.0, −0.05). The cuffs, feet and soles are **children of the two leg meshes** (the
+   animated ones, `legs[0]` and `legs[1]`, which swing in the walk), so they move with the boots: their
+   places above are in the body's frame, so in a leg's own frame they are at x 0 and y reduced by the leg's
+   own y (0.22): the cuff at (0, 0.2, 0), the foot at (0, −0.19, −0.05), the sole at (0, −0.22, −0.05).
+   `buildPlayer` passes `legs` to the new file.
 
 ## What does not change
 
@@ -92,12 +98,15 @@ its meshes), and only that number.
 1. The cape hem: 7 points at the positions in change 1, with the size, sides and colour; the trim ring,
    its size and colour; the collar.
 2. The hood seam and the pompom (at the tip of the hood's cone), the three hair boxes, and the two shoulder
-   caps, each with the sizes, places and colours above.
-3. The satchel, its flap and its strap, with the sizes, places, colours and the strap's lean; and the boots'
-   cuffs, feet and soles.
-4. Every new part is a child of the body group, none is a child of the aim rig, and none changes the
+   caps, each with the sizes, places and colours above (the caps in the `hood` colour parameter).
+3. The satchel, its flap and its strap, with the sizes, places, colours and the strap's lean of +0.6 (its
+   lower end toward the satchel, on the right); and the boots' cuffs, feet and soles, with the sizes and
+   colours above (the feet in the `boots` colour parameter), as children of the two leg meshes at the places
+   given in the legs' own frame, so that a leg's swing in the walk moves its cuff, foot and sole.
+4. Every other new part is a child of the body group, none is a child of the aim rig, and none changes the
    hero's pose: the walk's leg swing, the dodge's roll, the aim rig's yaw and pitch and the flash are
    exactly as before.
 5. The hero's model parameters (`hood`, `cape`, `skin`, `tunic`, `boots`, `gun`, `size`) still colour and
-   size it as before; the new parts keep their own colours.
+   size it as before; the shoulder caps follow `hood` and the feet follow `boots`; the other new parts
+   keep their own fixed colours.
 6. The hero is still not pickable, and the new file is under 200 lines; `player.js` is within its limit.
