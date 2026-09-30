@@ -32,13 +32,16 @@ class FakeContext {
     return g;
   }
   createOscillator() {
-    return this.node({ frequency: param(), start: () => this.started.push('tone'), stop() {} });
+    return this.node({ frequency: param(), detune: param(), start: () => this.started.push('tone'), stop() {} });
   }
   createBufferSource() {
     return this.node({ start: () => this.started.push('noise'), stop() {} });
   }
   createBiquadFilter() {
     return this.node({ frequency: param(), Q: param() });
+  }
+  createDelay() {
+    return this.node({ delayTime: param() });
   }
   createBuffer(channels, length) {
     const data = new Float32Array(length);

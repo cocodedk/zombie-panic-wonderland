@@ -53,11 +53,7 @@ describe('1. level 3\'s data', () => {
   });
 
   test('the palette: music, light, weather, sky', () => {
-    assert.deepEqual([level3.music.key, level3.music.bpm, level3.music.bars, level3.music.root], ['E minor', 92, 8, 52]);
-    assert.deepEqual(level3.music.bass, [0, 3, 0, 4, 5, 3, 4, 4]);
-    assert.equal(level3.music.melody.length, 32);
-    assert.deepEqual(level3.music.melody.slice(0, 8), [2, null, 4, 3, 2, null, 0, null]);
-    assert.deepEqual(level3.music.melody.slice(-4), [-1, null, 0, null]);
+    assert.deepEqual([level3.music.name, level3.music.bpm, level3.music.root], ['Spider wood', 150, 52]);
     assert.deepEqual(level3.light, { fog: '#1d2b2a', fogFar: 100, sky: '#6b7fa8', ground: '#1a231e', key: '#c9d6ff', keyAt: [-10, 14, -20], fill: '#8f7fc0' });
     assert.deepEqual(level3.weather, { between: [8, 18], rest: 0.4, gusts: 0.6, leaf: '#6f7f4a' });
     assert.deepEqual(level3.sky, {

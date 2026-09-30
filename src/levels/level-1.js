@@ -1,6 +1,8 @@
 // Level 1: the ruined road. Everything the rules and the scene need, as data.
 // A new level is a new file of this shape; the game and the stage stay the same.
 
+import { track1 } from './tracks.js';
+
 export const level1 = {
   name: 'The ruined road',
   number: 1,
@@ -60,19 +62,8 @@ export const level1 = {
     summonBack: 2,
   },
 
-  // The level's loop: A minor. `root` is a MIDI note; `bass` a scale degree per bar, `melody` one
-  // per beat (null rests), an octave above the root.
-  music: {
-    key: 'A minor',
-    bpm: 120,
-    bars: 8,
-    root: 57,
-    bass: [0, 0, 5, 5, 3, 3, 4, 4],
-    melody: [
-      0, 2, 4, null, 4, 3, 2, null, 5, 4, 2, 0, 2, null, null, null,
-      3, 5, 7, 5, 4, 2, 0, null, 1, 2, 4, 6, 4, null, -1, null,
-    ],
-  },
+  // The level's track: A minor, 140 bpm.
+  music: track1,
 
   // Thunder, lightning and wind: seconds between strikes, the wind at rest and how far a gust adds
   // to it (0 to 1), and the colour of the drifting leaves.
