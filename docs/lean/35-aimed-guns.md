@@ -33,7 +33,12 @@ and gun turn so that **the barrel points at that point**:
 - **A dodge:** the hero rolls through a dodge; the gun's aim fades out and back with it: the angles are
   multiplied by `1 − sin(roll × π)`, which is 1 outside a dodge and 0 at its middle.
 - **Instant, not smoothed:** the angles follow the crosshair in the same frame. A shot and the picture
-  use the same angles, so the streak leaves exactly along the barrel.
+  use the same angles.
+- **Where the streak ends:** always at the aim point, as today: a shot starts at the turned muzzle and
+  runs to the aim point. Inside the limits and outside a dodge that line is the barrel's line, so the streak
+  leaves exactly along the barrel; when a target is past a limit or a dodge fades the aim, the barrel cannot
+  point at it, and the streak still runs from the muzzle to the aim point (it bends to it, as it does
+  today). What a shot hits never changes.
 
 ## Where it plugs in
 
@@ -81,7 +86,9 @@ What a shot hits, damage, weapons, ammo, reloads, scoring, the camera, the cross
 The builder may run the suite and node, but not a web server or a browser: a picture of the hero aiming is
 the supervisor's step. The builder may add and edit test files, and the fake three.js. It may change an
 earlier test only where that test compares `pose()` or `muzzleAt`'s answer exactly (they gain `yaw` and
-`pitch`, 0 when nothing is aimed), and only that.
+`pitch`, 0 when nothing is aimed), or asserts where the muzzle flash or the gun sits in the model (the
+flash-position assertions in `test/weapons-stage.test.js` and `test/gatling.test.js`, which now measure
+from the aim rig's pivot), and only those.
 
 ## Done when
 
@@ -98,7 +105,8 @@ earlier test only where that test compares `pose()` or `muzzleAt`'s answer exact
    them it returns the muzzle turned about the pivot, and for the aim point it is on the barrel line.
 5. `pose()` gives `yaw` and `pitch` from the aim point on `intro`, `play` and `paused`, and 0 on the title,
    loading, error, victory and defeat; paused, they do not change.
-6. A shot: the Popper's streak starts at the turned muzzle and ends at the aim point, along the barrel; the
+6. A shot: the Popper's streak starts at the turned muzzle and ends at the aim point (along the barrel when
+   the target is inside the limits and outside a dodge, and from the muzzle to the aim point otherwise); the
    Scattergun's pellets and the Gatling's tracers start there too; the flash is at the muzzle.
 7. The model (with the fake three.js): the arms, the gun in hand and the flash are children of the aim
    rig; its `rotation.y` and `rotation.x` equal `yaw` and `pitch` with order `YXZ`; the head and body
