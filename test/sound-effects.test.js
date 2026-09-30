@@ -3,7 +3,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { Game } from '../src/logic/game.js';
-import { Effects, BURSTS, MAX_CHUNKS, MUZZLE, WAIST } from '../src/logic/effects.js';
+import { Effects, BURSTS, MAX_CHUNKS, MUZZLE, WAIST, muzzleAt } from '../src/logic/effects.js';
 import { crowAt } from '../src/logic/game.js';
 import { mix, VOLUME } from '../src/logic/sound.js';
 import { screenView } from '../src/logic/screens.js';
@@ -200,7 +200,7 @@ describe('3. streaks', () => {
     game.shoot();
     const [streak] = game.effects.streaks;
     assert.deepEqual(streak.to, hitPoint);
-    assert.deepEqual(streak.from, { x: game.player.x + MUZZLE.x, y: WAIST + MUZZLE.y, z: game.level.roadZ + MUZZLE.z });
+    assert.deepEqual(streak.from, muzzleAt(game.player.x, game.level.roadZ, game.pose()), 'the muzzle, turned toward the aim');
     assert.equal(streak.life, 0.06);
     assert.equal(game.effects.flash, 0.04);
     assert.equal(zombie.health, 2, 'the shot still hits at once');

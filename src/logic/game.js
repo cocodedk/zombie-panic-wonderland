@@ -3,6 +3,7 @@
 // is also recorded as sound cues (`cues`) and effects (`effects`), for the audio module and the stage.
 
 import { Effects } from './effects.js';
+import { aimAngles } from './aim.js';
 import { Weather, ownRandom } from './weather.js';
 import { EPS } from './game-shared.js';
 import { journey } from './game-journey.js';
@@ -39,6 +40,7 @@ export class Game {
     this.move = 0;
     this.aim = null;
     this.aimPoint = null; // where the crosshair's ray lands, for the bullet's streak
+    this.heldAim = null; // the pose at the moment of a pause: the gun's angles hold
     this.score = this.startScore;
     this.wave = 1;
     this.phase = 'intro'; // then 'wave', 'cleared', 'announce', 'boss'
@@ -101,11 +103,15 @@ export class Game {
     return this.player.dodging > EPS;
   }
 
-  // How the player is drawn now: walking, and how far through a dodge (see bodyPose).
+  // How the player is drawn now: walking, and how far through a dodge (see bodyPose), and the gun's `yaw`
+  // and `pitch` toward the aim point, where the crosshair shows (else 0: straight ahead).
   pose() {
     const p = this.player;
     const roll = this.dodging ? 1 - p.dodging / this.level.player.dodgeTime : 0;
-    return { t: this.clock, walk: this.live && this.move ? 1 : 0, roll, dir: p.dir, weapon: this.weapon, spin: this.barrels.angle };
+    const pose = { t: this.clock, walk: this.live && this.move ? 1 : 0, roll, dir: p.dir, weapon: this.weapon, spin: this.barrels.angle };
+    if (this.screen === 'paused' && this.heldAim) return { ...pose, yaw: this.heldAim.yaw, pitch: this.heldAim.pitch };
+    const aimed = this.live || this.screen === 'paused';
+    return { ...pose, ...(aimed ? aimAngles(p.x, this.level.roadZ, pose, this.aimPoint) : { yaw: 0, pitch: 0 }) };
   }
 
   owns(weapon) {

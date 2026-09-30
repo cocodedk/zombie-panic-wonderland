@@ -2,7 +2,7 @@
 
 import * as THREE from 'three';
 import { flat, part, group } from './parts.js';
-import { bodyPose, MUZZLES } from '../../logic/effects.js';
+import { bodyPose, MUZZLES, MUZZLE, PIVOT, WAIST } from '../../logic/effects.js';
 
 export function buildPlayer({
   hood = '#b3202a',
@@ -31,10 +31,18 @@ export function buildPlayer({
   body.add(part(new THREE.IcosahedronGeometry(0.25, 0), hood, [0, 1.15, 0.04]));
   body.add(part(new THREE.ConeGeometry(0.12, 0.34, 5), hood, [0, 1.18, 0.28], [Math.PI / 2 + 0.4, 0, 0]));
 
+  // The aim rig: the arms, the guns and the flash turn together about the shoulder, yaw then pitch.
+  // Its children are placed from the pivot (`at` takes a place in the body before its waist shift).
+  const rig = group();
+  rig.rotation.order = 'YXZ';
+  rig.position.set(PIVOT.x, PIVOT.y + WAIST, PIVOT.z);
+  body.add(rig);
+  const at = ([x, y, z]) => [x - PIVOT.x, y - PIVOT.y - WAIST, z - PIVOT.z];
+
   // Arms reach forward to the gun, held in both hands.
   const armGeo = new THREE.CylinderGeometry(0.06, 0.05, 0.42, 5);
-  body.add(part(armGeo, hood, [0.2, 0.86, -0.16], [-Math.PI / 2 + 0.2, 0, -0.3]));
-  body.add(part(armGeo, hood, [-0.08, 0.86, -0.18], [-Math.PI / 2 + 0.2, 0, 0.5]));
+  rig.add(part(armGeo, hood, at([0.2, 0.86, -0.16]), [-Math.PI / 2 + 0.2, 0, -0.3]));
+  rig.add(part(armGeo, hood, at([-0.08, 0.86, -0.18]), [-Math.PI / 2 + 0.2, 0, 0.5]));
   // One gun per weapon; only the one in hand shows. Each muzzle is at MUZZLES in the body.
   const grip = () => part(new THREE.BoxGeometry(0.07, 0.14, 0.08), '#5a3a22', [0, -0.1, 0.06], [0.3, 0, 0]);
   const barrel = (r, length, x, z) => part(new THREE.CylinderGeometry(r, r, length, 6), gun, [x, 0.02, z], [Math.PI / 2, 0, 0]);
@@ -65,12 +73,12 @@ export function buildPlayer({
     gatling,
   };
   const gunGroup = group(...Object.values(guns));
-  gunGroup.position.set(0.1, 0.88, -0.42);
-  body.add(gunGroup);
+  gunGroup.position.set(...at([0.1, 0.88, -0.42]));
+  rig.add(gunGroup);
 
-  const flash = part(new THREE.IcosahedronGeometry(0.1, 0), new THREE.MeshBasicMaterial({ color: '#ffe38a' }), [0, 0.02, -0.34]);
+  const flash = part(new THREE.IcosahedronGeometry(0.1, 0), new THREE.MeshBasicMaterial({ color: '#ffe38a' }), [MUZZLE.x - PIVOT.x, MUZZLE.y - PIVOT.y, 0]);
   flash.visible = false;
-  gunGroup.add(flash);
+  rig.add(flash);
 
   for (const c of body.children) c.position.y -= 0.6;
   body.position.y = 0.6;
@@ -78,15 +86,19 @@ export function buildPlayer({
 
   root.userData = {
     body,
+    rig,
     flash,
     guns,
     spinner,
     // walk: how fast it walks (0 standing), roll: 0..1 through a dodge, dir: which way it rolls,
-    // weapon: the gun in hand, with the flash at its muzzle, spin: the Gatling's barrels, in turns.
-    tick(t, { walk = 0, roll = 0, dir = 1, weapon = 'popper', spin = 0 } = {}) {
+    // weapon: the gun in hand, with the flash at its muzzle, spin: the Gatling's barrels, in turns,
+    // yaw and pitch: how far the aim rig turns the arms and gun, in radians.
+    tick(t, { walk = 0, roll = 0, dir = 1, weapon = 'popper', spin = 0, yaw = 0, pitch = 0 } = {}) {
       for (const [w, g] of Object.entries(guns)) g.visible = w === weapon;
       spinner.rotation.z = spin * Math.PI * 2;
-      flash.position.z = MUZZLES[weapon].z - gunGroup.position.z;
+      flash.position.z = MUZZLES[weapon].z - PIVOT.z;
+      rig.rotation.y = yaw;
+      rig.rotation.x = pitch;
       const swing = walk ? Math.sin(t * 12) * 0.5 : 0;
       legs[0].rotation.x = swing;
       legs[1].rotation.x = -swing;

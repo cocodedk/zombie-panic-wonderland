@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { register } from 'node:module';
 import { Game } from '../src/logic/game.js';
 import { WEAPONS, ORDER, CRATES, CRATE, NOTICE_LIFE } from '../src/logic/weapons.js';
-import { MUZZLES, STREAK, TRACER } from '../src/logic/effects.js';
+import { MUZZLES, STREAK, TRACER, muzzleAt } from '../src/logic/effects.js';
 import { screenView, TEXT } from '../src/logic/screens.js';
 import { mix } from '../src/logic/sound.js';
 import { registerWebMcp } from '../src/logic/webmcp.js';
@@ -497,7 +497,7 @@ check('each round draws a thin #ffb347 tracer from the muzzle to where it hits f
   const [s] = game.effects.streaks;
   assert.deepEqual([s.color, s.life, s.to], ['#ffb347', 0.05, to]);
   assert.ok(s.width < 1, 'thinner than the Popper\'s');
-  near(s.from.z, game.level.roadZ + MUZZLES.gatling.z);
+  assert.deepEqual(s.from, muzzleAt(game.player.x, game.level.roadZ, game.pose()), 'the turned muzzle');
   assert.deepEqual([TRACER.color, TRACER.life], ['#ffb347', 0.05]);
 
   const { draw } = stageFor(game);
