@@ -2,6 +2,10 @@
 // puffs, and fades in their place when motion is reduced. Plain data, so Node can test it; the
 // stage draws it. Effects only show: they never hit anything.
 
+import { turned } from './turn.js';
+
+export { PIVOT } from './turn.js';
+
 const EPS = 1e-9;
 
 export const GRAVITY = 9.8;
@@ -58,10 +62,10 @@ export function bodyPose({ t = 0, walk = 0, roll = 0, dir = 1 } = {}) {
   return { y: WAIST + bob + lift, turn: -dir * roll * Math.PI * 2 };
 }
 
-// Where the muzzle of the gun in hand is for a player at `x` in the pose `pose` (see bodyPose).
+// Where the muzzle of the gun in hand is for a player at `x` in the pose `pose` (see bodyPose, `yaw`, `pitch`).
 export function muzzleAt(x, roadZ, pose = {}) {
   const { y, turn } = bodyPose(pose);
-  const m = MUZZLES[pose.weapon ?? 'popper'];
+  const m = turned(MUZZLES[pose.weapon ?? 'popper'], pose.yaw, pose.pitch);
   return {
     x: x + m.x * Math.cos(turn) - m.y * Math.sin(turn),
     y: y + m.x * Math.sin(turn) + m.y * Math.cos(turn),

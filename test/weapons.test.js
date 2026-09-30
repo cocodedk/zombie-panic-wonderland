@@ -5,7 +5,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { Game, pumpkinAt } from '../src/logic/game.js';
 import { WEAPONS, CRATE, pelletDirs, crateAt, shellAt } from '../src/logic/weapons.js';
-import { MUZZLES, STREAK, PELLET } from '../src/logic/effects.js';
+import { MUZZLES, STREAK, PELLET, muzzleAt } from '../src/logic/effects.js';
 import { screenView, TEXT } from '../src/logic/screens.js';
 import { registerWebMcp } from '../src/logic/webmcp.js';
 import { bindInput } from '../src/view/input.js';
@@ -116,13 +116,14 @@ describe('1. each weapon\'s fire rate, damage and ammo', () => {
     const blast = fx.streaks.slice(CRATE.hits); // after the Popper's shots at the crate
     assert.deepEqual(blast.map((s) => s.to), lines.map((p) => p.point));
     assert.ok(blast.every((s) => s.life === PELLET.life));
-    near(blast[0].from.z, game.level.roadZ + MUZZLES.scattergun.z);
+    const muzzle = (weapon) => muzzleAt(game.player.x, game.level.roadZ, { ...game.pose(), weapon }); // turned toward the aim
+    assert.deepEqual(blast[0].from, muzzle('scattergun'));
     assert.equal(fx.flash, STREAK.flash);
     assert.equal(fx.flashSize, 2);
     game.weapon = 'popper';
     game.shoot();
     assert.equal(fx.flashSize, 1);
-    near(fx.streaks.at(-1).from.z, game.level.roadZ + MUZZLES.popper.z);
+    assert.deepEqual(fx.streaks.at(-1).from, muzzle('popper'));
   });
 
   test('the Pumpkin launcher: 1.5 shots a second held, 2 rounds, 1 a shot', () => {
@@ -143,7 +144,7 @@ describe('1. each weapon\'s fire rate, damage and ammo', () => {
     game.setAim(null, to);
     game.shoot();
     const [s] = game.shells;
-    near(s.from.z, game.level.roadZ + MUZZLES.launcher.z);
+    assert.deepEqual(s.from, muzzleAt(game.player.x, game.level.roadZ, game.pose()), 'the turned muzzle');
     assert.deepEqual(shellAt(s), s.from);
     run(game, 0.17);
     const mid = shellAt(s);

@@ -36,11 +36,13 @@ export const journey = {
 
   pressEsc() {
     if (this.live) {
+      this.heldAim = this.pose(); // the gun holds its angles while paused, walking or not
       this.pausedFrom = this.screen;
       this.screen = 'paused';
     } else if (this.screen === 'paused') {
       this.screen = this.pausedFrom;
       this.pausedFrom = null;
+      this.heldAim = null;
     }
   },
 
