@@ -12,8 +12,27 @@ export const TUFTS = { radius: 0.03, height: 0.12, sides: 4, color: '#2a241c', a
 
 // The optional bits, one flag each. The stage builds zombies (and their fading copies) with these;
 // `buildZombie` defaults every flag to off, so a model built without `extras` is the plain zombie.
-export const ZOMBIE_EXTRAS = { tufts: true, limp: true };
-export const NO_EXTRAS = { tufts: false, limp: false };
+export const ZOMBIE_EXTRAS = { tufts: true, limp: true, flicker: true };
+export const NO_EXTRAS = { tufts: false, limp: false, flicker: false };
+
+// The eye flicker: the eyes' glow breathes between `low` and 1 of their base colour, once every
+// `period` seconds, shifted by the zombie's seed so a crowd does not flicker in step.
+export const FLICKER = { period: 1.7, low: 0.85, phase: 2.3 };
+
+// The brightness at time `t` for a zombie of `seed`: from FLICKER.low to 1.
+export const flickerK = (t, seed = 0) =>
+  FLICKER.low + (1 - FLICKER.low) * (0.5 + 0.5 * Math.sin((2 * Math.PI * t) / FLICKER.period + seed * FLICKER.phase));
+
+// Returns `(t, steady)` that sets each of `materials` to its colour now times flickerK, or exactly
+// to that colour when `steady` (reduced motion).
+export function flickering(materials, seed) {
+  const base = materials.map((m) => m.color.clone());
+  const black = new THREE.Color('#000000');
+  return (t, steady) => {
+    const k = steady ? 1 : flickerK(t, seed);
+    materials.forEach((m, i) => { m.color = base[i].clone().lerp(black, 1 - k); });
+  };
+}
 
 // The limp: one leg swings only `LIMP` as far as the other.
 export const LIMP = 0.6;
