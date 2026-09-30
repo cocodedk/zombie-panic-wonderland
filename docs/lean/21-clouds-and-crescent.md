@@ -1,3 +1,9 @@
+---
+lean_status: questions
+lean_rounds: 1
+lean_asked: The specified bite crosses the outer disc (0.45r + 0.85r > r), so it cannot be a valid interior
+  hole; should the crescent and its test instead use a single outline formed from the intersecting arcs?
+---
 # 21: clouds and a crescent moon
 
 Run this after spec 20 is merged.
@@ -32,10 +38,15 @@ they are, and nothing about them changes colour.
 
 ## The crescent moon
 
-- **Shape:** a crescent, made in code: a disc of radius `r` with a circular bite taken out of it by a
-  disc of 0.85 `r` centred 0.45 `r` to one side (a `THREE.Shape` with an arc and a hole path, as a
-  flat `ShapeGeometry`), facing the camera, tilted 0.35 radians. Unlit and unfogged
-  (`MeshBasicMaterial`, `fog: false`). Its thin edge is toward the lower left.
+- **Shape:** a crescent, made in code as **one closed outline with no hole**: the disc of radius `r`
+  with a bite taken out of one side by a disc of radius 0.85 `r` centred 0.45 `r` to the right of
+  the disc's centre. The bite reaches past the disc's edge, so it cuts the outline; the two circles
+  cross at x = 0.5333 `r`, y = ±0.8459 `r`. The outline starts at the upper crossing, runs
+  anticlockwise round the disc's outer arc (through its leftmost point (−`r`, 0)) to the lower
+  crossing, then along the bite's arc back to the upper crossing (through its leftmost point
+  (−0.4 `r`, 0)): a `THREE.Shape` with `absarc` calls and no holes, as a flat `ShapeGeometry`, the
+  crescent 0.6 `r` thick at its middle and pointed at both tips, facing the camera, tilted 0.35
+  radians. Unlit and unfogged (`MeshBasicMaterial`, `fog: false`). Its horns point to the right.
 - **Level 1 (dusk):** radius 3, at x −20, y 22, z −75. **Level 2 (moonlit corn):** radius 4, at
   x 18, y 26, z −70. In level 2 the crescent takes the place of today's full moon: the `moon` entry
   in level 2's scenery goes (the one exception to "the backdrop stays as it is").
@@ -107,8 +118,9 @@ height and colour become the crescent's height and first colour). It changes not
 `node --test` passes, and its tests prove:
 
 1. Each level makes 21 clouds of 3 to 5 puffs each, in the places above, the same every time, none
-   nearer than z −60; and one crescent, at the level's place and radius, with a `Shape` that has a
-   hole; level 2's scenery no longer has a `moon`.
+   nearer than z −60; and one crescent, at the level's place and radius, whose `Shape` is one closed outline with no
+   holes, spans x from −`r` to 0.5333 `r`, is 0.6 `r` thick on its middle line, and has its two tips at
+   y = ±0.8459 `r`; level 2's scenery no longer has a `moon`.
 2. The colours: at clock 0 each cloud shows its list's first colour shifted by its part of the
    cycle, the moon its first colour; after one whole cycle the colours are the same again; and a
    step of 16 ms never moves a colour channel by more than 2% (no jumps, at the seam included).
