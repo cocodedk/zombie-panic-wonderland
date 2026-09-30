@@ -12,8 +12,19 @@ export const TUFTS = { radius: 0.03, height: 0.12, sides: 4, color: '#2a241c', a
 
 // The optional bits, one flag each. The stage builds zombies (and their fading copies) with these;
 // `buildZombie` defaults every flag to off, so a model built without `extras` is the plain zombie.
-export const ZOMBIE_EXTRAS = { tufts: true };
-export const NO_EXTRAS = { tufts: false };
+export const ZOMBIE_EXTRAS = { tufts: true, limp: true };
+export const NO_EXTRAS = { tufts: false, limp: false };
+
+// The limp: one leg swings only `LIMP` as far as the other.
+export const LIMP = 0.6;
+
+// How far each leg [left, right] swings, as a fraction of the plain swing. With `limp` on, the
+// zombie's own leg (`Math.round(seed / 1.7) % 2`, so even ids left, odd ids right) swings less.
+export function legSwing(seed, limp) {
+  const swing = [1, 1];
+  if (limp) swing[Math.abs(Math.round(seed / 1.7) % 2)] = LIMP;
+  return swing;
+}
 
 // Adds the sockets to the head (behind the eyes at `eyeXs`), the claws to each arm (they swing with
 // it) and the stain to the torso; then whatever `extras` switches on (hair tufts on the head).

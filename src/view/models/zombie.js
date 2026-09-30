@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { flat, glow, glowing, part, group, seeded } from './parts.js';
 import { FAST_ZOMBIE } from '../../logic/effects.js';
-import { addDetails, tinted, NO_EXTRAS } from './zombie-details.js';
+import { addDetails, legSwing, tinted, NO_EXTRAS } from './zombie-details.js';
 
 const TEETH = '#e8e0c8';
 
@@ -98,7 +98,9 @@ export function buildZombie({
     return shoulder;
   });
 
-  addDetails({ head, arms, torso }, [-0.07, 0.07], { ...NO_EXTRAS, ...extras });
+  const flags = { ...NO_EXTRAS, ...extras };
+  addDetails({ head, arms, torso }, [-0.07, 0.07], flags);
+  const swing = legSwing(seed, flags.limp); // how far each leg swings: a limp is one leg less
 
   // The head's twitch: the next one's start, side and angle, drawn from a seeded random.
   const random = seeded(Math.round(seed * 1000) + 1);
@@ -125,8 +127,8 @@ export function buildZombie({
     tick(t, { walk = 1, windup = 0, twitch = true } = {}) {
       const s = t * 3.2 + seed;
       const step = Math.sin(s) * 0.35 * walk;
-      legs[0].rotation.x = step;
-      legs[1].rotation.x = -step;
+      legs[0].rotation.x = step * swing[0];
+      legs[1].rotation.x = -step * swing[1];
       const up = -(Math.PI / 2 + torso.rotation.x); // level with the shoulders, the lean undone
       [0, 2].forEach((phase, i) => {
         const rest = -1.45 + Math.sin(s * 0.7 + phase) * 0.2;
