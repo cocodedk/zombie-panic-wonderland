@@ -24,7 +24,7 @@ tunic, a belt, two boots and two arms holding the gun. This sketch shows the bac
      /  cape  \\  + strap       a leather strap across the cape
     / +satchel  \\              a satchel on the right hip
    /_/\\_/\\_/\\_/\\_ + trim      a scalloped hem with a gold trim
-       |boot|  |boot|  + cuffs  cuffs on the boots, and feet that point forward
+       |boot|  |boot|  + cuffs  cuffs below the hem, and broad feet with heels that show
 ```
 
 ## The changes
@@ -52,17 +52,25 @@ rest.
    (±0.22, 0.98, −0.02), where the arms begin.
 7. **A satchel.** A leather satchel on the right hip, on the outside of the cape: a box 0.22 × 0.26 × 0.1
    in `#6b4a2b` at (0.22, 0.45, 0.3), a flap (a box 0.22 × 0.1 × 0.11 in `#8a5d33`) on its top at (0.22, 0.55,
-   0.3), and a strap across the cape's back: a box 0.03 × 0.6 × 0.02 in `#4a3420` at (0.05, 0.72, 0.27),
-   leaning by **+0.6** radians about z: its top toward the hero's left shoulder and its lower end toward the
-   satchel on the right hip (the hero faces −z, so its right is +x, the viewer's right).
-8. **Boots.** A cuff on each boot: a torus of radius 0.095 and tube 0.02 in `#4a3a30` at (±0.12, 0.42, 0), and
-   a foot under each: a box 0.14 × 0.06 × 0.26 in the `boots` colour (`#2e2420` by default) at (±0.12, 0.03, −0.05) (pointing forward, so the
-   toes show past the legs from the camera's low view) with a sole, a box 0.15 × 0.02 × 0.27 in `#1c1512`
-   under it at (±0.12, 0.0, −0.05). The cuffs, feet and soles are **children of the two leg meshes** (the
-   animated ones, `legs[0]` and `legs[1]`, which swing in the walk), so they move with the boots: their
-   places above are in the body's frame, so in a leg's own frame they are at x 0 and y reduced by the leg's
-   own y (0.22): the cuff at (0, 0.2, 0), the foot at (0, −0.19, −0.05), the sole at (0, −0.22, −0.05).
-   `buildPlayer` passes `legs` to the new file.
+   0.3), and a strap across the cape's back: a box 0.03 wide, 0.02 thick and as long as the distance between
+   its two ends, laid from its **upper end A = (−0.15, 0.93, 0.16)** to its **lower end B = (0.2, 0.47,
+   0.28)** (the stage already has a helper that lays a unit-long object between two points, `span` in
+   `stage-helpers.js`; move it to the new file or `parts.js` if it is needed, and keep it importable from where
+   it is). A is on the tunic's back at the hero's left shoulder, where the tunic is wider than the cape; B is
+   on the cape's back beside the satchel on the right hip (the hero faces −z, so its right is +x, the
+   viewer's right). The strap lies on the surfaces: at its middle it is outside the cape's cone by at most
+   0.04 (the cone's back surface at height y is at z `0.08 + 0.294 f √(1 − (x / (0.42 f))²)` with
+   `f = (1.105 − y) / 0.85`).
+8. **Boots.** What the camera sees of the hero's legs, from behind and above, is the part below the cape's
+   hem (y under 0.255) and the heel and sole. A cuff on each boot: a torus of radius 0.095 and tube 0.02
+   in `#4a3a30` at (±0.12, 0.16, 0) (below the hem, so it shows); and a foot under each: a box 0.2 × 0.06 ×
+   0.3 in the `boots` colour (`#2e2420` by default) at (±0.12, 0.03, 0) (wider than the leg, and reaching 0.06
+   behind it, so the heel shows from behind) with a sole, a box 0.21 × 0.02 × 0.31 in `#1c1512` under it at
+   (±0.12, 0.0, 0). The cuffs, feet and soles are **children of the two leg meshes** (the animated ones,
+   `legs[0]` and `legs[1]`, which swing in the walk), so they move with the boots: the places above are in the
+   body's frame, so in a leg's own frame they are at x 0 and y reduced by the leg's own y (0.22): the cuff at
+   (0, −0.06, 0), the foot at (0, −0.19, 0), the sole at (0, −0.22, 0). `buildPlayer` passes `legs` to the new
+   file.
 
 ## What does not change
 
@@ -99,8 +107,10 @@ its meshes), and only that number.
    its size and colour; the collar.
 2. The hood seam and the pompom (at the tip of the hood's cone), the three hair boxes, and the two shoulder
    caps, each with the sizes, places and colours above (the caps in the `hood` colour parameter).
-3. The satchel, its flap and its strap, with the sizes, places, colours and the strap's lean of +0.6 (its
-   lower end toward the satchel, on the right); and the boots' cuffs, feet and soles, with the sizes and
+3. The satchel, its flap and its strap, with the sizes, places and colours; the strap's two ends within 0.02
+   of A = (−0.15, 0.93, 0.16) and B = (0.2, 0.47, 0.28) and its middle outside the cape's cone by between
+   −0.01 and 0.04; and the boots' cuffs (at y 0.16, below the hem), feet (0.2 × 0.06 × 0.3, reaching 0.06
+   behind the leg) and soles, with the sizes and
    colours above (the feet in the `boots` colour parameter), as children of the two leg meshes at the places
    given in the legs' own frame, so that a leg's swing in the walk moves its cuff, foot and sole.
 4. Every other new part is a child of the body group, none is a child of the aim rig, and none changes the
