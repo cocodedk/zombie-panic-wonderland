@@ -5,12 +5,13 @@ import { mix } from './logic/sound.js';
 import { registerWebMcp } from './logic/webmcp.js';
 import { level1 } from './levels/level-1.js';
 import { level2 } from './levels/level-2.js';
+import { level3 } from './levels/level-3.js';
 import { createHud } from './view/hud.js';
 import { createAudio } from './view/audio.js';
 import { bindInput, bindMute } from './view/input.js';
 
 const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-const game = new Game(level1, { levels: [level1, level2], reducedMotion });
+const game = new Game(level1, { levels: [level1, level2, level3], reducedMotion });
 const hud = createHud(document, game);
 const audio = createAudio(window);
 bindMute(window, game, hud);
