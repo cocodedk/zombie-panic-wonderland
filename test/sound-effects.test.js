@@ -162,11 +162,11 @@ describe('2. mute, pause and each level\'s loop', () => {
   });
 
   test('each level has its own loop, from its intro card until victory or defeat', () => {
-    assert.deepEqual([level1.music.bpm, level1.music.bars, level1.music.key], [120, 8, 'A minor']);
-    assert.deepEqual([level2.music.bpm, level2.music.bars, level2.music.key], [100, 8, 'D minor']);
+    assert.deepEqual([level1.music.name, level1.music.bpm, level1.music.root], ['Dusk run', 140, 57]);
+    assert.deepEqual([level2.music.name, level2.music.bpm, level2.music.root], ['Moonlit rows', 136, 50]);
     for (const { music } of [level1, level2]) {
-      assert.equal(music.bass.length, music.bars);
-      assert.equal(music.melody.length, music.bars * 4);
+      assert.equal(music.bass.length, 16);
+      assert.equal(music.arp.length, 16);
     }
     const game = journey();
     const title = newGame();

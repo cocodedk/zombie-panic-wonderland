@@ -1,21 +1,17 @@
-// Web Audio: plays what mix() says is due, each frame. Every sound is made here from oscillators
+// Web Audio: plays what mix() says is due, each frame (the level's track by view/music.js). Every sound is made from oscillators
 // and noise; there are no audio files. The context is made on the first click, as browsers ask.
 
 import { VOLUME } from '../logic/sound.js';
 import { weatherSound } from './audio-weather.js';
 import { soundTable } from './audio-sounds.js';
+import { createMusic } from './music.js';
 
-const MINOR = [0, 2, 3, 5, 7, 8, 10];
 const hz = (midi) => 440 * 2 ** ((midi - 69) / 12);
-// A scale degree of the minor key on `root`; degrees below 0 or above 6 change octave.
-const degree = (root, d) => root + 12 * Math.floor(d / 7) + MINOR[((d % 7) + 7) % 7];
-const AHEAD = 0.2; // seconds of music scheduled ahead
 
 export function createAudio(win) {
   let ctx = null;
-  let master, musicBus, fxBus, noise, crunch, bed;
+  let master, musicBus, fxBus, noise, crunch, bed, sequencer;
   let held = false; // suspended by the pause
-  let loop = null; // { tune, out, step, at }
   let voice = null; // the gain of the Gatling's whine now sounding
 
   const gainNode = (value, to) => {
@@ -110,26 +106,6 @@ export function createAudio(win) {
     get bed() { return bed; },
   });
 
-  // Bass on every beat, root and fifth in turn; the melody's soft, quickly fading marimba notes.
-  function schedule() {
-    const { tune, out } = loop;
-    const beat = 60 / tune.bpm;
-    loop.at = Math.max(loop.at, ctx.currentTime);
-    while (loop.at < ctx.currentTime + AHEAD) {
-      const i = loop.step % (tune.bars * 4);
-      const bass = tune.bass[Math.floor(i / 4)] + (i % 2 ? 4 : 0);
-      tone(hz(degree(tune.root - 12, bass)), loop.at, beat * 0.9, { type: 'triangle', level: 0.5, out });
-      const m = tune.melody[i];
-      if (m != null) {
-        const f = hz(degree(tune.root + 12, m));
-        tone(f, loop.at, 0.5, { level: 0.35, out });
-        tone(f * 4, loop.at, 0.08, { level: 0.06, out });
-      }
-      loop.at += beat;
-      loop.step += 1;
-    }
-  }
-
   function noiseBuffer(hold) {
     const buf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     const data = buf.getChannelData(0);
@@ -151,6 +127,7 @@ export function createAudio(win) {
         noise = noiseBuffer(1);
         crunch = noiseBuffer(6); // held samples sound crunchy
         bed = weatherSound(ctx, fxBus, noise);
+        sequencer = createMusic(ctx, musicBus, noise);
       }
       if (!held && ctx.state === 'suspended') ctx.resume();
     },
@@ -166,11 +143,7 @@ export function createAudio(win) {
       }
       if (paused) return;
       bed.wind(wind);
-      if (music !== (loop?.tune ?? null)) {
-        loop?.out.disconnect();
-        loop = music ? { tune: music, out: gainNode(1, musicBus), step: 0, at: ctx.currentTime + 0.05 } : null;
-      }
-      if (loop) schedule();
+      sequencer.play(music);
       for (const c of cues) SOUNDS[c.name]?.(ctx.currentTime, c);
     },
   };

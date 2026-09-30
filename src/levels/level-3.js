@@ -3,6 +3,7 @@
 
 import { level1 } from './level-1.js';
 import { level2 } from './level-2.js';
+import { track3 } from './tracks.js';
 
 export const level3 = {
   name: 'The Spider Wood',
@@ -59,17 +60,8 @@ export const level3 = {
     summonBack: 2,
   },
 
-  music: {
-    key: 'E minor',
-    bpm: 92,
-    bars: 8,
-    root: 52,
-    bass: [0, 3, 0, 4, 5, 3, 4, 4],
-    melody: [
-      2, null, 4, 3, 2, null, 0, null, 1, 2, 3, null, 4, 3, 2, null,
-      4, null, 5, 4, 3, null, 2, null, 1, null, 0, null, -1, null, 0, null,
-    ],
-  },
+  // The fastest and darkest track: E minor, 150 bpm.
+  music: track3,
 
   light: { fog: '#1d2b2a', fogFar: 100, sky: '#6b7fa8', ground: '#1a231e', key: '#c9d6ff', keyAt: [-10, 14, -20], fill: '#8f7fc0' },
 
