@@ -39,6 +39,16 @@ and gun turn so that **the barrel points at that point**:
   leaves exactly along the barrel; when a target is past a limit or a dodge fades the aim, the barrel cannot
   point at it, and the streak still runs from the muzzle to the aim point (it bends to it, as it does
   today). What a shot hits never changes.
+- **Which weapons:** "along the barrel" is for the single shots, the Popper's streak and the Gatling's
+  tracers. The Scattergun's pellets and the launcher's shell only start at the turned muzzle: each pellet
+  still flies to its own pellet point (the spread) and the shell still arcs to its landing point, as today;
+  they are not on the barrel's axis and need not be.
+- **The frame a shot kills the player:** a streak is effect data with its own start and end, made in the
+  frame of the shot; it keeps them. The gun then points straight ahead from the defeat card on, as the
+  screen rule says, so a streak made in that frame need not match the gun that frame after it.
+- **The first frame of a level:** the intro card shows the crosshair and the aim is already set, so the
+  gun follows the crosshair from the first visible intro frame (the start resets the gun to straight only
+  in the state, before that frame).
 
 ## Where it plugs in
 
@@ -102,7 +112,10 @@ from the aim rig's pivot), and only those.
 3. The dodge: at `roll` 0 and 1 the angles are whole, at 0.5 they are 0, and in between they follow
    `1 − sin(roll × π)`.
 4. `muzzleAt` with no `yaw` or `pitch` returns exactly what it does today for every weapon and pose; with
-   them it returns the muzzle turned about the pivot, and for the aim point it is on the barrel line.
+   them it returns the muzzle turned about the pivot; for a target inside the angle limits and outside a
+   dodge (roll 0) the barrel line through it passes within 0.5° of the aim point, and this is asserted
+   only for those targets (beyond a limit, or in a dodge, the muzzle is turned as far as the limit or the
+   fade allows and no barrel-line claim is made).
 5. `pose()` gives `yaw` and `pitch` from the aim point on `intro`, `play` and `paused`, and 0 on the title,
    loading, error, victory and defeat; paused, they do not change.
 6. A shot: the Popper's streak starts at the turned muzzle and ends at the aim point (along the barrel when
