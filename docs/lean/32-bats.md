@@ -38,6 +38,15 @@ flat fan of three triangles from the shoulder, `#5a3f6b`, about 0.5 long. The wi
 crow's: each wing's rotation about the body's axis is `sin(t × 18 + seed) × 0.9`, mirrored. Its size is
 about 1.1 across with the wings out. It is as easy to hit as it looks (its meshes are the target).
 
+The reference is the crow (`buildCrow`) for the interface and the flat-shaded, low-poly style, and this
+front view for the shape:
+
+```
+     /\ __ /\          two ears, red eyes, two fangs
+   __/  (oo)  \__       wings: a flat fan of three triangles each,
+  /_ _ /\vv/\ _ _\      held out and flapping
+```
+
 ## Where it plugs in
 
 `ENEMIES.bat` in the stage's table; `BURSTS.bat`: `{ count: 10, life: 1, size: 0.14, colors: ['#2b1b3a',
@@ -46,9 +55,15 @@ about 1.1 across with the wings out. It is as easy to hit as it looks (its meshe
 
 ## Every screen
 
-Bats fly where crows do (play, the gaps between waves) and nowhere else; paused freezes them; victory and
-defeat freeze the scene; each level start, Try again, Play again, Next level and Back to title start
-fresh. No new text and no HUD change.
+- Loading, error and title: no bats (the title's scene is level 1's), as no enemy shows there.
+- Intro card: none yet.
+- Play: bats fly in with the wave, circle, dive and leave, as above.
+- The gap between waves: none on the field (a wave is cleared when all its enemies have fallen or left).
+- Paused: every bat freezes where it is, drawn behind the paused band, and goes on from there.
+- Victory and defeat: the scene freezes as it is, so a bat in the air stays drawn, frozen, behind the
+  card; it does nothing.
+- Each level start, Try again, Play again, Next level and Back to title start fresh, with none. No new text
+  and no HUD change.
 
 ## Nothing else changes
 
@@ -63,6 +78,13 @@ has bats).
   branch made kind-general; a few lines each. `src/logic/effects.js` (`BURSTS.bat`): if it would pass 200
   lines, the table has moved to `bursts.js` (spec 31), so add it there.
 - `src/levels/level-3.js`: the bat's data and the waves. `llms.txt`: one clause.
+
+## Balance
+
+There is no bot play-test for this spec: balance is bounded by the data, and how it feels to play is the
+supervisor's step. The bounds (the tests check them): no wave has more than 3 bats; a bat falls to 1 hit
+and takes 1.8 seconds from arriving to landing (1.2 circling, 0.6 diving), costs at most 1 heart, and the
+Popper hits at 8 a second.
 
 ## The tests
 
@@ -86,4 +108,6 @@ numbers or names. It may also update, in `test/level3.test.js`, the assertion th
    and is the same under reduced motion; the stage builds and removes bats like crows, and a fading
    copy under reduced motion is the same model.
 5. Paused, bats hang still and go on; a level start starts fresh.
-6. Files within the limits; any new file under 200 lines.
+6. The balance bounds above hold in the data: at most 3 bats a wave, 1 hit, 1.8 seconds from arrival to
+   landing, 1 heart at most.
+7. Files within the limits; any new file under 200 lines.

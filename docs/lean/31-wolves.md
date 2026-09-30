@@ -26,6 +26,16 @@ A new enemy kind, `wolf`, with its data in level 3's `enemies`:
 
 ## The model
 
+The reference is the zombie's own look (`buildZombie`: flat-shaded, low-poly, no textures) for the style, and
+this side-view sketch for the shape:
+
+```
+        /\_/\                     ears up, snout long, tail low and full
+   ____/ o  o\__ >                eyes yellow
+  (  chest  body  )~~~~~          torso lean, chest patch lighter
+   || ||    || ||                 four legs, front pair and hind pair gallop
+```
+
 `buildWolf({ seed = 0, size = 1 })` in a new file `src/view/models/wolf.js`, made in code, flat-lit,
 facing +z: a lean quadruped about 1.4 long and 0.9 high at the shoulder.
 
@@ -51,9 +61,17 @@ new sound.
 
 ## Every screen
 
-Wolves show and act where zombies do, and nowhere else; paused freezes them; victory and defeat freeze the
-scene; each level start, Try again, Play again, Next level and Back to title start fresh. No new text and
-no HUD change: a wolf's strike takes 2 hearts from the same row of hearts.
+- Loading, error and title: no wolves (the title's scene is level 1's), as no enemy shows there.
+- Intro card: none yet.
+- Play: wolves run in with the wave, as above; the boss fight in this spec has none (the Zombie King's
+  summons are zombies).
+- The gap between waves: none on the field (a wave is cleared when all its enemies have fallen).
+- Paused: every wolf on the field freezes where it is, drawn behind the paused band, and goes on from
+  there.
+- Victory and defeat: the scene freezes as it is, so a wolf on the field stays drawn, frozen, behind the
+  card; it does nothing.
+- Each level start, Try again, Play again, Next level and Back to title start fresh, with none. No new text
+  and no HUD change: a wolf's strike takes 2 hearts from the same row of hearts.
 
 ## Nothing else changes
 
@@ -69,6 +87,14 @@ level 3 has wolves).
   under 200 lines): a few lines each. If `effects.js` would pass 200 lines, move the `BURSTS` table into a
   new file `src/logic/bursts.js` and re-export it from `effects.js`.
 - `src/levels/level-3.js`: the wolf's data and the waves. `llms.txt`: one clause.
+
+## Balance
+
+There is no bot play-test for this spec: balance is bounded by the data, and how it feels to play is the
+supervisor's step, made by hand after the pull request opens. The bounds (the tests check them): no wave
+has more than 2 wolves; a wolf needs 4 hits, so the Popper (8 shots a second) fells one in at most 0.5
+seconds, and a wolf takes 4 seconds to run from its spawn to the road (12 at 3 a second); a wolf's strike
+takes 2 of the player's 5 hearts, and it strikes at most once every 1.5 seconds.
 
 ## The tests
 
@@ -91,4 +117,6 @@ asserts level 3's waves or counts its enemies, or the exact list of a level's en
    apart, still when `walk` is 0, the same under reduced motion; the extras ignore rays.
 6. The stage builds and removes wolves like other enemies; a fading copy under reduced motion is the
    same model; paused, wolves stand still and go on; a level start starts fresh.
-7. Files within the limits; any new file under 200 lines.
+7. The balance bounds above hold in the data: at most 2 wolves a wave, 4 hits, a 4-second run, 2 hearts
+   every 1.5 seconds, and the Popper fells one in 0.5 seconds or less.
+8. Files within the limits; any new file under 200 lines.

@@ -37,6 +37,10 @@ points, then the victory card comes.
 
 ## The model
 
+The reference is spec 29's spider (`buildSpider`) for the shape and the style (flat-shaded, low-poly, no
+textures); the queen is that sketch made larger with a crown of gold spikes on the head and a wine-coloured
+abdomen with a white hourglass.
+
 `buildSpiderQueen({ tint = 0 })` in a new file `src/view/models/spider-queen.js`, registered in the
 stage's `BOSSES` table as `spiderQueen`: spec 29's spider, larger and grander, built from `buildSpider`
 with two new opt-in options (`abdomen` and `mark` colours, defaulting to the spider's own) so the
@@ -52,10 +56,21 @@ size: 0.16, colors: ['#d8e0ea'], puff: '#d8e0ea', puffSize: 1 }` at a web ball's
 
 ## Every screen
 
-As the other boss fights: the intro card, the boss announcement, play, paused (the web ball, the
-counter and the wind-up freeze), victory and defeat (the scene freezes). Each level start, Try again,
-Play again, Next level and Back to title start fresh. The new texts are `The Spider Queen descends!` and the
-bar's label; no new sound (the throw reuses the pumpkin throw's cue, the windup its cue), no HUD change.
+- Loading, error and title: no queen (the title's scene is level 1's), no web ball, no web.
+- Intro card: none yet.
+- Play (waves 1 to 5): no queen; the boss appears after wave 5 with the announcement `The Spider Queen
+  descends!` and the hint as the other bosses' do; the fight is as above.
+- The gap between waves: as today (the banner `Wave N cleared`); no queen yet.
+- Paused: the queen, a web ball in the air, the wind-up, the web counter and any spiders freeze and go on
+  from there, all drawn behind the paused band.
+- Victory and defeat: the scene freezes as it is, so the queen, a web ball in the air and the spiders stay
+  drawn, frozen, behind the card (after her fall everything bursts first, as the other bosses' does); the
+  web counter is cleared by the next start.
+- Each level start, Try again, Play again, Next level and Back to title start fresh, with none and the web
+  cleared. The new texts are `The Spider Queen descends!` and the bar's label `Spider Queen`; no new
+  sound (the throw reuses the pumpkin throw's cue, the wind-up its cue), no HUD change: being webbed
+  shows nothing beyond the web ball's burst (the effect is felt in the slower steps and the refused
+  dodge).
 
 ## Nothing else changes
 
@@ -74,6 +89,13 @@ Spider Queen, who throws webs that slow the player, and summons spiders).
 - `src/view/stage.js` (the `BOSSES` entry) and the pumpkin drawing (the web ball): a few lines each;
   `src/logic/effects.js` or `bursts.js` (`BURSTS.spiderQueen`, `BURSTS.web`).
 - `src/levels/level-3.js`: the boss data and text. `llms.txt`: one sentence.
+
+## Balance
+
+There is no bot play-test for this spec: balance is bounded by the data, and how it feels to play is the
+supervisor's step. The bounds (the tests check them): the queen has 260 hits (the Zombie King has 200
+and the Scarecrow King 240), one action every 3 seconds, at most 1 heart from a web ball, a web that lasts 2
+seconds and halves the speed, and 3 summoned spiders each 2 hits; the player's Popper does 8 hits a second.
 
 ## The tests
 
@@ -99,4 +121,5 @@ asserts level 3's boss (spec 28's test says the Zombie King), and only that. It 
    the front legs and abdomen follow `windup`; the stage builds her through `BOSSES`, the web ball as
    described, and `BURSTS.spiderQueen` and `BURSTS.web` exist.
 6. The Zombie King's and the Scarecrow King's fights are unchanged (their stomp, throw and summon).
-7. Files within the limits; any new file under 200 lines.
+7. The balance bounds above hold in the data.
+8. Files within the limits; any new file under 200 lines.
