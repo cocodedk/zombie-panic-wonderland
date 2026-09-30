@@ -48,9 +48,11 @@ spider builder stays one function: size 3.2, the abdomen `#5a1f3a`, the hourglas
 eyes, and a crown of five small gold spikes (`#d9a520`, cones of radius 0.03 and length 0.1) around the
 head. Its `tick(t, { walk, windup })` is the spider's gait (the legs swing while she walks in, still once
 she stands), and during the wind-up her two front legs rise (their rotation goes 0 to −1.0 as `windup`
-goes 0 to 1) and her abdomen tilts back 0.15. The stage draws the web ball as a sphere of radius 0.25,
-`#d8e0ea`, unlit, with a short trailing thread; it ignores rays except that it is a target for a shot
-(so it can be shot down). `BURSTS.spiderQueen`: `{ count: 40, life: 1.5, size: 0.35, colors: ['#5a1f3a',
+goes 0 to 1) and her abdomen tilts back 0.15. The stage draws the web ball like the pumpkins it flies as (the same flight, drawn by the pumpkin's
+code path): a low-poly ball, an icosahedron of radius 0.25 (detail 1), `#d8e0ea`, unlit, with a trailing
+thread behind it along its flight: a thin box 0.012 across and 0.6 long, `#d8e0ea` at 0.7 opacity (the
+look of spec 30's thread). The thread ignores rays; the ball is a target for a shot (so it can be shot
+down), as a pumpkin is. `BURSTS.spiderQueen`: `{ count: 40, life: 1.5, size: 0.35, colors: ['#5a1f3a',
 '#2a1f2e', '#d8e0ea', '#d9a520'], puff: '#3a2c3f', puffSize: 3 }`; `BURSTS.web`: `{ count: 10, life: 0.8,
 size: 0.16, colors: ['#d8e0ea'], puff: '#d8e0ea', puffSize: 1 }` at a web ball's landing or shot down.
 
@@ -61,13 +63,19 @@ size: 0.16, colors: ['#d8e0ea'], puff: '#d8e0ea', puffSize: 1 }` at a web ball's
 - Play (waves 1 to 5): no queen; the boss appears after wave 5 with the announcement `The Spider Queen
   descends!` and the hint as the other bosses' do; the fight is as above.
 - The gap between waves: as today (the banner `Wave N cleared`); no queen yet.
-- Paused: the queen, a web ball in the air, the wind-up, the web counter and any spiders freeze and go on
-  from there, all drawn behind the paused band.
-- Victory and defeat: the scene freezes as it is, so the queen, a web ball in the air and the spiders stay
-  drawn, frozen, behind the card (after her fall everything bursts first, as the other bosses' does); the
-  web counter is cleared by the next start.
+- Paused: the queen, a web ball in the air, the wind-up and any spiders freeze and go on from there, all
+  drawn behind the paused band. The web counter is game state and is drawn nowhere (no HUD change): it
+  freezes as a number and runs on after the pause.
+- Victory: when the queen falls, everything else on the field bursts for no points (the other bosses'
+  rule) and a web ball still in the air goes with it, as a flaming pumpkin does; then the victory card
+  comes over an empty field, with no queen, web ball or spider drawn. The web counter is cleared by the
+  next start.
+- Defeat: the scene freezes as it is, so the queen (if she stands), a web ball in the air and the spiders
+  stay drawn, frozen, behind the card.
 - Each level start, Try again, Play again, Next level and Back to title start fresh, with none and the web
-  cleared. The new texts are `The Spider Queen descends!` and the bar's label `Spider Queen`; no new
+  cleared. The dodge hint is unchanged: `Space: dodge — or step aside!` shows once, at the first wind-up of
+  the fight as it does today, before any web ball has flown, and does not come back, so it is never on
+  screen while the player is webbed. The new texts are `The Spider Queen descends!` and the bar's label `Spider Queen`; no new
   sound (the throw reuses the pumpkin throw's cue, the wind-up its cue), no HUD change: being webbed
   shows nothing beyond the web ball's burst (the effect is felt in the slower steps and the refused
   dodge).
