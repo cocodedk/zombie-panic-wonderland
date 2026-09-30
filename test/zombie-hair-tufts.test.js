@@ -45,8 +45,8 @@ const stageFor = (game) => {
 const shownAs = (scene, e) => scene.children.find((c) => c.userData.entityId === e.id);
 
 describe('1. the tufts on the model', () => {
-  test('ZOMBIE_EXTRAS is an object of flags, on for tufts and limp', () => {
-    assert.deepEqual(ZOMBIE_EXTRAS, { tufts: true, limp: true });
+  test('ZOMBIE_EXTRAS is an object of flags, on for tufts, limp and flicker', () => {
+    assert.deepEqual(ZOMBIE_EXTRAS, { tufts: true, limp: true, flicker: true });
   });
 
   for (const fast of [false, true]) {

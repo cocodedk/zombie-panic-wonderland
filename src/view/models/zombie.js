@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { flat, glow, glowing, part, group, seeded } from './parts.js';
 import { FAST_ZOMBIE } from '../../logic/effects.js';
-import { addDetails, legSwing, tinted, NO_EXTRAS } from './zombie-details.js';
+import { addDetails, flickering, legSwing, tinted, NO_EXTRAS } from './zombie-details.js';
 
 const TEETH = '#e8e0c8';
 
@@ -73,8 +73,10 @@ export function buildZombie({
   jaw.rotation.x = 0.55;
 
   // A tilted head with glowing eyes and the jaw.
+  const eyeMats = [];
   const eye = (x) => {
     const mesh = part(new THREE.BoxGeometry(0.06, 0.04, 0.02), glow(eyes), [x, 0.03, 0.18]);
+    eyeMats.push(mesh.material);
     if (fast) mesh.scale.setScalar(FAST_EYES.scale);
     return mesh;
   };
@@ -101,6 +103,7 @@ export function buildZombie({
   const flags = { ...NO_EXTRAS, ...extras };
   addDetails({ head, arms, torso }, [-0.07, 0.07], flags);
   const swing = legSwing(seed, flags.limp); // how far each leg swings: a limp is one leg less
+  const flicker = flags.flicker ? flickering(eyeMats, seed) : null; // the eyes' glow breathes
 
   // The head's twitch: the next one's start, side and angle, drawn from a seeded random.
   const random = seeded(Math.round(seed * 1000) + 1);
@@ -137,6 +140,7 @@ export function buildZombie({
       torso.rotation.z = Math.sin(s) * 0.12;
       head.rotation.z = 0.35 + Math.sin(s * 0.5) * 0.1;
       head.rotation.y = twitch ? twitchAt(t) : 0;
+      flicker?.(t, !twitch);
     },
   };
   return root;
