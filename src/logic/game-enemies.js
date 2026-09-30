@@ -4,13 +4,17 @@ import { EPS, due, GROAN, HINT } from './game-shared.js';
 export const enemies = {
   // --- enemies ---
 
-  zombie(e, dt) {
-    const c = this.level.enemies.zombie;
+  // Zombies and spiders: to the road, then in on the player, striking. Only a zombie is held by
+  // fences, is ever fast, or groans; a spider crawls straight to the road on its own numbers.
+  walker(e, dt) {
+    const zombie = e.kind === 'zombie';
+    const c = this.level.enemies[e.kind];
     const road = this.level.roadZ;
-    const speed = this.speedOf(e);
+    const speed = zombie ? this.speedOf(e) : c.speed;
     if (e.z < road - EPS) {
-      stepZombie(e, this.level, speed, dt); // led to a gap in the fences, then straight to the road
-      if (e.z >= road - EPS) this.groan();
+      if (zombie) stepZombie(e, this.level, speed, dt); // led to a gap in the fences, then straight to the road
+      else e.z = Math.min(road, e.z + speed * dt);
+      if (zombie && e.z >= road - EPS) this.groan();
       return;
     }
     const dx = this.player.x - e.x;

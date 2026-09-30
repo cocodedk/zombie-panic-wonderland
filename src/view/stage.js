@@ -19,6 +19,7 @@ import { buildZombie, buildZombieKing } from './models/zombie.js';
 import { zombieTint, ZOMBIE_EXTRAS } from './models/zombie-details.js';
 import { buildPumpkinMonster } from './models/pumpkin.js';
 import { buildCrow } from './models/crow.js';
+import { buildSpider } from './models/spider.js';
 import { buildScarecrow, buildScarecrowKing } from './models/scarecrow.js';
 import { buildSky, buildGround, buildRoad, buildTree, buildMushroom, buildCrypt, buildClockTower, buildHedge, buildFence } from './models/scenery.js';
 import { buildCornRows, buildFarmhouse, buildEmeraldCity, buildMoon } from './models/farm.js';
@@ -36,6 +37,7 @@ const BOSSES = { zombieKing: buildZombieKing, scarecrowKing: buildScarecrowKing 
 const idOf = (e) => e.enemyId ?? e.id;
 const ENEMIES = {
   zombie: (e) => buildZombie({ seed: idOf(e) * 1.7, fast: e.fast, tint: zombieTint(idOf(e)), extras: ZOMBIE_EXTRAS }),
+  spider: (e) => buildSpider({ seed: idOf(e) * 1.7 }),
   pumpkinMonster: () => buildPumpkinMonster(),
   crow: (e) => buildCrow({ seed: e.id }),
   boss: (e, level) => BOSSES[level.boss.model]({ tint: zombieTint(idOf(e)) }), // the scarecrow king ignores it
@@ -69,7 +71,6 @@ export function createStage(container, firstLevel) {
   const player = buildPlayer();
   player.position.z = level.roadZ;
   scene.add(player);
-
   const shown = new Map(); // id -> object, for enemies, pumpkins, shockwaves, leaving crows and effects
   const pickable = [];
   const raycaster = new THREE.Raycaster();
