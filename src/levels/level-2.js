@@ -71,9 +71,15 @@ export const level2 = {
 
   weather: { between: [7, 16], rest: 0.5, gusts: 0.5, leaf: '#a8943e' },
 
+  // Clouds and a crescent moon in place of the full moon; the colours change over `cycle` seconds.
+  sky: {
+    cycle: 120,
+    clouds: { seed: 5, colors: ['#dfe8f5', '#9fb6d6', '#6f88b8', '#a9c4c0'] },
+    moon: { radius: 4, at: [18, 26, -70], colors: ['#e8ecd1', '#cfe0ff', '#f6f2c8'] },
+  },
+
   scenery: [
     { model: 'sky', top: '#0f1a33', horizon: '#1f4d3f' },
-    { model: 'moon', x: 18, z: -70, height: 26, color: '#e8ecd1', size: 4 },
     { model: 'ground', color: '#1f2a1c' },
     { model: 'road', color: '#b89a4e', length: 26, width: 2.6, missing: 0.2, seed: 11 },
     { model: 'cornRows', x: -9, z: -6, rows: 5, length: 7, color: '#a8943e', seed: 1 },

@@ -45,9 +45,9 @@ test('level 2\'s backdrop: every scenery model built, flat-shaded, in its palett
   assert.ok(same(colors.slice(0, 3), '#1f4d3f'), 'the horizon');
   assert.ok(same(colors.slice(-3), '#0f1a33'), 'the top');
 
-  const moon = backdrop.children.find((c) => c.name === 'moon');
+  const { moon } = backdrop.children.find((c) => c.userData.sky).userData.sky; // the crescent
   assert.equal(moon.position.y, 26);
-  assert.equal(hex(moon.children[0].material.color), '#e8ecd1');
+  assert.equal(hex(moon.material.color), '#e8ecd1');
 
   const corn = backdrop.children.find((c) => c.name === 'cornRows');
   assert.equal(hex(corn.children[0].material.color), '#a8943e');
