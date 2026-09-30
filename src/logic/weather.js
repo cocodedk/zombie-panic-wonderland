@@ -2,7 +2,7 @@
 // hard the wind blows. No three.js and no Web Audio, so Node can test it. The stage draws it and the
 // audio module sounds it; it has its own random streams and never touches the game's.
 
-const lerp = (a, b, k) => a + (b - a) * k;
+import { lerp } from './game-shared.js';
 
 export const LIGHTNING = {
   first: [4, 8], // seconds after the level starts until the first strike

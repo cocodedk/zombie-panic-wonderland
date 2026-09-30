@@ -6,13 +6,13 @@
 
 import * as THREE from 'three';
 import { LIGHTNING, SWAY, LEAVES } from '../logic/weather.js';
-import { flat, seeded } from './models/parts.js';
+import { flat, ignoreRays, seeded } from './models/parts.js';
+import { lerp } from '../logic/game-shared.js';
 
-const SHOWN = new Set(['intro', 'play', 'paused', 'victory', 'defeat']); // no weather on loading, error, title
+export const SHOWN = new Set(['intro', 'play', 'paused', 'victory', 'defeat']); // no weather on loading, error, title
 const SWAYS = new Set(['tree', 'cornRows', 'hedge', 'scarecrow']);
 const CHANNELS = ['r', 'g', 'b'];
 const TWO_PI = Math.PI * 2;
-const lerp = (a, b, k) => a + (b - a) * k;
 
 // The backdrop as built: what a strike changes, remembered to return to.
 function capture(scene, backdrop) {
@@ -43,8 +43,7 @@ function makeLeaves(color) {
   const geo = new THREE.PlaneGeometry(LEAVES.size, LEAVES.size);
   const mat = flat(color, { side: THREE.DoubleSide });
   const leaves = Array.from({ length: LEAVES.count }, () => {
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.raycast = () => {};
+    const mesh = ignoreRays(new THREE.Mesh(geo, mat));
     group.add(mesh);
     return { mesh, x: lerp(...LEAVES.x, rand()), y: lerp(LEAVES.y[0] + 0.3, LEAVES.y[1] - 0.3, rand()), z: lerp(...LEAVES.z, rand()), drift: lerp(0.5, 1, rand()), turn: lerp(1, 3, rand()), phase: rand() * TWO_PI };
   });
@@ -97,7 +96,8 @@ export function createWeatherView(scene) {
   }
 
   function sway(w, on) {
-    for (const s of rig.swayers) s.obj.rotation.z = s.base + (on ? s.tilt * w.wind * Math.sin(TWO_PI * (s.rate * w.clock + s.phase)) : 0);
+    const { wind, clock } = w; // a getter and a clock, read once for every swayer
+    for (const s of rig.swayers) s.obj.rotation.z = s.base + (on ? s.tilt * wind * Math.sin(TWO_PI * (s.rate * clock + s.phase)) : 0);
   }
 
   // The leaves drift on the weather's clock, so they stand still whenever it does.
@@ -109,13 +109,14 @@ export function createWeatherView(scene) {
     rig.leaves ??= makeLeaves(w.data?.leaf ?? '#8a6a2f');
     const { group, leaves } = rig.leaves;
     if (group.parent !== rig.backdrop) rig.backdrop.add(group);
-    const dt = seen?.w === w ? Math.max(0, w.clock - seen.clock) : 0;
+    const { wind, clock } = w; // a getter and a clock, read once for every leaf
+    const dt = seen?.w === w ? Math.max(0, clock - seen.clock) : 0;
     const [x0, x1] = LEAVES.x;
     for (const l of leaves) {
-      const speed = lerp(LEAVES.speed[0], LEAVES.speed[1], w.wind * l.drift);
+      const speed = lerp(LEAVES.speed[0], LEAVES.speed[1], wind * l.drift);
       l.x = ((l.x - x0 + speed * dt) % (x1 - x0)) + x0;
-      l.mesh.position.set(l.x, l.y + 0.3 * Math.sin(w.clock * 1.3 + l.phase), l.z);
-      l.mesh.rotation.set(w.clock * l.turn + l.phase, w.clock * l.turn * 0.7, l.phase);
+      l.mesh.position.set(l.x, l.y + 0.3 * Math.sin(clock * 1.3 + l.phase), l.z);
+      l.mesh.rotation.set(clock * l.turn + l.phase, clock * l.turn * 0.7, l.phase);
     }
   }
 

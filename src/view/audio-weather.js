@@ -1,7 +1,8 @@
 // The weather's sounds, made from noise and a sine like every other: the thunder cue, and the wind
 // bed. audio.js wires them in; `ctx` is its context, `out` the effects bus and `noise` its noise buffer.
 
-const lerp = (a, b, k) => a + (b - a) * k;
+
+import { lerp } from '../logic/game-shared.js';
 
 export const WIND = { gain: [0.05, 0.35], centre: [300, 900], q: 0.8 }; // from no wind to full wind
 export const THUNDER = { crack: 0.08, rumble: 2.5, sweep: [220, 40], under: 40 };

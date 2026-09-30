@@ -31,12 +31,13 @@ const SCENERY = {
 
 const BOSSES = { zombieKing: buildZombieKing, scarecrowKing: buildScarecrowKing };
 
+// A fading copy carries the fallen enemy's own id, so it keeps that enemy's look.
+const idOf = (e) => e.enemyId ?? e.id;
 const ENEMIES = {
-  // A fading copy carries the fallen enemy's own id as `enemyId`, so it has the same tint and limp.
-  zombie: (e) => buildZombie({ seed: (e.enemyId ?? e.id) * 1.7, fast: e.fast, tint: zombieTint(e.enemyId ?? e.id), extras: ZOMBIE_EXTRAS }),
+  zombie: (e) => buildZombie({ seed: idOf(e) * 1.7, fast: e.fast, tint: zombieTint(idOf(e)), extras: ZOMBIE_EXTRAS }),
   pumpkinMonster: () => buildPumpkinMonster(),
   crow: (e) => buildCrow({ seed: e.id }),
-  boss: (e, level) => BOSSES[level.boss.model]({ tint: zombieTint(e.enemyId ?? e.id) }), // the scarecrow king ignores it
+  boss: (e, level) => BOSSES[level.boss.model]({ tint: zombieTint(idOf(e)) }), // the scarecrow king ignores it
 };
 
 export function createStage(container, firstLevel) {

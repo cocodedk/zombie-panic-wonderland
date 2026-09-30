@@ -2,9 +2,9 @@
 // the sky dome, and neither can be aimed at. Their colours are set by src/view/sky.js.
 
 import * as THREE from 'three';
+import { lerp } from '../../logic/game-shared.js';
+import { ignoreRays } from './parts.js';
 
-const lerp = (a, b, k) => a + (b - a) * k;
-const ignoreRays = (mesh) => { mesh.raycast = () => {}; return mesh; };
 const unlit = () => new THREE.MeshBasicMaterial({ color: '#ffffff', fog: false });
 
 // How far an icosahedron's mesh reaches along an axis, of its radius: its corners are not on the axes.

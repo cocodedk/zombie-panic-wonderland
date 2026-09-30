@@ -2,7 +2,7 @@
 // a crooked clock tower, hedges and a picket fence. Each builder takes its colours and sizes.
 
 import * as THREE from 'three';
-import { flat, glow, part, group, seeded } from './parts.js';
+import { flat, glow, ignoreRays, part, group, seeded } from './parts.js';
 
 export function buildSky({ top = '#2b1d3f', horizon = '#c46a3b', radius = 160 } = {}) {
   const geo = new THREE.SphereGeometry(radius, 16, 12);
@@ -183,6 +183,6 @@ export function buildFence({ color = '#d8d0c0', length = 6, height = 1, missing 
     picket.rotation.z = (rand() - 0.5) * 0.25;
     fence.add(picket);
   }
-  fence.traverse((m) => { if (m.geometry) m.raycast = () => {}; }); // shots and aim pass through
+  fence.traverse((m) => { if (m.geometry) ignoreRays(m); }); // shots and aim pass through
   return fence;
 }

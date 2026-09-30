@@ -5,12 +5,12 @@
 import * as THREE from 'three';
 import { seeded } from './models/parts.js';
 import { buildCloud, buildCrescent, CLOUD } from './models/sky-details.js';
+import { lerp } from '../logic/game-shared.js';
+import { SHOWN } from './weather.js'; // the screens where the weather runs; the rest are still, at clock 0
 
 const COUNT = 21;
 const WRAP = 75; // a cloud leaving at x 75 comes back in at x -75
 const WIND = 0.5; // a cloud drifts this much faster at wind 1
-const SHOWN = new Set(['intro', 'play', 'paused', 'victory', 'defeat']); // as the weather; the rest are still, at clock 0
-const lerp = (a, b, k) => a + (b - a) * k;
 
 // The colour `phase` (in cycles) round `palette`: cosine-eased from each entry to the next, and from the last to the first.
 export function cycleColor(palette, phase) {

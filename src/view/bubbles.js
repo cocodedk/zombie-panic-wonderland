@@ -4,6 +4,7 @@
 
 import * as THREE from 'three';
 import { BUBBLE, bubbleSize, bubbleColor, bubbleLook } from '../logic/effects.js';
+import { ignoreRays } from './models/parts.js';
 
 const PIXELS = 128; // the texture's width and height
 const FONT = '"Trebuchet MS", system-ui, sans-serif'; // the page's, as the score's
@@ -58,7 +59,7 @@ export function createBubbleView(scene) {
     const sprite = new THREE.Sprite(material);
     sprite.name = 'bubble';
     sprite.renderOrder = 10;
-    sprite.raycast = () => {};
+    ignoreRays(sprite);
     scene.add(sprite);
     return sprite;
   };

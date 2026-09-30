@@ -20,6 +20,9 @@ export function glowing(materials, color) {
   });
 }
 
+// Makes a mesh invisible to shots and aim: rays pass through it. Returns it.
+export const ignoreRays = (o) => { o.raycast = () => {}; return o; };
+
 // A mesh with a position and rotation; `material` is a colour or a material.
 export function part(geometry, material, [x = 0, y = 0, z = 0] = [], [rx = 0, ry = 0, rz = 0] = []) {
   const mesh = new THREE.Mesh(geometry, material instanceof THREE.Material ? material : flat(material));

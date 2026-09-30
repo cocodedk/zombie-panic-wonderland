@@ -2,7 +2,7 @@
 // The Zombie King is the same figure, bigger, with a bent crown.
 
 import * as THREE from 'three';
-import { flat, glow, glowing, part, group, seeded } from './parts.js';
+import { flat, glow, glowing, ignoreRays, part, group, seeded } from './parts.js';
 import { FAST_ZOMBIE } from '../../logic/effects.js';
 import { addDetails, flickering, footColor, legSwing, ragSway, tinted, NO_EXTRAS } from './zombie-details.js';
 
@@ -18,9 +18,8 @@ export const FAST_EYES = { color: '#ff2a1a', scale: 1.8, halo: { size: 0.16, col
 function halo(x) {
   const { size, color, opacity, z } = FAST_EYES.halo;
   const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
-  const mesh = part(new THREE.PlaneGeometry(size, size), mat, [x, 0.03, 0.18 + z]);
+  const mesh = ignoreRays(part(new THREE.PlaneGeometry(size, size), mat, [x, 0.03, 0.18 + z])); // shots and aim pass through
   mesh.name = 'halo';
-  mesh.raycast = () => {}; // shots and aim pass through
   return mesh;
 }
 

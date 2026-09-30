@@ -4,19 +4,25 @@
 export const HALF_WIDTH = 0.3; // a zombie's half-width, so a fence's span is wider than its pickets
 export const STOP_Z = -2.6; // 0.4 in front of the fences, which stand at z -2.2
 
-// The level's fences as x ranges (`from` to `to`) and spans (`lo` to `hi`), left to right.
-export function fences(level) {
-  return (level.scenery ?? [])
-    .filter((s) => s.model === 'fence')
-    .map((s) => ({ from: s.x - s.length / 2, to: s.x + s.length / 2, lo: s.x - s.length / 2 - HALF_WIDTH, hi: s.x + s.length / 2 + HALF_WIDTH }))
-    .sort((a, b) => a.from - b.from);
-}
+// The level's fences as x ranges (`from` to `to`) and spans (`lo` to `hi`, a zombie's half-width wider), left to
+// right. A level's scenery does not change while it is played, so each is read once.
+const cache = new WeakMap();
+const read = (level) => {
+  if (!cache.has(level)) {
+    const spans = (level.scenery ?? [])
+      .filter((s) => s.model === 'fence')
+      .map((s) => ({ from: s.x - s.length / 2, to: s.x + s.length / 2, lo: s.x - s.length / 2 - HALF_WIDTH, hi: s.x + s.length / 2 + HALF_WIDTH }))
+      .sort((a, b) => a.from - b.from);
+    const between = spans.slice(1).map((next, i) => ({ lo: spans[i].hi, hi: next.lo })).filter((g) => g.lo <= g.hi);
+    cache.set(level, { spans, between });
+  }
+  return cache.get(level);
+};
+
+export const fences = (level) => read(level).spans;
 
 // The gaps between two fences a zombie can walk through: from one span's edge to the next one's.
-export function gaps(level) {
-  const f = fences(level);
-  return f.slice(1).map((next, i) => ({ lo: f[i].hi, hi: next.lo })).filter((g) => g.lo <= g.hi);
-}
+export const gaps = (level) => read(level).between;
 
 // Strictly inside a span; exactly on its edge, a zombie is free.
 export function behindFence(level, x) {

@@ -1,6 +1,7 @@
 export const EPS = 1e-9;
 export const due = (t) => t <= EPS;
 export const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+export const lerp = (a, b, k) => a + (b - a) * k;
 export const CLICK = 0.25; // seconds: a shorter press is a click
 
 export const SCREENS = ['loading', 'error', 'title', 'intro', 'play', 'paused', 'victory', 'defeat'];

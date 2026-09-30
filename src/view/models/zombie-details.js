@@ -3,7 +3,7 @@
 // Each is a few shapes made in code.
 
 import * as THREE from 'three';
-import { group, part, seeded } from './parts.js';
+import { group, ignoreRays, part, seeded } from './parts.js';
 
 export const SOCKET = { size: [0.11, 0.075, 0.03], color: '#1a1512', y: 0.03, z: 0.172 };
 export const CLAW = { radius: 0.015, length: 0.09, sides: 3, color: '#2a2622', xs: [-0.035, 0, 0.035], y: -1.005, z: 0.02 };
@@ -40,12 +40,12 @@ export const flickerK = (t, seed = 0) =>
 
 // Returns `(t, steady)` that sets each of `materials` to its colour now times flickerK, or exactly
 // to that colour when `steady` (reduced motion).
+const BLACK = new THREE.Color('#000000');
 export function flickering(materials, seed) {
   const base = materials.map((m) => m.color.clone());
-  const black = new THREE.Color('#000000');
   return (t, steady) => {
     const k = steady ? 1 : flickerK(t, seed);
-    materials.forEach((m, i) => { m.color = base[i].clone().lerp(black, 1 - k); });
+    materials.forEach((m, i) => { m.color = base[i].clone().lerp(BLACK, 1 - k); });
   };
 }
 
@@ -71,15 +71,12 @@ export function addDetails({ head, arms, torso, shirtMat }, eyeXs, extras = NO_E
   torso.add(part(new THREE.BoxGeometry(...STAIN.size), STAIN.color, STAIN.at, [0, 0, STAIN.turn]));
   if (extras.tufts) {
     const tuft = new THREE.ConeGeometry(TUFTS.radius, TUFTS.height, TUFTS.sides);
-    head.add(...TUFTS.at.map((at, i) => {
-      const mesh = part(tuft, TUFTS.color, at, [0, 0, TUFTS.lean[i]]);
-      mesh.raycast = () => {}; // shots and aim pass through: the zombie is picked as today
-      return mesh;
-    }));
+    // shots and aim pass through: the zombie is picked as today
+    head.add(...TUFTS.at.map((at, i) => ignoreRays(part(tuft, TUFTS.color, at, [0, 0, TUFTS.lean[i]]))));
   }
   if (!extras.rag) return null;
-  const strip = part(new THREE.BoxGeometry(...RAG.size), shirtMat, [0, -RAG.size[1] / 2, 0]);
-  strip.raycast = () => {}; // shots and aim pass through: the zombie is picked as today
+  // shots and aim pass through: the zombie is picked as today
+  const strip = ignoreRays(part(new THREE.BoxGeometry(...RAG.size), shirtMat, [0, -RAG.size[1] / 2, 0]));
   const pivot = group(strip);
   pivot.position.set(...RAG.pivot);
   torso.add(pivot);
