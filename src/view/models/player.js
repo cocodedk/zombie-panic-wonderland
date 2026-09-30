@@ -2,6 +2,7 @@
 
 import * as THREE from 'three';
 import { flat, part, group } from './parts.js';
+import { addHeroDetails } from './hero-details.js';
 import { bodyPose, MUZZLES, MUZZLE, PIVOT, WAIST } from '../../logic/effects.js';
 
 export function buildPlayer({
@@ -30,6 +31,7 @@ export function buildPlayer({
   body.add(part(new THREE.IcosahedronGeometry(0.19, 0), skin, [0, 1.12, -0.06]));
   body.add(part(new THREE.IcosahedronGeometry(0.25, 0), hood, [0, 1.15, 0.04]));
   body.add(part(new THREE.ConeGeometry(0.12, 0.34, 5), hood, [0, 1.18, 0.28], [Math.PI / 2 + 0.4, 0, 0]));
+  addHeroDetails(body, { hood });
 
   // The aim rig: the arms, the guns and the flash turn together about the shoulder, yaw then pitch.
   // Its children are placed from the pivot (`at` takes a place in the body before its waist shift).
