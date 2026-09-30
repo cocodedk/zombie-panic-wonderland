@@ -1,8 +1,9 @@
 // The zombie's small refinements: a shadow behind each eye, claws on the hands, a dried stain on
-// the shirt, and a little variety in the skin and shirt colours. Each is a few shapes made in code.
+// the shirt, a rag that dangles from the hem, and a little variety in the skin and shirt colours.
+// Each is a few shapes made in code.
 
 import * as THREE from 'three';
-import { part, seeded } from './parts.js';
+import { group, part, seeded } from './parts.js';
 
 export const SOCKET = { size: [0.11, 0.075, 0.03], color: '#1a1512', y: 0.03, z: 0.172 };
 export const CLAW = { radius: 0.015, length: 0.09, sides: 3, color: '#2a2622', xs: [-0.035, 0, 0.035], y: -1.005, z: 0.02 };
@@ -12,8 +13,15 @@ export const TUFTS = { radius: 0.03, height: 0.12, sides: 4, color: '#2a241c', a
 
 // The optional bits, one flag each. The stage builds zombies (and their fading copies) with these;
 // `buildZombie` defaults every flag to off, so a model built without `extras` is the plain zombie.
-export const ZOMBIE_EXTRAS = { tufts: true, limp: true, flicker: true, bareFoot: true };
-export const NO_EXTRAS = { tufts: false, limp: false, flicker: false, bareFoot: false };
+export const ZOMBIE_EXTRAS = { tufts: true, limp: true, flicker: true, bareFoot: true, rag: true };
+export const NO_EXTRAS = { tufts: false, limp: false, flicker: false, bareFoot: false, rag: false };
+
+// The dangling rag: a strip of the shirt's cloth hung by its top from a pivot on the torso, which
+// sways by `sway` radians at most.
+export const RAG = { size: [0.05, 0.16, 0.012], pivot: [0.2, -0.02, 0.13], sway: 0.15 };
+
+// The pivot's rotation about z for the walk's own phase `s` (t × 3.2 + seed); 0 when `steady`.
+export const ragSway = (s, steady = false) => (steady ? 0 : RAG.sway * Math.sin(s * 1.3 + 1));
 
 // The zombie's limping side, from its seed: 0 the left leg, 1 the right (even ids left, odd right).
 export const limpSide = (seed) => Math.abs(Math.round(seed / 1.7) % 2);
@@ -53,8 +61,9 @@ export function legSwing(seed, limp) {
 }
 
 // Adds the sockets to the head (behind the eyes at `eyeXs`), the claws to each arm (they swing with
-// it) and the stain to the torso; then whatever `extras` switches on (hair tufts on the head).
-export function addDetails({ head, arms, torso }, eyeXs, extras = NO_EXTRAS) {
+// it) and the stain to the torso; then whatever `extras` switches on (hair tufts on the head, the rag
+// on the torso in the shirt's material). Returns the rag's pivot, or null without one.
+export function addDetails({ head, arms, torso, shirtMat }, eyeXs, extras = NO_EXTRAS) {
   const socket = new THREE.BoxGeometry(...SOCKET.size);
   head.add(...eyeXs.map((x) => part(socket, SOCKET.color, [x, SOCKET.y, SOCKET.z])));
   const claw = new THREE.ConeGeometry(CLAW.radius, CLAW.length, CLAW.sides);
@@ -68,6 +77,13 @@ export function addDetails({ head, arms, torso }, eyeXs, extras = NO_EXTRAS) {
       return mesh;
     }));
   }
+  if (!extras.rag) return null;
+  const strip = part(new THREE.BoxGeometry(...RAG.size), shirtMat, [0, -RAG.size[1] / 2, 0]);
+  strip.raycast = () => {}; // shots and aim pass through: the zombie is picked as today
+  const pivot = group(strip);
+  pivot.position.set(...RAG.pivot);
+  torso.add(pivot);
+  return pivot;
 }
 
 // `color` (a '#rrggbb' string) lighter (positive) or darker (negative) by `tint`, a fraction of its
