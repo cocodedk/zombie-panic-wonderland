@@ -57,8 +57,10 @@ Every new part (the knees, the elbows and the gear) ignores rays (`ignoreRays`),
 its geometry, so what a shot can hit on a zombie is exactly as today.
 
 `src/view/models/zombie-machine.js` exports `MACHINE` and a function `addMachine({ legs, arms, torso })` that
-adds changes 3, 4 and 6; `buildZombie` calls it once. `zombie.js` makes changes 1, 2 and 5 by using the steel
-and brass materials where it uses the skin and `pants` today.
+makes all six changes: it gives the existing arm cylinders, hands, leg cylinders and torn patches their new
+material (the meshes stay the same objects, in the same places among their siblings), and adds the knees,
+elbows and gear. It is called once per zombie, from `buildZombie` or from `addDetails` in `zombie-details.js`
+(which `buildZombie` already calls once), whichever keeps `zombie.js` within its size (see Files).
 
 ## Who gets it
 
@@ -86,7 +88,9 @@ no new sound and no new animation: the new parts are still and move with their l
 ## Files
 
 - `src/view/models/zombie-machine.js` (new), under 200 lines.
-- `src/view/models/zombie.js`: at most 6 lines longer than today (182), so under 200.
+- `src/view/models/zombie.js`: at most 183 lines (182 today). Four earlier tests cap it, the lowest at 183
+  (`test/zombie-limp.test.js` and `test/zombie-eye-flicker.test.js`); those caps stay as they are.
+- `src/view/models/zombie-details.js`: under 200 lines (108 today).
 
 ## The tests
 
@@ -111,4 +115,4 @@ number). It changes nothing else in them.
    skin and shirt keep their tint; `pants` still colours the pelvis.
 5. The walk, the windup, the twitch and the limp pose the zombie exactly as before.
 6. The stage's zombies and their fading copies on all three levels, and the Zombie King, have the new body.
-7. The new file is under 200 lines and `zombie.js` is at most 188 lines.
+7. The new file and `zombie-details.js` are under 200 lines and `zombie.js` is at most 183 lines.
