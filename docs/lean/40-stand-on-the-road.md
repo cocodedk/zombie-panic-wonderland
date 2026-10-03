@@ -35,11 +35,16 @@ zombies' machine details, which moves to 41.)
      and does not jump.
 2. `syncEntities` draws every enemy that is not a flyer at `(e.x, dropHeight(e, rule) + roadLift(e.z, level),
    e.z)`. A spider dropping onto the road lands on the bricks.
-3. The fading copy of a fallen enemy is drawn at `(f.x, f.y + roadLift(f.z, level), f.z)`, so it fades where its
-   enemy stood.
+3. The fading copy of a fallen enemy that is not a flyer (`isFlyer`, as `syncEntities` asks) is drawn at
+   `(f.x, f.y + roadLift(f.z, level), f.z)`, so it fades where its enemy stood. The fading copies of crows and
+   bats are not lifted: they are drawn where they are today.
 
-Only where things are drawn changes. The game's rules and state (every enemy's x, y and z, its speed, where it
-stops, what reaches the player, every hit and every distance) do not change; `get_state` answers as today.
+Only where things are drawn changes, and no file under `src/logic/` changes but the new `road.js`. The game's
+rules and state (every enemy's x, y and z, its speed, where it stops, what reaches the player, every distance)
+do not change, and `get_state` answers as today. The aim and the shots are raycast against the drawn meshes
+(`stage.aimAt`), so an enemy's hit area moves up with its drawn model, by the same lift: a shot hits a zombie on
+the road where the player sees it, as a shot hits a zombie where it is drawn today. Off the road the lift is 0,
+so nothing moves there.
 
 ## Who gets it
 
@@ -83,6 +88,8 @@ adding the lift; it changes nothing else in them.
    the road at y 0; a pumpkin monster where it appears and a boss at its stand are drawn at y 0; a spider
    dropping onto the road is drawn at its drop height plus the lift; with reduced motion, the fading copy of a
    zombie that fell on the road is drawn at its `f.y` plus 0.11.
-3. The flyers, pumpkins, crates, canisters and the hero are drawn where they are today.
-4. `get_state` and the game's state answer exactly as before for the same play.
+3. The flyers and their fading copies, the pumpkins, crates, canisters and the hero are drawn where they are
+   today.
+4. A ray aimed at a lifted zombie's drawn body hits it; the game's state and `get_state` are exactly as before for
+   the same steps of the game (the same inputs and the same hits).
 5. The file sizes in Files.
