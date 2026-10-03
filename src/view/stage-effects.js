@@ -3,6 +3,8 @@
 
 import * as THREE from 'three';
 import { STREAK, TRACER, SPARK } from '../logic/effects.js';
+import { isFlyer } from '../logic/game-shared.js';
+import { roadLift } from '../logic/road.js';
 import { flat } from './models/parts.js';
 import { span } from './stage-helpers.js';
 
@@ -75,7 +77,7 @@ export function createEffectsView(place, enemies) {
           model.traverse((m) => { if (m.material) m.material.transparent = true; });
           return model;
         });
-        obj.position.set(f.x, f.y, f.z);
+        obj.position.set(f.x, f.y + (isFlyer(f) ? 0 : roadLift(f.z, level)), f.z); // where its enemy stood
         obj.traverse((m) => { if (m.material) m.material.opacity = 1 - f.age / f.life; });
       }
     },
