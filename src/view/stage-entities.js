@@ -2,6 +2,7 @@
 // `place(id, make)` finds or makes the object for an id; `pickable` collects what the crosshair can hit.
 
 import { pumpkinAt, crowAt, isFlyer, CROW_CIRCLE, bossWindup, dropHeight } from '../logic/game.js';
+import { roadLift } from '../logic/road.js';
 import { buildThread, placeThread } from './stage-thread.js';
 import { crateAt, crateLeaving, shellAt } from '../logic/weapons.js';
 import { buildPumpkin, buildFlamingPumpkin, buildLaunchedPumpkin } from './models/pumpkin.js';
@@ -33,7 +34,7 @@ export function syncEntities(game, level, { place, pickable, enemies }) {
       continue;
     }
     const rule = e.kind === 'spider' ? level.enemies.spider.drop : null;
-    obj.position.set(e.x, dropHeight(e, rule), e.z);
+    obj.position.set(e.x, dropHeight(e, rule) + roadLift(e.z, level), e.z); // on the bricks, not in them
     if (e.drop) placeThread(place(`t${e.id}`, buildThread), e, rule); // not pickable: rays pass through
     const crawler = e.kind === 'zombie' || e.kind === 'spider' || e.kind === 'wolf'; // walks in, then turns toward the player
     const walking = e.kind === 'boss' ? e.z < level.boss.standZ : crawler;
