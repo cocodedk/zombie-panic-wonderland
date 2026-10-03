@@ -83,7 +83,8 @@ and halos; the King keeps his shirt, crown and the crown's glow at the windup.
 
 The head and all on it, the arms (shapes, colours, rest swing, windup, claws, elbows), the shirt, hem, sleeves,
 pelvis, stain, rag, feet and the bare foot, the limp's side and size, the twitch, the flicker, sizes, every rule,
-how fast a zombie moves over the ground, what a shot can hit on a standing zombie, the sounds and every other
+how fast a zombie moves over the ground, what a shot can hit on a standing zombie (but for the bigger front
+plate, which lies on the shirt's front, where a shot hits the shirt today), the sounds and every other
 model. Reduced motion stills the twitch, the flicker and the rag as today; the walk, with its knees and bob,
 moves under reduced motion as the walk does today.
 
@@ -116,7 +117,14 @@ only in these ways, and nothing else in them:
   `t × 4 + seed`;
 - where it expects `torso.rotation.z` to be `sin(s) × 0.12` (`test/refined-zombies.test.js`), it expects 0;
 - where it checks a `MACHINE` colour or the gear's radius, it uses the new value;
-- where it counts the children or meshes of a zombie, a leg or the torso, only that number.
+- where it counts the children or meshes of a zombie, a leg or the torso, only that number;
+- in `test/zombie-machine-keeps.test.js` (spec 38's proof that the existing parts were kept): where it checks
+  the existing meshes' geometry, scale, identity, sibling order and the set of meshes a ray can hit, it expects
+  the leg cylinder to be replaced by the two halves (the upper as the hip's first child, the knee group as its
+  second, the foot and knee ball the same mesh objects, now in the knee group) and the front patch to have the
+  scale (1.5, 1.5, 1); and where it checks that every added node ignores rays, the two leg halves are the
+  exception (they are hittable, as the cylinder they replace was), and the knee group is a group, not a mesh.
+  Every other assertion in it stays.
 
 ## Done when
 
@@ -124,7 +132,9 @@ only in these ways, and nothing else in them:
 
 1. The two leg halves with their sizes, places and colour; the knee group with its place, its three children
    and their places; a standing zombie's legs fill exactly the old cylinder's place, and the meshes a ray can
-   hit on a standing zombie have the same shapes and world places as before this spec.
+   hit on a standing zombie have the same shapes and world places as before this spec, with two exceptions:
+   each leg cylinder is replaced by its two halves, which together cover the same surface, and the front
+   patch is scaled (1.5, 1.5, 1) with its geometry, place and rotation unchanged.
 2. At several times and seeds, with `walk` 1, 0.5 and 0: the hips on the new beat, the knees' bend, the bob and
    a torso with no z tilt, with the formulas of changes 3 to 6, for an ordinary zombie, a limping one, a fast one
    and the Zombie King; the arms, head sway, rag sway, windup and twitch exactly as before.
