@@ -94,7 +94,13 @@ only in these ways, and nothing else in them:
 - in `test/zombie-bare-foot.test.js`, where it expects the bare foot in the skin's colour (with its tint), it
   expects the steel colour, untinted; its checks of which foot and of the other foot's shoe stay;
 - where it counts the children or meshes of a zombie, its torso, the rag's pivot, a leg or a knee group, or the
-  meshes that ignore rays (for example `test/fast-zombies-view.test.js`), only that number.
+  meshes that ignore rays (for example `test/fast-zombies-view.test.js`), only that number;
+- in `test/zombie-machine.test.js`, where it expects the bare foot in the skin's tinted colour, it expects the
+  steel colour, untinted;
+- in `test/zombie-bare-foot.test.js` and `test/zombie-dangling-rag.test.js`, where a test compares two models
+  part by part (shapes, places, rotations, colours) to prove nothing else changed, it leaves the new piston and
+  the plug out of that comparison (or compares them as the new parts they are); every other part is compared as
+  before.
 
 ## Done when
 
