@@ -87,7 +87,8 @@ describe('5. the model', () => {
     }
     const ignoring = [];
     model.traverse((m) => { if (m instanceof THREE.Mesh && Object.hasOwn(m, 'raycast')) ignoring.push(m); });
-    assert.deepEqual(ignoring, halos, 'only the halos ignore rays');
+    assert.equal(ignoring.length, halos.length + 5, 'the halos and the machine\'s 2 knees, 2 elbows and gear ignore rays');
+    for (const halo of halos) assert.ok(ignoring.includes(halo));
   });
 
   test('the shape, size, walk and twitch do not change', () => {

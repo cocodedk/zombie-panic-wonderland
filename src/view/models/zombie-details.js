@@ -4,6 +4,7 @@
 
 import * as THREE from 'three';
 import { group, ignoreRays, part, seeded } from './parts.js';
+import { addMachine } from './zombie-machine.js';
 
 export const SOCKET = { size: [0.11, 0.075, 0.03], color: '#1a1512', y: 0.03, z: 0.172 };
 export const CLAW = { radius: 0.015, length: 0.09, sides: 3, color: '#2a2622', xs: [-0.035, 0, 0.035], y: -1.005, z: 0.02 };
@@ -63,8 +64,9 @@ export function legSwing(seed, limp) {
 
 // Adds the sockets to the head (behind the eyes at `eyeXs`), the claws to each arm (they swing with
 // it) and the stain to the torso; then whatever `extras` switches on (hair tufts on the head, the rag
-// on the torso in the shirt's material). Returns the rag's pivot, or null without one.
-export function addDetails({ head, arms, torso, shirtMat }, eyeXs, extras = NO_EXTRAS) {
+// on the torso in the shirt's material); last the machine body (see zombie-machine.js).
+// Returns the rag's pivot, or null without one.
+export function addDetails({ head, legs, arms, torso, shirtMat }, eyeXs, extras = NO_EXTRAS) {
   const socket = new THREE.BoxGeometry(...SOCKET.size);
   head.add(...eyeXs.map((x) => part(socket, SOCKET.color, [x, SOCKET.y, SOCKET.z])));
   const claw = new THREE.ConeGeometry(CLAW.radius, CLAW.length, CLAW.sides);
@@ -74,11 +76,14 @@ export function addDetails({ head, arms, torso, shirtMat }, eyeXs, extras = NO_E
     const tuft = new THREE.ConeGeometry(TUFTS.radius, TUFTS.height, TUFTS.sides);
     head.add(...TUFTS.at.map((at, i) => ignoreRays(part(tuft, TUFTS.color, at, [0, 0, TUFTS.lean[i]]))));
   }
-  if (!extras.rag) return null;
-  const strip = ignoreRays(part(new THREE.BoxGeometry(...RAG.size), shirtMat, [0, -RAG.size[1] / 2, 0]));
-  const pivot = group(strip);
-  pivot.position.set(...RAG.pivot);
-  torso.add(pivot);
+  let pivot = null;
+  if (extras.rag) {
+    const strip = ignoreRays(part(new THREE.BoxGeometry(...RAG.size), shirtMat, [0, -RAG.size[1] / 2, 0]));
+    pivot = group(strip);
+    pivot.position.set(...RAG.pivot);
+    torso.add(pivot);
+  }
+  addMachine({ legs, arms, torso }); // last, so its new parts follow every existing child
   return pivot;
 }
 
