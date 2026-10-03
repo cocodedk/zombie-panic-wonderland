@@ -23,7 +23,9 @@ const MODELS = {
 };
 const legsOf = (m) => m.children.slice(0, 2);
 const patchesOf = (m) => m.userData.torso.children.filter((c) => ['0.14,0.12,0.02', '0.1,0.16,0.02'].includes(c.geometry?.params.join()));
-const gearOf = (m) => m.userData.torso.children.filter((c) => c.geometry?.params.join() === '0.045,0.045,0.02,8');
+const gearOf = (m) => m.userData.torso.children.filter((c) => c.geometry?.params.join() === '0.06,0.06,0.02,8');
+const kneeOf = (leg) => leg.children[1];
+const footOf = (leg) => kneeOf(leg).children[1];
 // The meshes a ray can meet: those that do not ignore rays.
 const hittable = (m) => {
   const found = [];
@@ -45,7 +47,7 @@ function assertMachine(model, label) {
 
 describe('1. the colours', () => {
   test('MACHINE has steel, dark steel and brass', () => {
-    assert.deepEqual(MACHINE, { steel: '#8c949e', darkSteel: '#34373d', brass: '#b8862e' });
+    assert.deepEqual(MACHINE, { steel: '#c4c0b6', darkSteel: '#34373d', brass: '#e0a838' });
   });
 
   for (const [name, build] of Object.entries(MODELS)) {
@@ -67,12 +69,12 @@ describe('2. the joints and the gear', () => {
     test(`${name}: two knees, two elbows and a gear`, () => {
       const model = build();
       for (const leg of legsOf(model)) {
-        const knee = leg.children[2];
+        const knee = kneeOf(leg).children[2];
         assert.deepEqual(knee.geometry.params, [0.13, 0]);
         assert.ok(knee.geometry instanceof THREE.IcosahedronGeometry);
         assert.equal(hex(knee.material.color), MACHINE.darkSteel);
-        assert.deepEqual(at(knee), [0, -0.4, 0]);
-        assert.equal(knee.parent, leg);
+        assert.deepEqual(at(knee), [0, 0, 0]);
+        assert.equal(knee.parent, kneeOf(leg));
       }
       for (const arm of model.userData.arms) {
         const elbow = arm.children.at(-1);
@@ -84,7 +86,7 @@ describe('2. the joints and the gear', () => {
       }
       const [gear] = gearOf(model);
       assert.ok(gear.geometry instanceof THREE.CylinderGeometry);
-      assert.deepEqual(gear.geometry.params, [0.045, 0.045, 0.02, 8]);
+      assert.deepEqual(gear.geometry.params, [0.06, 0.06, 0.02, 8]);
       assert.equal(hex(gear.material.color), MACHINE.darkSteel);
       assert.deepEqual(turn(gear), [Math.PI / 2, 0, 0]);
       assert.deepEqual(at(gear), [0.1, 0.36, 0.168]);
@@ -114,11 +116,12 @@ describe('3. everything else stays as it was', () => {
       assert.deepEqual(model.children[2].geometry.params, [0.42, 0.22, 0.26]);
       legsOf(model).forEach((leg, i) => {
         assert.deepEqual(at(leg), [[-0.13, 0.13][i], 0.84, 0]);
-        assert.deepEqual(leg.children[0].geometry.params, [0.1, 0.08, 0.8, 5]);
-        assert.deepEqual(at(leg.children[0]), [0, -0.4, 0]);
-        assert.deepEqual(leg.children[1].geometry.params, [0.16, 0.08, 0.26]);
-        assert.deepEqual(at(leg.children[1]), [0, -0.8, 0.05]);
-        assert.equal(leg.children.length, 3);
+        assert.deepEqual(leg.children[0].geometry.params, [0.1, 0.09, 0.4, 5]);
+        assert.deepEqual(at(leg.children[0]), [0, -0.2, 0]);
+        assert.deepEqual(kneeOf(leg).children[0].geometry.params, [0.09, 0.08, 0.4, 5]);
+        assert.deepEqual(footOf(leg).geometry.params, [0.16, 0.08, 0.26]);
+        assert.deepEqual(at(footOf(leg)), [0, -0.4, 0.05]);
+        assert.equal(leg.children.length, 2);
       });
       const { torso, arms } = model.userData;
       assert.deepEqual(torso.children[0].geometry.params, [0.5, 0.62, 0.3]);
@@ -137,12 +140,12 @@ describe('3. everything else stays as it was', () => {
 
     test(`${name}: the new parts ignore rays and the meshes a ray can hit are as before`, () => {
       const model = MODELS[name]();
-      const news = [...legsOf(model).map((l) => l.children[2]), ...model.userData.arms.map((a) => a.children.at(-1)), gearOf(model)[0]];
+      const news = [...legsOf(model).map((l) => kneeOf(l).children[2]), ...model.userData.arms.map((a) => a.children.at(-1)), gearOf(model)[0]];
       for (const part of news) assert.ok(Object.hasOwn(part, 'raycast'));
-      // 2 legs + 2 feet, pelvis, shirt, 4 hem cones, 2 patches, stain, head, 2 sockets, 2 eyes, jaw
-      // and 4 teeth, 2 sleeves, 2 arms, 2 hands and 6 claws: 35. The King's crown adds its own.
+      // 4 leg halves + 2 feet, pelvis, shirt, 4 hem cones, 2 patches, stain, head, 2 sockets, 2 eyes, jaw
+      // and 4 teeth, 2 sleeves, 2 arms, 2 hands and 6 claws: 37. The King's crown adds its own.
       const crown = name === 'king' ? hittable(model.userData.head.children.at(-1)).length : 0;
-      assert.equal(hittable(model).length, 35 + crown);
+      assert.equal(hittable(model).length, 37 + crown);
       for (const part of news) assert.ok(!hittable(model).includes(part));
     });
   }
@@ -153,7 +156,7 @@ describe('3. everything else stays as it was', () => {
     assert.equal(hex(head.children[0].material.color), '#7d9a6a');
     assert.equal(hex(torso.children[0].material.color), '#5b5270');
     assert.equal(hex(model.children[2].material.color), '#123456');
-    assert.equal(hex(legsOf(model)[0].children[1].material.color), '#2a2622');
+    assert.equal(hex(footOf(legsOf(model)[0]).material.color), '#2a2622');
     assert.equal(hex(arms[0].children[0].material.color), '#5b5270');
     assert.equal(hex(arms[0].children[3].material.color), '#2a2622');
     const stain = torso.children.find((c) => c.geometry?.params.join() === '0.16,0.14,0.02');
@@ -168,20 +171,19 @@ describe('3. everything else stays as it was', () => {
     const model = buildZombie({ tint: 0.05, seed: 0, extras: { bareFoot: true } });
     const skin = hex(model.userData.head.children[0].material.color);
     assert.notEqual(skin, '#7d9a6a');
-    assert.equal(hex(legsOf(model)[0].children[1].material.color), skin);
+    assert.equal(hex(footOf(legsOf(model)[0]).material.color), skin);
   });
 
   test('the walk, the windup and the limp pose the zombie as before', () => {
     const model = buildZombie({ seed: 1.7, extras: { limp: true } });
     model.userData.tick(1, { walk: 1, windup: 0 });
-    const s = 1 * 3.2 + 1.7;
-    const step = Math.sin(s) * 0.35;
+    const step = Math.sin(1 * 4 + 1.7) * 0.35;
     assert.ok(Math.abs(legsOf(model)[0].rotation.x - step) < 1e-9);
     assert.ok(Math.abs(legsOf(model)[1].rotation.x + step * 0.6) < 1e-9);
     model.userData.tick(1, { windup: 1 });
     const up = -(Math.PI / 2 + model.userData.torso.rotation.x);
     for (const arm of model.userData.arms) assert.ok(Math.abs(arm.rotation.x - up) < 1e-9);
-    for (const leg of legsOf(model)) assert.equal(leg.children.length, 3);
+    for (const leg of legsOf(model)) assert.equal(leg.children.length, 2);
   });
 });
 

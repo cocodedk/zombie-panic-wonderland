@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { flat, glow, glowing, ignoreRays, part, group, seeded } from './parts.js';
 import { FAST_ZOMBIE } from '../../logic/effects.js';
 import { addDetails, flickering, footColor, legSwing, ragSway, tinted, NO_EXTRAS } from './zombie-details.js';
+import { gait } from './zombie-machine.js';
 
 const TEETH = '#e8e0c8';
 
@@ -129,15 +130,12 @@ export function buildZombie({
     // twitch: false under reduced motion.
     tick(t, { walk = 1, windup = 0, twitch = true } = {}) {
       const s = t * 3.2 + seed;
-      const step = Math.sin(s) * 0.35 * walk;
-      legs[0].rotation.x = step * swing[0];
-      legs[1].rotation.x = -step * swing[1];
+      gait({ legs, torso, swing, walk }, t * 4 + seed);
       const up = -(Math.PI / 2 + torso.rotation.x); // level with the shoulders, the lean undone
       [0, 2].forEach((phase, i) => {
         const rest = -1.45 + Math.sin(s * 0.7 + phase) * 0.2;
         arms[i].rotation.x = rest + (up - rest) * windup;
       });
-      torso.rotation.z = Math.sin(s) * 0.12;
       head.rotation.z = 0.35 + Math.sin(s * 0.5) * 0.1;
       head.rotation.y = twitch ? twitchAt(t) : 0;
       flicker?.(t, !twitch);
