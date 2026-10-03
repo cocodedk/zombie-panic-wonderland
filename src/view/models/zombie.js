@@ -40,10 +40,10 @@ export function buildZombie({
   const skinMat = flat(tinted(skin, tint));
   const flags = { ...NO_EXTRAS, ...extras };
 
-  // Legs pivot at the hips; the limping side's foot is bare with `bareFoot`.
+  // Legs pivot at the hips; the limping side's foot is steel with `bareFoot`.
   const legGeo = new THREE.CylinderGeometry(0.1, 0.08, 0.8, 5);
   const legs = [-0.13, 0.13].map((x, i) => {
-    const foot = part(new THREE.BoxGeometry(0.16, 0.08, 0.26), footColor(i, seed, flags.bareFoot, skinMat), [0, -0.8, 0.05]);
+    const foot = part(new THREE.BoxGeometry(0.16, 0.08, 0.26), footColor(i, seed, flags.bareFoot), [0, -0.8, 0.05]);
     const hip = group(part(legGeo, pants, [0, -0.4, 0]), foot);
     hip.position.set(x, 0.84, 0);
     return hip;
@@ -102,7 +102,7 @@ export function buildZombie({
     return shoulder;
   });
 
-  const dangle = addDetails({ head, legs, arms, torso, shirtMat }, [-0.07, 0.07], flags); // the rag's pivot, if any
+  const dangle = addDetails({ head, legs, arms, torso, seed },[-0.07, 0.07], flags); // the rag's pivot, if any
   const swing = legSwing(seed, flags.limp); // how far each leg swings: a limp is one leg less
   const flicker = flags.flicker ? flickering(eyeMats, seed) : null; // the eyes' glow breathes
 

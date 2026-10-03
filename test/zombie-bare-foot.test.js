@@ -1,5 +1,6 @@
-// Spec 25: one bare foot. The foot of the limping side has the skin's colour instead of the shoe's,
-// behind the `bareFoot` flag of ZOMBIE_EXTRAS, on the model and on the stage, against test/fake-three.js.
+// Spec 25: one bare foot; since spec 41 a piston foot. The foot of the limping side has the steel colour
+// instead of the shoe's, behind the `bareFoot` flag of ZOMBIE_EXTRAS, on the model and on the stage,
+// against test/fake-three.js. The piston is in zombie-piston.test.js.
 
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
@@ -17,6 +18,7 @@ const { createStage } = await import('../src/view/stage.js');
 const THREE = await import('./fake-three.js');
 
 const SHOE = '#2a2622';
+const STEEL = '#c4c0b6';
 const SKIN = { ordinary: '#7d9a6a', fast: '#4a5c40' };
 const hex = (color) => `#${color.getHexString()}`;
 const lines = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8').split('\n').length - 1;
@@ -32,8 +34,8 @@ const stageFor = (game) => {
   };
 };
 const shownAs = (scene, e) => scene.children.find((c) => c.userData.entityId === e.id);
-// [left, right] colours with one bare foot on `side` in `skin`.
-const expected = (side, skin) => [0, 1].map((leg) => (leg === side ? skin : SHOE));
+// [left, right] colours with one bare foot on `side` in `steel`.
+const expected = (side, steel) => [0, 1].map((leg) => (leg === side ? steel : SHOE));
 const everything = (model) => {
   const all = [];
   model.traverse((m) => all.push([m.geometry?.params, m.material && hex(m.material.color), { ...m.position }, { ...m.rotation }, { ...m.scale }]));
@@ -55,23 +57,23 @@ describe('1. the bare foot on the model', () => {
         assert.deepEqual(shoes(buildZombie({ fast, seed, extras: {} })), [SHOE, SHOE]);
         assert.deepEqual(shoes(buildZombie({ fast, seed, extras: { bareFoot: false } })), [SHOE, SHOE]);
         const on = buildZombie({ fast, seed, extras: { bareFoot: true } });
-        assert.deepEqual(shoes(on), expected(side, SKIN[name]));
+        assert.deepEqual(shoes(on), expected(side, STEEL));
         assert.equal(skinOf(on), SKIN[name]);
       });
     }
 
-    test(`${name}: the bare foot has the skin's colour with its tint`, () => {
+    test(`${name}: the bare foot is steel, untinted, while the skin keeps its tint`, () => {
       for (const tint of [-0.06, -0.03, 0.02, 0.06]) {
         const model = buildZombie({ fast, seed: 1.7, tint, extras: { bareFoot: true } });
         assert.equal(skinOf(model), tinted(SKIN[name], tint));
-        assert.deepEqual(shoes(model), expected(1, tinted(SKIN[name], tint)));
+        assert.deepEqual(shoes(model), expected(1, STEEL));
       }
     });
   }
 
-  test('an explicit skin colour is followed too', () => {
+  test('an explicit skin colour does not change the steel foot', () => {
     const model = buildZombie({ skin: '#a0b0c0', seed: 3.4, extras: { bareFoot: true } });
-    assert.deepEqual(shoes(model), expected(0, '#a0b0c0'));
+    assert.deepEqual(shoes(model), expected(0, STEEL));
   });
 });
 
@@ -107,7 +109,9 @@ describe('3. nothing else changed', () => {
         plain.userData.tick(t, pose);
         bare.userData.tick(t, pose);
       }
-      const rest = everything(bare);
+      const piston = bare.children[limpSide(3.4)].children[1].children[3]; // a new part, left out of the comparison
+      const rest = [];
+      bare.traverse((m) => { if (m !== piston) rest.push(everything(m)[0]); });
       const before = everything(plain);
       assert.equal(rest.length, before.length);
       const differing = rest.map((row, i) => i).filter((i) => JSON.stringify(rest[i]) !== JSON.stringify(before[i]));
@@ -128,7 +132,7 @@ describe('4. on the stage', () => {
       assert.ok(zombies.some((z) => z.fast) && zombies.some((z) => !z.fast));
       for (const e of zombies) {
         const model = shownAs(scene, e);
-        assert.deepEqual(shoes(model), expected(e.id % 2, skinOf(model)));
+        assert.deepEqual(shoes(model), expected(e.id % 2, STEEL));
         assert.notEqual(skinOf(model), SHOE);
       }
     });
@@ -140,7 +144,7 @@ describe('4. on the stage', () => {
       for (const e of zombies) {
         kill(game, e);
         const fade = draw().children.filter((c) => c.name === 'fade').at(-1);
-        assert.deepEqual(shoes(fade), expected(e.id % 2, skinOf(fade)), `zombie ${e.id}`);
+        assert.deepEqual(shoes(fade), expected(e.id % 2, STEEL), `zombie ${e.id}`);
       }
     });
   }

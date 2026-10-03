@@ -4,11 +4,11 @@
 
 import * as THREE from 'three';
 import { group, ignoreRays, part, seeded } from './parts.js';
-import { addMachine } from './zombie-machine.js';
+import { addMachine, MACHINE } from './zombie-machine.js';
 
 export const SOCKET = { size: [0.11, 0.075, 0.03], color: '#1a1512', y: 0.03, z: 0.172 };
 export const CLAW = { radius: 0.015, length: 0.09, sides: 3, color: '#2a2622', xs: [-0.035, 0, 0.035], y: -1.005, z: 0.02 };
-export const STAIN = { size: [0.16, 0.14, 0.02], color: '#4a1f24', at: [-0.08, 0.2, 0.151], turn: 0.3 };
+export const STAIN = { size: [0.16, 0.14, 0.02], color: '#8a4a1e', at: [-0.08, 0.2, 0.151], turn: 0.3 };
 export const TINT_LIMIT = 0.06;
 export const TUFTS = { radius: 0.03, height: 0.12, sides: 4, color: '#2a241c', at: [[-0.07, 0.2, 0.0], [0.0, 0.22, -0.04], [0.08, 0.19, 0.02]], lean: [0.35, 0, -0.4] };
 
@@ -17,9 +17,14 @@ export const TUFTS = { radius: 0.03, height: 0.12, sides: 4, color: '#2a241c', a
 export const ZOMBIE_EXTRAS = { tufts: true, limp: true, flicker: true, bareFoot: true, rag: true };
 export const NO_EXTRAS = { tufts: false, limp: false, flicker: false, bareFoot: false, rag: false };
 
-// The dangling rag: a strip of the shirt's cloth hung by its top from a pivot on the torso, which
-// sways by `sway` radians at most.
-export const RAG = { size: [0.05, 0.16, 0.012], pivot: [0.2, -0.02, 0.13], sway: 0.15 };
+// The hanging cable: a cable hung by its top from a pivot on the torso, with a brass plug at its end.
+// The pivot sways by `sway` radians at most.
+export const RAG = { pivot: [0.2, -0.02, 0.13], sway: 0.15 };
+export const CABLE = { radius: 0.012, length: 0.16, sides: 5, color: '#1c1c1f', at: [0, -0.08, 0] };
+export const PLUG = { size: [0.03, 0.04, 0.03], at: [0, -0.18, 0] };
+
+// The piston behind the heel of the limping leg, in its knee group.
+export const PISTON = { radius: 0.025, length: 0.16, sides: 6, at: [0, -0.3, -0.115] };
 
 // The pivot's rotation about z for the walk's own phase `s` (t × 3.2 + seed); 0 when `steady`.
 export const ragSway = (s, steady = false) => (steady ? 0 : RAG.sway * Math.sin(s * 1.3 + 1));
@@ -27,9 +32,9 @@ export const ragSway = (s, steady = false) => (steady ? 0 : RAG.sway * Math.sin(
 // The zombie's limping side, from its seed: 0 the left leg, 1 the right (even ids left, odd right).
 export const limpSide = (seed) => Math.abs(Math.round(seed / 1.7) % 2);
 
-// The bare foot: the limping side's foot has no shoe, so its box takes the skin's material.
+// The piston foot: the limping side's foot has no shoe, so its box is steel.
 export const SHOE = '#2a2622';
-export const footColor = (leg, seed, bareFoot, skinMat) => (bareFoot && leg === limpSide(seed) ? skinMat : SHOE);
+export const footColor = (leg, seed, bareFoot) => (bareFoot && leg === limpSide(seed) ? MACHINE.steel : SHOE);
 
 // The eye flicker: the eyes' glow breathes between `low` and 1 of their base colour, once every
 // `period` seconds, shifted by the zombie's seed so a crowd does not flicker in step.
@@ -63,10 +68,10 @@ export function legSwing(seed, limp) {
 }
 
 // Adds the sockets to the head (behind the eyes at `eyeXs`), the claws to each arm (they swing with
-// it) and the stain to the torso; then whatever `extras` switches on (hair tufts on the head, the rag
-// on the torso in the shirt's material); last the machine body (see zombie-machine.js).
-// Returns the rag's pivot, or null without one.
-export function addDetails({ head, legs, arms, torso, shirtMat }, eyeXs, extras = NO_EXTRAS) {
+// it) and the rust patch to the torso; then whatever `extras` switches on (hair tufts on the head, the
+// cable on the torso); then the machine body (see zombie-machine.js) and, with `bareFoot`, the piston
+// on the limping leg's knee. Returns the cable's pivot, or null without one.
+export function addDetails({ head, legs, arms, torso, seed = 0 }, eyeXs, extras = NO_EXTRAS) {
   const socket = new THREE.BoxGeometry(...SOCKET.size);
   head.add(...eyeXs.map((x) => part(socket, SOCKET.color, [x, SOCKET.y, SOCKET.z])));
   const claw = new THREE.ConeGeometry(CLAW.radius, CLAW.length, CLAW.sides);
@@ -78,12 +83,19 @@ export function addDetails({ head, legs, arms, torso, shirtMat }, eyeXs, extras 
   }
   let pivot = null;
   if (extras.rag) {
-    const strip = ignoreRays(part(new THREE.BoxGeometry(...RAG.size), shirtMat, [0, -RAG.size[1] / 2, 0]));
-    pivot = group(strip);
+    const cable = new THREE.CylinderGeometry(CABLE.radius, CABLE.radius, CABLE.length, CABLE.sides);
+    pivot = group(
+      ignoreRays(part(cable, CABLE.color, CABLE.at)),
+      ignoreRays(part(new THREE.BoxGeometry(...PLUG.size), MACHINE.brass, PLUG.at)),
+    );
     pivot.position.set(...RAG.pivot);
     torso.add(pivot);
   }
   addMachine({ legs, arms, torso }); // last, so its new parts follow every existing child
+  if (extras.bareFoot) {
+    const rod = new THREE.CylinderGeometry(PISTON.radius, PISTON.radius, PISTON.length, PISTON.sides);
+    legs[limpSide(seed)].children[1].add(ignoreRays(part(rod, MACHINE.brass, PISTON.at)));
+  }
   return pivot;
 }
 

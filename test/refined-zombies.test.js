@@ -57,7 +57,7 @@ describe('1. the refinements', () => {
       }
       const [stain] = stainsOf(model);
       assert.equal(stainsOf(model).length, 1);
-      assert.equal(hex(stain.material.color), '#4a1f24');
+      assert.equal(hex(stain.material.color), '#8a4a1e');
       assert.deepEqual([stain.position.x, stain.position.y, stain.position.z], [-0.08, 0.2, 0.151]);
       assert.equal(stain.rotation.z, 0.3);
       assert.equal(stain.parent, model.userData.torso);

@@ -10,7 +10,7 @@ globalThis.window ??= { devicePixelRatio: 1, innerWidth: 800, innerHeight: 600, 
 const THREE = await import('./fake-three.js');
 const { buildZombie } = await import('../src/view/models/zombie.js');
 const { MACHINE } = await import('../src/view/models/zombie-machine.js');
-const { ZOMBIE_EXTRAS, legSwing, ragSway } = await import('../src/view/models/zombie-details.js');
+const { ZOMBIE_EXTRAS, legSwing, limpSide, ragSway } = await import('../src/view/models/zombie-details.js');
 const { buildZombieKing } = await import('../src/view/models/zombie.js');
 const { hex, at, close, legsOf, kneeOf, modelsOf, SEEDS, TIMES } = await import('./gait-helpers.js');
 
@@ -21,7 +21,7 @@ const ragOf = (m) => m.userData.torso.children.find((c) => c.position.x === 0.2 
 describe('1. the knee structure', () => {
   for (const [name, build] of Object.entries(MODELS)) {
     test(`${name}: an upper leg and a knee group, which holds the lower leg, the foot and the ball`, () => {
-      for (const leg of legsOf(build())) {
+      legsOf(build()).forEach((leg, i) => {
         assert.equal(leg.children.length, 2);
         const [upper, knee] = leg.children;
         assert.deepEqual(upper.geometry.params, [0.1, 0.09, 0.4, 5]);
@@ -30,7 +30,8 @@ describe('1. the knee structure', () => {
         assert.ok(knee instanceof THREE.Group);
         assert.equal(knee.name, 'knee');
         assert.deepEqual(at(knee), [0, -0.4, 0]);
-        assert.equal(knee.children.length, 3);
+        const piston = ['limping', 'fast'].includes(name) && i === limpSide(SEEDS[name]); // the piston is a fourth child
+        assert.equal(knee.children.length, piston ? 4 : 3);
         const [lower, foot, ball] = knee.children;
         assert.deepEqual(lower.geometry.params, [0.09, 0.08, 0.4, 5]);
         assert.deepEqual(at(lower), [0, -0.2, 0]);
@@ -40,7 +41,7 @@ describe('1. the knee structure', () => {
         assert.deepEqual(at(foot), [0, -0.4, 0.05]);
         assert.deepEqual(ball.geometry.params, [0.13, 0]);
         assert.deepEqual(at(ball), [0, 0, 0]);
-      }
+      });
     });
   }
 

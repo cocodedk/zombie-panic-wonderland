@@ -16,13 +16,15 @@ const { ZOMBIE_EXTRAS, NO_EXTRAS, tinted } = await import('../src/view/models/zo
 const { createStage } = await import('../src/view/stage.js');
 const THREE = await import('./fake-three.js');
 
-const SIZE = [0.05, 0.16, 0.012];
+const CABLE = [0.012, 0.012, 0.16, 5]; // spec 41: the strip is a cable and a brass plug
+const PLUG = [0.03, 0.04, 0.03];
 const PIVOT = [0.2, -0.02, 0.13];
 const hex = (color) => `#${color.getHexString()}`;
 const lines = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8').split('\n').length - 1;
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const pivotsOf = (model) => model.userData.torso.children.filter((c) => same(c.position.toArray?.() ?? [c.position.x, c.position.y, c.position.z], PIVOT));
-const stripOf = (pivot) => pivot.children[0];
+const at = (m) => [m.position.x, m.position.y, m.position.z];
+const turn = (m) => [m.rotation.x, m.rotation.y, m.rotation.z];
 const sway = (t, seed) => 0.15 * Math.sin((t * 3.2 + seed) * 1.3 + 1);
 const stageFor = (game) => {
   const stage = createStage({ appendChild() {} }, game.level);
@@ -55,30 +57,30 @@ describe('1. the rag on the model', () => {
       }
     });
 
-    test(`${name}: with the flag on the torso has one rag, as sized, placed and coloured`, () => {
+    test(`${name}: with the flag on the torso has one pivot, the cable then the brass plug, untinted`, () => {
       for (const tint of [0, -0.05, 0.04]) {
         const model = buildZombie({ fast, tint, extras: { rag: true } });
         const [pivot, ...more] = pivotsOf(model);
         assert.equal(more.length, 0);
         assert.equal(pivot.parent, model.userData.torso);
-        assert.equal(pivot.children.length, 1);
-        const strip = stripOf(pivot);
-        assert.deepEqual(strip.geometry.params, SIZE);
-        assert.deepEqual([strip.position.x, strip.position.y, strip.position.z], [0, -0.08, 0]);
-        assert.deepEqual([strip.rotation.x, strip.rotation.y, strip.rotation.z], [0, 0, 0]);
-        assert.equal(strip.material, model.userData.torso.children[0].material);
-        assert.equal(hex(strip.material.color), hex(model.userData.torso.children[0].material.color));
-        if (!fast) assert.equal(hex(strip.material.color), tinted('#5b5270', tint));
+        assert.equal(pivot.children.length, 2);
+        const [cable, plug] = pivot.children;
+        assert.deepEqual(cable.geometry.params, CABLE);
+        assert.deepEqual(at(cable), [0, -0.08, 0]);
+        assert.deepEqual(turn(cable), [0, 0, 0]);
+        assert.equal(hex(cable.material.color), '#1c1c1f');
+        assert.deepEqual(plug.geometry.params, PLUG);
+        assert.deepEqual(at(plug), [0, -0.18, 0]);
+        assert.deepEqual(turn(plug), [0, 0, 0]);
+        assert.equal(hex(plug.material.color), '#e0a838');
+        assert.ok(Math.abs(plug.position.y + PLUG[1] / 2 - (cable.position.y - CABLE[2] / 2)) < 1e-9, 'the plug\'s top is the cable\'s end');
       }
     });
   }
 
-  test('its strip uses the shirt\'s own colour', () => {
-    const model = buildZombie({ shirt: '#a0b0c0', extras: { rag: true } });
-    assert.equal(hex(stripOf(pivotsOf(model)[0]).material.color), '#a0b0c0');
-  });
-
-  test('the strip ignores rays, so the meshes a shot can meet are the plain zombie\'s', () => {
+  test('the cable and the plug ignore rays, so the meshes a shot can meet are the plain zombie\'s', () => {
+    const [cable, plug] = pivotsOf(buildZombie({ extras: { rag: true } }))[0].children;
+    assert.ok(Object.hasOwn(cable, 'raycast') && Object.hasOwn(plug, 'raycast'));
     const pickable = (model) => {
       const found = [];
       model.traverse((m) => { if (m.geometry && !Object.hasOwn(m, 'raycast')) found.push([m.geometry.params, { ...m.position }]); });
@@ -173,10 +175,10 @@ describe('4. it is part of the torso, and nothing else changed', () => {
         const [pivot] = pivotsOf(ragged);
         const rest = everything(ragged);
         const before = everything(plain);
-        const isRag = (m) => m === pivot || m === stripOf(pivot);
+        const isRag = (m) => m === pivot || pivot.children.includes(m);
         const kept = [];
         ragged.traverse((m) => { if (!isRag(m)) kept.push(everything(m)[0]); });
-        assert.equal(rest.length - kept.length, 2);
+        assert.equal(rest.length - kept.length, 3); // the pivot, the cable and the plug
         assert.deepEqual(kept, before);
       }
     });
