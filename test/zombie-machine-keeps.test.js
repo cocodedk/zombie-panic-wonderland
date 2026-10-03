@@ -36,7 +36,7 @@ function rig() {
     torso.add(shoulder);
     return shoulder;
   });
-  torso.add(part(new THREE.BoxGeometry(0.16, 0.14, 0.02), '#4a1f24', [-0.08, 0.2, 0.151], [0, 0, 0.3])); // the stain
+  torso.add(part(new THREE.BoxGeometry(0.16, 0.14, 0.02), '#8a4a1e', [-0.08, 0.2, 0.151], [0, 0, 0.3])); // the stain
   const rag = group(part(new THREE.BoxGeometry(0.05, 0.16, 0.012), '#5b5270')); // the rag's pivot, last
   torso.add(rag);
   const root = group(...legs, part(new THREE.BoxGeometry(0.42, 0.22, 0.26), '#3d3a35', [0, 0.86, 0]), torso);

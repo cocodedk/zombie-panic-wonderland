@@ -160,18 +160,18 @@ describe('3. everything else stays as it was', () => {
     assert.equal(hex(arms[0].children[0].material.color), '#5b5270');
     assert.equal(hex(arms[0].children[3].material.color), '#2a2622');
     const stain = torso.children.find((c) => c.geometry?.params.join() === '0.16,0.14,0.02');
-    assert.equal(hex(stain.material.color), '#4a1f24');
+    assert.equal(hex(stain.material.color), '#8a4a1e');
     const fast = buildZombie({ fast: true });
     assert.equal(hex(fast.userData.head.children[0].material.color), '#4a5c40');
     assert.equal(hex(fast.userData.torso.children[0].material.color), '#2e2a3a');
     assert.equal(hex(fast.children[2].material.color), '#22201d');
   });
 
-  test('the skin and shirt keep their tint, and the bare foot its skin', () => {
+  test('the skin and shirt keep their tint, and the piston foot is steel, untinted', () => {
     const model = buildZombie({ tint: 0.05, seed: 0, extras: { bareFoot: true } });
     const skin = hex(model.userData.head.children[0].material.color);
     assert.notEqual(skin, '#7d9a6a');
-    assert.equal(hex(footOf(legsOf(model)[0]).material.color), skin);
+    assert.equal(hex(footOf(legsOf(model)[0]).material.color), MACHINE.steel);
   });
 
   test('the walk, the windup and the limp pose the zombie as before', () => {
