@@ -115,12 +115,11 @@ describe('3. the tint', () => {
     assert.equal(tinted('#7d9a6a', 0), '#7d9a6a');
   });
 
-  test('the torn patches take the skin\'s tint', () => {
+  test('the torn patches are brass, and the tint does not touch them', () => {
     const model = buildZombie({ tint: 0.05 });
-    const skin = colours(model)[0];
     const patches = model.userData.torso.children.filter((m) => m.geometry?.params.join() === '0.14,0.12,0.02');
     assert.equal(patches.length, 1);
-    assert.equal(hex(patches[0].material.color), skin);
+    assert.equal(hex(patches[0].material.color), '#b8862e');
   });
 });
 

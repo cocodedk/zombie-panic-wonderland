@@ -101,7 +101,7 @@ export function buildZombie({
     return shoulder;
   });
 
-  const dangle = addDetails({ head, arms, torso, shirtMat }, [-0.07, 0.07], flags); // the rag's pivot, if any
+  const dangle = addDetails({ head, legs, arms, torso, shirtMat }, [-0.07, 0.07], flags); // the rag's pivot, if any
   const swing = legSwing(seed, flags.limp); // how far each leg swings: a limp is one leg less
   const flicker = flags.flicker ? flickering(eyeMats, seed) : null; // the eyes' glow breathes
 
