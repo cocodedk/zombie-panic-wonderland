@@ -20,7 +20,7 @@ const SHOE = '#2a2622';
 const SKIN = { ordinary: '#7d9a6a', fast: '#4a5c40' };
 const hex = (color) => `#${color.getHexString()}`;
 const lines = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8').split('\n').length - 1;
-const feetOf = (model) => model.children.slice(0, 2).map((leg) => leg.children[1]);
+const feetOf = (model) => model.children.slice(0, 2).map((leg) => leg.children[1].children[1]); // the foot is in the knee group
 const shoes = (model) => feetOf(model).map((foot) => hex(foot.material.color));
 const skinOf = (model) => hex(model.userData.head.children[0].material.color);
 const stageFor = (game) => {
@@ -115,7 +115,7 @@ describe('3. nothing else changed', () => {
       assert.deepEqual(rest[differing[0]].slice(0, 1), before[differing[0]].slice(0, 1));
       assert.deepEqual(rest[differing[0]].slice(2), before[differing[0]].slice(2));
       assert.deepEqual(feetOf(bare)[0].geometry.params, [0.16, 0.08, 0.26]);
-      assert.deepEqual([feetOf(bare)[0].position.x, feetOf(bare)[0].position.y, feetOf(bare)[0].position.z], [0, -0.8, 0.05]);
+      assert.deepEqual([feetOf(bare)[0].position.x, feetOf(bare)[0].position.y, feetOf(bare)[0].position.z], [0, -0.4, 0.05]);
     });
   }
 });

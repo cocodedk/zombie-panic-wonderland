@@ -57,21 +57,41 @@ const hittable = (root) => {
 
 test('addMachine keeps every existing node as it was, adds its parts after them, and the hittable set is the same', () => {
   const { root, legs, arms, torso } = rig();
+  const cylinders = legs.map((l) => l.children[0]);
+  const feet = legs.map((l) => l.children[1]);
+  const plate = torso.children[5];
   const before = snapshot(root);
   const hitBefore = hittable(root);
   addMachine({ legs, arms, torso });
   const after = snapshot(root);
 
   const added = after.filter((a) => !before.some((b) => b.o === a.o)).map((a) => a.o);
-  assert.equal(added.length, 5, 'two knees, two elbows and the gear');
+  assert.equal(added.length, 11, 'per leg an upper leg, a knee group, a lower leg and a ball; two elbows and the gear');
   for (const b of before) {
     const a = after.find((x) => x.o === b.o);
+    if (cylinders.includes(b.o)) {
+      assert.equal(a, undefined, 'a leg cylinder is replaced by the two halves');
+      continue;
+    }
     assert.ok(a, 'the same object is still in the tree');
     assert.equal(a.geometry, b.geometry);
-    assert.deepEqual([a.params, a.at, a.turn, a.scale], [b.params, b.at, b.turn, b.scale]);
+    const scale = b.o === plate ? { x: 1.5, y: 1.5, z: 1 } : b.scale;
+    const place = feet.includes(b.o) ? { x: 0, y: -0.4, z: 0.05 } : b.at; // the foot is now in the knee group
+    assert.deepEqual([a.params, a.at, a.turn, a.scale], [b.params, place, b.turn, scale]);
+    if (legs.includes(b.o)) continue; // the hips' children are checked below
     assert.deepEqual(a.kids.slice(0, b.kids.length), b.kids, 'the existing children keep their order');
     assert.ok(a.kids.slice(b.kids.length).every((k) => added.includes(k)), 'only new parts follow them');
   }
-  for (const n of added) assert.ok(Object.hasOwn(n, 'raycast') && n.raycast() === undefined, 'each new part ignores rays');
-  assert.deepEqual(hittable(root), hitBefore);
+  legs.forEach((leg, i) => {
+    const [upper, knee] = leg.children;
+    assert.equal(leg.children.length, 2);
+    assert.ok(!(knee instanceof THREE.Mesh), 'the knee is a group, not a mesh');
+    const [lower, foot, ball] = knee.children;
+    assert.equal(foot, feet[i], 'the same foot');
+    assert.ok(Object.hasOwn(ball, 'raycast'));
+    assert.deepEqual(hittable(leg), [upper, lower, foot], 'the two halves are hittable, as the cylinder was');
+  });
+  const halves = legs.flatMap((l) => [l.children[0], l.children[1].children[0]]);
+  for (const n of added.filter((n) => !halves.includes(n) && n instanceof THREE.Mesh)) assert.ok(Object.hasOwn(n, 'raycast') && n.raycast() === undefined, 'each other new mesh ignores rays');
+  assert.deepEqual(hittable(root).filter((m) => !halves.includes(m)), hitBefore.filter((m) => !cylinders.includes(m)));
 });

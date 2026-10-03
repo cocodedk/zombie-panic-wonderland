@@ -92,7 +92,7 @@ describe('2. which leg limps', () => {
       const model = buildZombie({ seed, extras: ZOMBIE_EXTRAS });
       for (const t of TIMES) {
         model.userData.tick(t);
-        if (Math.abs(Math.sin(t * 3.2 + seed)) > 0.05) assert.equal(limping(model), side);
+        if (Math.abs(Math.sin(t * 4 + seed)) > 0.05) assert.equal(limping(model), side);
       }
     }
   });

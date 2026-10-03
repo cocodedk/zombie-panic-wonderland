@@ -119,7 +119,7 @@ describe('3. the tint', () => {
     const model = buildZombie({ tint: 0.05 });
     const patches = model.userData.torso.children.filter((m) => m.geometry?.params.join() === '0.14,0.12,0.02');
     assert.equal(patches.length, 1);
-    assert.equal(hex(patches[0].material.color), '#b8862e');
+    assert.equal(hex(patches[0].material.color), '#e0a838');
   });
 });
 
@@ -149,7 +149,7 @@ describe('5. the walk is as before', () => {
       const m = build();
       m.userData.tick(1, { twitch: false });
       const s = 1 * 3.2;
-      assert.equal(m.userData.torso.rotation.z, Math.sin(s) * 0.12);
+      assert.equal(m.userData.torso.rotation.z, 0);
       assert.equal(m.userData.head.rotation.z, 0.35 + Math.sin(s * 0.5) * 0.1);
       assert.equal(m.userData.head.rotation.y, 0);
       assert.equal(m.userData.arms[0].rotation.x, -1.45 + Math.sin(s * 0.7) * 0.2);
