@@ -1,32 +1,41 @@
-// A black crow with a pointed beak, glinting eyes and wings that beat, facing +z.
+// A gunmetal crow with brass rods in its wings, a gear on its back, a pointed beak, glowing red eyes and
+// wings that beat, facing +z.
 
 import * as THREE from 'three';
-import { flat, glow, part, group } from './parts.js';
+import { flat, glow, part, group, ignoreRays } from './parts.js';
+import { glowEyes } from './glow-eyes.js';
 
-export function buildCrow({ feathers = '#16161c', beak = '#c99a2e', eyes = '#e8ecd1', size = 1, seed = 0 } = {}) {
+const BRASS = '#e0a838';
+
+export function buildCrow({ feathers = '#2c3038', beak = BRASS, eyes = '#ff3b1a', size = 1, seed = 0 } = {}) {
   const black = flat(feathers);
   const body = part(new THREE.OctahedronGeometry(0.28, 0), black);
   body.scale.set(0.8, 0.7, 1.4);
+  const eye = (x) => part(new THREE.BoxGeometry(0.04, 0.04, 0.02), glow(eyes), [x, 0.05, 0.1]);
+  const eyeMeshes = [eye(-0.08), eye(0.08)];
   const head = group(
     part(new THREE.IcosahedronGeometry(0.16, 0), black),
     part(new THREE.ConeGeometry(0.06, 0.24, 4), beak, [0, -0.02, 0.2], [Math.PI / 2, 0, 0]),
-    part(new THREE.BoxGeometry(0.04, 0.04, 0.02), glow(eyes), [-0.08, 0.05, 0.1]),
-    part(new THREE.BoxGeometry(0.04, 0.04, 0.02), glow(eyes), [0.08, 0.05, 0.1]),
+    ...eyeMeshes,
   );
+  glowEyes(head, eyeMeshes, eyes, 0.14);
   head.position.set(0, 0.1, 0.38);
+  const gear = ignoreRays(part(new THREE.CylinderGeometry(0.06, 0.06, 0.02, 8), '#34373d', [0, 0.205, 0]));
   const tail = part(new THREE.ConeGeometry(0.16, 0.4, 3), black, [0, 0, -0.45], [-Math.PI / 2, 0, 0]);
   tail.scale.y = 0.3;
 
   // Each wing pivots at the shoulder.
   const feather = new THREE.BoxGeometry(0.7, 0.04, 0.34);
   const wings = [-1, 1].map((side) => {
-    const shoulder = group(part(feather, black, [side * 0.38, 0, 0], [0, side * 0.2, 0]));
+    const vane = part(feather, black, [side * 0.38, 0, 0], [0, side * 0.2, 0]);
+    vane.add(ignoreRays(part(new THREE.BoxGeometry(0.7, 0.03, 0.03), BRASS, [0, 0.02, 0.16])));
+    const shoulder = group(vane);
     shoulder.add(part(new THREE.ConeGeometry(0.15, 0.4, 3), black, [side * 0.85, 0, -0.08], [0, 0, side * Math.PI / 2]));
     shoulder.position.x = side * 0.12;
     return shoulder;
   });
 
-  const root = group(body, head, tail, ...wings);
+  const root = group(body, head, tail, ...wings, gear);
   root.name = 'crow';
   root.scale.setScalar(size);
   root.userData = {
