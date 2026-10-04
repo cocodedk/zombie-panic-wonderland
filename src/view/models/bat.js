@@ -33,7 +33,7 @@ export function buildBat({ body = '#34373d', membrane = '#7a808a', eyes = '#ff2a
   const tooth = (x) => named(part(new THREE.ConeGeometry(0.012, 0.05, 3), fang, [x, -0.06, 0.06], [Math.PI, 0, 0]), 'fang');
   const eyeMeshes = [eye(-0.035), eye(0.035)];
   const head = named(group(part(new THREE.IcosahedronGeometry(0.08, 0), dark), ear(-0.05), ear(0.05), ...eyeMeshes, tooth(-0.025), tooth(0.025)), 'head');
-  glowEyes(head, eyeMeshes, eyes, 0.09);
+  glowEyes(head, eyeMeshes, eyes, 0.14);
   head.position.set(0, 0.05, 0.12);
 
   // Each wing pivots at the shoulder; a brass spar runs from it to each of the fan's edge points.

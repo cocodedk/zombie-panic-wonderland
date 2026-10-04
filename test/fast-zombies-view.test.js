@@ -64,14 +64,14 @@ describe('5. the model', () => {
     }
   });
 
-  test('each eye has a halo: a 0.16 square, additive #ff3b30 at 0.55, no depth, no rays, just in front and facing on', () => {
+  test('each eye has a halo: a 0.24 square, additive #ff3b30 at 0.55, no depth, no rays, just in front and facing on', () => {
     const model = buildZombie({ fast: true });
     const halos = halosOf(model);
     assert.equal(halos.length, 2);
     for (const eye of eyesOf(model)) {
       const halo = halos.find((h) => h.position.x === eye.position.x);
       assert.ok(halo, 'one at each eye');
-      assert.deepEqual(halo.geometry.params, [0.16, 0.16]);
+      assert.deepEqual(halo.geometry.params, [0.24, 0.24]);
       assert.ok(halo.geometry instanceof THREE.PlaneGeometry, 'a flat square');
       assert.equal(halo.material.blending, THREE.AdditiveBlending);
       assert.equal(halo.material.transparent, true);

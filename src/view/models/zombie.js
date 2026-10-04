@@ -6,6 +6,7 @@ import { flat, glow, glowing, ignoreRays, part, group, seeded } from './parts.js
 import { FAST_ZOMBIE } from '../../logic/effects.js';
 import { addDetails, flickering, footColor, legSwing, ragSway, tinted, NO_EXTRAS } from './zombie-details.js';
 import { gait } from './zombie-machine.js';
+import { glowTexture } from './glow-eyes.js';
 
 const TEETH = '#e8e0c8';
 
@@ -13,12 +14,12 @@ const TEETH = '#e8e0c8';
 // every `every` seconds at random.
 export const TWITCH = { every: [2, 4], angle: (20 * Math.PI) / 180, time: 0.15 };
 
-// A fast zombie's eyes: larger, a redder glow, and a soft halo (a flat square) in front of each.
-export const FAST_EYES = { color: '#ff2a1a', scale: 1.8, halo: { size: 0.16, color: '#ff3b30', opacity: 0.55, z: 0.03 } };
+// A fast zombie's eyes: larger, a redder glow, and a soft round halo in front of each.
+export const FAST_EYES = { color: '#ff2a1a', scale: 1.8, halo: { size: 0.24, color: '#ff3b30', opacity: 0.55, z: 0.03 } };
 
 function halo(x) {
   const { size, color, opacity, z } = FAST_EYES.halo;
-  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
+  const mat = new THREE.MeshBasicMaterial({ map: glowTexture(), color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
   const mesh = ignoreRays(part(new THREE.PlaneGeometry(size, size), mat, [x, 0.03, 0.18 + z]));
   mesh.name = 'halo';
   return mesh;

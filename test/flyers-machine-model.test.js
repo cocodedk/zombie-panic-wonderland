@@ -21,10 +21,10 @@ describe('the machine crow', () => {
     assert.deepEqual(colours(buildCrow({ feathers: '#111111', beak: '#222222', eyes: '#333333' })), ['#111111', '#222222', '#333333']);
   });
 
-  test('each eye has a red glow of 0.14, 0.01 in front of it, in the head', () => {
+  test('each eye has a red glow of 0.22, 0.01 in front of it, in the head', () => {
     assert.equal(eyes.length, 2);
-    checkGlows(head, eyes, '#ff3b1a', 0.14);
-    checkGlows(buildCrow({ eyes: '#00ff00' }).children[1], eyes, '#00ff00', 0.14);
+    checkGlows(head, eyes, '#ff3b1a', 0.22);
+    checkGlows(buildCrow({ eyes: '#00ff00' }).children[1], eyes, '#00ff00', 0.22);
   });
 
   test('a brass rod on each wing feather, turning with it', () => {
