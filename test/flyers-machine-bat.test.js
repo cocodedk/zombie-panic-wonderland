@@ -19,9 +19,9 @@ describe('the machine bat', () => {
     assert.deepEqual(colours(buildBat({ body: '#111111', membrane: '#222222', eyes: '#333333', fang: '#444444' })).filter((_, i) => i !== 2), ['#111111', '#222222', '#333333', '#444444']);
   });
 
-  test('each eye has a red glow of 0.09, 0.01 in front of it, in the head', () => {
-    checkGlows(head, named(bat, 'eye'), '#ff2a1a', 0.09);
-    checkGlows(named(buildBat({ eyes: '#00ff00' }), 'head')[0], named(bat, 'eye'), '#00ff00', 0.09);
+  test('each eye has a red glow of 0.14, 0.01 in front of it, in the head', () => {
+    checkGlows(head, named(bat, 'eye'), '#ff2a1a', 0.14);
+    checkGlows(named(buildBat({ eyes: '#00ff00' }), 'head')[0], named(bat, 'eye'), '#00ff00', 0.14);
   });
 
   test('three brass spars in each wing, from the shoulder to the fan edge', () => {

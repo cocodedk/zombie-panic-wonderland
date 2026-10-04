@@ -30,7 +30,7 @@ function checkCrow(crow) {
   assert.equal(hex(crow.children[1].children[1]), '#e0a838');
   const glows = all(crow, (o) => o instanceof THREE.Sprite);
   assert.equal(glows.length, 2);
-  assert.ok(glows.every((g) => hex(g) === '#ff3b1a' && g.scale.x === 0.14));
+  assert.ok(glows.every((g) => hex(g) === '#ff3b1a' && g.scale.x === 0.22));
   assert.equal(all(crow, (o) => o.geometry instanceof THREE.CylinderGeometry).length, 1, 'the gear');
 }
 
@@ -46,7 +46,7 @@ function checkBat(bat) {
   assert.equal(all(bat, (o) => o.name === 'spar').length, 6);
   const glows = all(bat, (o) => o instanceof THREE.Sprite);
   assert.equal(glows.length, 2);
-  assert.ok(glows.every((g) => hex(g) === '#ff2a1a' && g.scale.x === 0.09));
+  assert.ok(glows.every((g) => hex(g) === '#ff2a1a' && g.scale.x === 0.14));
 }
 
 for (const [name, level] of [['2', level2], ['3', level3]]) {

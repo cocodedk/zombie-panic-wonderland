@@ -18,7 +18,7 @@ export function buildCrow({ feathers = '#2c3038', beak = BRASS, eyes = '#ff3b1a'
     part(new THREE.ConeGeometry(0.06, 0.24, 4), beak, [0, -0.02, 0.2], [Math.PI / 2, 0, 0]),
     ...eyeMeshes,
   );
-  glowEyes(head, eyeMeshes, eyes, 0.14);
+  glowEyes(head, eyeMeshes, eyes, 0.22);
   head.position.set(0, 0.1, 0.38);
   const gear = ignoreRays(part(new THREE.CylinderGeometry(0.06, 0.06, 0.02, 8), '#34373d', [0, 0.205, 0]));
   const tail = part(new THREE.ConeGeometry(0.16, 0.4, 3), black, [0, 0, -0.45], [-Math.PI / 2, 0, 0]);

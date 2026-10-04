@@ -64,8 +64,14 @@ export const SRGBColorSpace = 'srgb';
 export const canvases = [];
 function fakeCanvas() {
   const ctx = {
-    font: '', fills: [], texts: [], globalAlpha: 1,
+    font: '', fills: [], texts: [], gradients: [], fillRects: [], globalAlpha: 1,
     beginPath() {}, arc() {}, stroke() {}, strokeText() {},
+    createRadialGradient(...circle) {
+      const gradient = { circle, stops: [], addColorStop(offset, color) { this.stops.push([offset, color]); } };
+      this.gradients.push(gradient);
+      return gradient;
+    },
+    fillRect(...rect) { this.fillRects.push({ rect, style: this.fillStyle }); },
     fill() { this.fills.push({ style: this.fillStyle, alpha: this.globalAlpha }); },
     measureText(text) { return { width: text.length * 0.6 * Number(/(\d+(\.\d+)?)px/.exec(this.font)[1]) }; },
     fillText(text) { this.texts.push({ text, style: this.fillStyle, font: this.font, width: this.measureText(text).width }); },
