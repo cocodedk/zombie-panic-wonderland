@@ -21,7 +21,7 @@ describe('4. the model', () => {
   test('a small body, an icosahedron of radius 0.12, and a head in front of it', () => {
     assert.ok(one('body').geometry instanceof THREE.IcosahedronGeometry);
     assert.deepEqual(one('body').geometry.params, [0.12, 0]);
-    assert.equal(hex(one('body').material.color), '#2b1b3a');
+    assert.equal(hex(one('body').material.color), '#34373d');
     assert.equal(one('body').material.flatShading, true);
     assert.ok(one('head').position.z > 0, 'facing +z');
     assert.equal(bat.name, 'bat');
@@ -33,7 +33,7 @@ describe('4. the model', () => {
     for (const e of ears) {
       assert.ok(e.geometry instanceof THREE.ConeGeometry);
       assert.deepEqual(e.geometry.params.slice(0, 2), [0.03, 0.08]);
-      assert.equal(hex(e.material.color), '#2b1b3a');
+      assert.equal(hex(e.material.color), '#e0a838');
       assert.ok(e.position.y > 0.05, 'on top of the head');
     }
     const eyes = named(bat, 'eye');
@@ -68,7 +68,7 @@ describe('4. the model', () => {
       assert.ok(Math.max(...ys) - Math.min(...ys) > 0.3, 'a fan seen from the front, not edge-on');
       assert.ok(Math.max(...xs) >= 0.45 && Math.max(...xs) <= 0.55, `${Math.max(...xs)} long`);
       assert.ok(xs.every((x) => x >= 0), 'out from the shoulder');
-      assert.equal(hex(fan.material.color), '#5a3f6b');
+      assert.equal(hex(fan.material.color), '#7a808a');
       assert.equal(fan.material.side, THREE.DoubleSide);
     }
   });
